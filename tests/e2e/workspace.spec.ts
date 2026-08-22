@@ -39,7 +39,13 @@ test('mobile uses edit and preview navigation', async ({ page }, testInfo) => {
 test('preview renders once and remains stable while idle', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium')
   const errors: string[] = []
+  let templateRequests = 0
+  let fontRequests = 0
   page.on('pageerror', (error) => errors.push(error.message))
+  page.on('request', (request) => {
+    if (request.url().includes('/templates/en.pdf')) templateRequests += 1
+    if (request.url().includes('/fonts/NotoSansArabic-Regular.woff')) fontRequests += 1
+  })
   await page.goto('/')
   const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
   await expect.poll(async () => canvas.evaluate((element) => {
@@ -48,8 +54,10 @@ test('preview renders once and remains stable while idle', async ({ page }, test
     const pixels = node.getContext('2d')?.getImageData(0, 0, Math.min(40, node.width), Math.min(40, node.height)).data
     return Boolean(pixels && Array.from(pixels).some((value, index) => index % 4 !== 3 && value < 245))
   }), { timeout: 20_000 }).toBe(true)
-  await page.waitForTimeout(1_500)
+  await page.waitForTimeout(3_000)
   expect(errors).toEqual([])
+  expect(templateRequests).toBe(1)
+  expect(fontRequests).toBe(1)
 })
 
 test('interface language picker exposes every readable locale', async ({ page }, testInfo) => {

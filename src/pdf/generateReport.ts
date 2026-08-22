@@ -19,6 +19,9 @@ export const availableLocalizedTemplates: Locale[] = ['en']
 
 export interface GeneratedReport { bytes: Uint8Array; usedTemplate: Locale; usedFallback: boolean }
 
+const templateRequests = new Map<Locale, Promise<ArrayBuffer>>()
+let arabicFontRequest: Promise<ArrayBuffer | undefined> | undefined
+
 function alignX(box: FieldBox, width: number): number {
   if (box.alignment === 'center') return box.x + (box.width - width) / 2
   if (box.alignment === 'right') return box.x + box.width - width
@@ -60,9 +63,28 @@ function treatmentLabel(row: TreatmentRow, t: ReturnType<typeof i18n.getFixedT>)
 async function loadTemplate(locale: Locale): Promise<{ bytes: ArrayBuffer; usedTemplate: Locale; usedFallback: boolean }> {
   const supported = availableLocalizedTemplates.includes(locale)
   const usedTemplate = supported ? locale : 'en'
-  const response = await fetch(`./templates/${usedTemplate}.pdf`)
-  if (!response.ok) throw new Error(`Could not load PDF template: ${response.status}`)
-  return { bytes: await response.arrayBuffer(), usedTemplate, usedFallback: !supported }
+  let request = templateRequests.get(usedTemplate)
+  if (!request) {
+    request = fetch(`./templates/${usedTemplate}.pdf`).then((response) => {
+      if (!response.ok) throw new Error(`Could not load PDF template: ${response.status}`)
+      return response.arrayBuffer()
+    }).catch((error) => {
+      templateRequests.delete(usedTemplate)
+      throw error
+    })
+    templateRequests.set(usedTemplate, request)
+  }
+  return { bytes: await request, usedTemplate, usedFallback: !supported }
+}
+
+async function loadArabicFont(): Promise<ArrayBuffer | undefined> {
+  arabicFontRequest ??= fetch('./fonts/NotoSansArabic-Regular.woff')
+    .then((response) => response.ok ? response.arrayBuffer() : undefined)
+    .catch((error) => {
+      arabicFontRequest = undefined
+      throw error
+    })
+  return arabicFontRequest
 }
 
 async function drawTreatmentRows(pdf: PDFDocument, page: PDFPage, rows: TreatmentRow[], boxes: typeof pdfCoordinates.page2.firstVisit.rows, font: PDFFont, report: ReportData): Promise<void> {
@@ -88,8 +110,8 @@ export async function generateReport(report: ReportData): Promise<GeneratedRepor
   const pdf = await PDFDocument.load(template.bytes)
   pdf.registerFontkit(fontkit)
   // Embed the release-blocking Arabic typeface even though browser shaping is used for connected glyphs.
-  const arabicFontResponse = await fetch('./fonts/NotoSansArabic-Regular.woff')
-  if (arabicFontResponse.ok) await pdf.embedFont(await arabicFontResponse.arrayBuffer(), { subset: true })
+  const arabicFontBytes = await loadArabicFont()
+  if (arabicFontBytes) await pdf.embedFont(arabicFontBytes, { subset: true })
   const regular = await pdf.embedFont(StandardFonts.TimesRoman)
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold)
   const [page1, page2] = pdf.getPages()

@@ -9,13 +9,14 @@ export function usePdfPreview(report: ReportData, delay = 400) {
   const [error, setError] = useState<Error>()
   const [usedFallback, setUsedFallback] = useState(false)
   const generation = useRef(0)
+  const reportSnapshot = JSON.stringify(report)
 
   const run = useCallback(async () => {
     const current = ++generation.current
     setIsGenerating(true)
     setError(undefined)
     try {
-      const result = await generateReport(report)
+      const result = await generateReport(JSON.parse(reportSnapshot) as ReportData)
       if (current !== generation.current) return
       const nextBytes = new Uint8Array(result.bytes)
       const nextUrl = URL.createObjectURL(new Blob([nextBytes], { type: 'application/pdf' }))
@@ -30,7 +31,7 @@ export function usePdfPreview(report: ReportData, delay = 400) {
     } finally {
       if (current === generation.current) setIsGenerating(false)
     }
-  }, [report])
+  }, [reportSnapshot])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => void run(), delay)
