@@ -12,6 +12,7 @@
 html { background: #f5f2ed; }
 body { margin: 0; min-width: 320px; min-height: 100vh; font-family: Inter, 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif; }
 button, input, select { font: inherit; }
+.interface-language-select option { background: #fff; color: #2f2b2c; }
 [dir='rtl'] input[type='tel'], [dir='rtl'] input[type='number'], [dir='rtl'] input[type='date'] { direction: ltr; text-align: right; }
 @media (prefers-reduced-motion: no-preference) {
   button { transition: transform 140ms ease, background-color 140ms ease, color 140ms ease; }

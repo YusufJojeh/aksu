@@ -36,6 +36,35 @@ test('mobile uses edit and preview navigation', async ({ page }, testInfo) => {
   await expect(page.getByRole('region', { name: 'PDF preview' })).toBeVisible()
 })
 
+test('preview renders once and remains stable while idle', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium')
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.goto('/')
+  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  await expect.poll(async () => canvas.evaluate((element) => {
+    const node = element as HTMLCanvasElement
+    if (!node.width || !node.height) return false
+    const pixels = node.getContext('2d')?.getImageData(0, 0, Math.min(40, node.width), Math.min(40, node.height)).data
+    return Boolean(pixels && Array.from(pixels).some((value, index) => index % 4 !== 3 && value < 245))
+  }), { timeout: 20_000 }).toBe(true)
+  await page.waitForTimeout(1_500)
+  expect(errors).toEqual([])
+})
+
+test('interface language picker exposes every readable locale', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium')
+  await page.goto('/')
+  const picker = page.getByLabel('Interface language')
+  await expect(picker.locator('option')).toHaveCount(9)
+  const contrast = await picker.locator('option').first().evaluate((option) => {
+    const style = getComputedStyle(option)
+    return { color: style.color, background: style.backgroundColor }
+  })
+  expect(contrast.color).not.toBe(contrast.background)
+  await expect(picker).toHaveCSS('width', '144px')
+})
+
 test('generates representative English and French reports', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium')
   await page.goto('/')

@@ -15,25 +15,42 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
   useEffect(() => {
     if (!url || !canvas.current) return
     let cancelled = false
+    let renderTask: pdfjs.RenderTask | undefined
+    let documentProxy: pdfjs.PDFDocumentProxy | undefined
+    const loadingTask = pdfjs.getDocument({ url })
     const render = async () => {
-      const document = await pdfjs.getDocument({ url }).promise
-      if (cancelled) return
-      setPages(document.numPages)
-      const selected = await document.getPage(Math.min(page, document.numPages))
-      const base = selected.getViewport({ scale: 1 })
-      const available = Math.min(1.35, ((canvas.current?.parentElement?.clientWidth ?? 600) - 32) / base.width)
-      const viewport = selected.getViewport({ scale: Math.max(0.55, available) * window.devicePixelRatio })
-      const element = canvas.current
-      if (!element || cancelled) return
-      element.width = viewport.width
-      element.height = viewport.height
-      element.style.width = `${viewport.width / window.devicePixelRatio}px`
-      element.style.height = `${viewport.height / window.devicePixelRatio}px`
-      const context = element.getContext('2d')
-      if (context) await selected.render({ canvas: element, canvasContext: context, viewport }).promise
+      try {
+        documentProxy = await loadingTask.promise
+        if (cancelled) return
+        setPages(documentProxy.numPages)
+        const selected = await documentProxy.getPage(Math.min(page, documentProxy.numPages))
+        const base = selected.getViewport({ scale: 1 })
+        const available = Math.min(1.35, ((canvas.current?.parentElement?.clientWidth ?? 600) - 32) / base.width)
+        const viewport = selected.getViewport({ scale: Math.max(0.55, available) * window.devicePixelRatio })
+        const scratch = document.createElement('canvas')
+        scratch.width = viewport.width
+        scratch.height = viewport.height
+        const scratchContext = scratch.getContext('2d')
+        if (!scratchContext || cancelled) return
+        renderTask = selected.render({ canvas: scratch, canvasContext: scratchContext, viewport })
+        await renderTask.promise
+        const element = canvas.current
+        if (!element || cancelled) return
+        element.width = viewport.width
+        element.height = viewport.height
+        element.style.width = `${viewport.width / window.devicePixelRatio}px`
+        element.style.height = `${viewport.height / window.devicePixelRatio}px`
+        element.getContext('2d')?.drawImage(scratch, 0, 0)
+      } catch (caught) {
+        if (!cancelled && !(caught instanceof Error && caught.name === 'RenderingCancelledException')) throw caught
+      }
     }
     void render()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      renderTask?.cancel()
+      void loadingTask.destroy()
+    }
   }, [page, url])
 
   if (error) return <div className="grid min-h-[420px] place-items-center p-8 text-center text-red-800"><div><FileWarning className="mx-auto mb-3" /><p className="font-semibold">{t('status.error')}</p><p className="mt-1 max-w-md text-xs opacity-80">{error.message}</p></div></div>

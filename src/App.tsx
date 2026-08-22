@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Download, FileText, Languages, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { FormProvider, useForm, type Resolver } from 'react-hook-form'
+import { FormProvider, useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { createDefaultReport, locales, reportSchema, type Locale, type ReportData } from './domain/report'
 import { isRtl } from './lib/locale'
@@ -19,7 +19,7 @@ export default function App() {
   const [dialog, setDialog] = useState<'reset' | 'clear'>()
   const defaults = useMemo(() => createDefaultReport(), [])
   const form = useForm<ReportData>({ defaultValues: defaults, resolver: zodResolver(reportSchema) as Resolver<ReportData>, mode: 'onBlur' })
-  const report = form.watch()
+  const report = useWatch({ control: form.control }) as ReportData
   const preview = usePdfPreview(report)
 
   const changeInterfaceLanguage = (locale: Locale) => {
@@ -47,7 +47,7 @@ export default function App() {
     <header className="border-b border-stone-300 bg-ink text-white">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-7">
         <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-full border border-gold/70 text-gold"><FileText size={20} /></span><div><h1 className="text-lg font-bold tracking-tight">{t('app.title')}</h1><p className="text-xs text-stone-300">{t('app.subtitle')}</p></div></div>
-        <label className="flex items-center gap-2 text-xs font-semibold text-stone-200"><Languages size={16} /><span className="sr-only sm:not-sr-only">{t('fields.interfaceLanguage')}</span><Select className="h-9 min-w-32 border-stone-600 bg-stone-800 text-white" value={interfaceLocale} onChange={(event) => changeInterfaceLanguage(event.target.value as Locale)}>{locales.map((locale) => <option key={locale} value={locale}>{t(`languages.${locale}`)}</option>)}</Select></label>
+        <label className="flex items-center gap-2 text-xs font-semibold text-stone-200"><Languages size={16} /><span className="sr-only sm:not-sr-only">{t('fields.interfaceLanguage')}</span><Select className="interface-language-select h-9 !w-36 border-stone-600 !bg-stone-800 !text-white" value={interfaceLocale} onChange={(event) => changeInterfaceLanguage(event.target.value as Locale)}>{locales.map((locale) => <option key={locale} value={locale}>{t(`languages.${locale}`)}</option>)}</Select></label>
       </div>
     </header>
     <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs font-medium text-amber-950"><ShieldCheck className="me-2 inline" size={15} />{t('app.privacy')}</div>
