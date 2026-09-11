@@ -7,7 +7,6 @@ import { createDefaultReport, locales, reportSchema, type Locale, type ReportDat
 import { isRtl } from './lib/locale'
 import { reportFilename } from './lib/filename'
 import { usePdfPreview } from './hooks/usePdfPreview'
-import { generateReport } from './pdf/generateReport'
 import { ReportForm } from './components/ReportForm'
 import { PdfPreview } from './components/PdfPreview'
 import { Button, ConfirmDialog, Select, Tabs, TabsList, TabsTrigger } from './components/ui'
@@ -31,8 +30,8 @@ export default function App() {
 
   const download = async () => {
     if (!await form.trigger()) return
-    const result = await generateReport(report)
-    const url = URL.createObjectURL(new Blob([result.bytes], { type: 'application/pdf' }))
+    if (!preview.blob) return
+    const url = URL.createObjectURL(preview.blob)
     const anchor = document.createElement('a')
     anchor.href = url
     anchor.download = reportFilename(report.patient.name, report.patient.reportDate, report.document.locale)
@@ -56,13 +55,13 @@ export default function App() {
     <main className="mx-auto grid max-w-[1800px] lg:h-[calc(100vh-137px)] lg:grid-cols-[minmax(520px,45%)_1fr]">
       <FormProvider {...form}>
         <section className={`${mobilePanel === 'preview' ? 'hidden' : 'block'} overflow-y-auto border-e border-stone-300 bg-white lg:block`} aria-label={t('actions.showEditor')}><form onSubmit={(event) => event.preventDefault()}><ReportForm /></form></section>
-        <section className={`${mobilePanel === 'edit' ? 'hidden' : 'block'} min-w-0 overflow-y-auto bg-stone-200 lg:block`} aria-label={t('sections.pdfPreview')}><PdfPreview url={preview.url} loading={preview.isGenerating} error={preview.error} /></section>
+        <section className={`${mobilePanel === 'edit' ? 'hidden' : 'block'} paper-texture min-w-0 overflow-y-auto bg-stone-200 lg:block`} aria-label={t('sections.pdfPreview')}><PdfPreview url={preview.url} loading={preview.isGenerating} error={preview.error} /></section>
       </FormProvider>
     </main>
     <footer className="sticky bottom-0 z-30 border-t border-stone-300 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgb(0_0_0/8%)] backdrop-blur sm:px-7">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-2">
-        <div className="flex gap-2"><Button className="border border-stone-300 bg-white text-ink hover:bg-stone-100" onClick={() => setDialog('reset')}><RotateCcw size={16} />{t('actions.reset')}</Button><Button className="border border-stone-300 bg-white text-ink hover:bg-stone-100" onClick={() => setDialog('clear')}><Trash2 size={16} /><span className="hidden sm:inline">{t('actions.clear')}</span></Button></div>
-        <div className="flex gap-2"><Button className="border border-ink bg-white text-ink hover:bg-stone-100" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button className="bg-ink text-white hover:bg-stone-700" disabled={preview.isGenerating} onClick={() => void download()}><Download size={16} />{t('actions.download')}</Button></div>
+        <div className="flex gap-2"><Button variant="outline" onClick={() => setDialog('reset')}><RotateCcw size={16} />{t('actions.reset')}</Button><Button variant="outline" onClick={() => setDialog('clear')}><Trash2 size={16} /><span className="hidden sm:inline">{t('actions.clear')}</span></Button></div>
+        <div className="flex gap-2"><Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={preview.isGenerating || !preview.blob} onClick={() => void download()}><Download size={16} />{t('actions.download')}</Button></div>
       </div>
     </footer>
     <ConfirmDialog open={dialog === 'reset'} onOpenChange={(open) => !open && setDialog(undefined)} title={t('dialog.resetTitle')} body={t('dialog.resetBody')} confirmLabel={t('actions.confirm')} cancelLabel={t('actions.cancel')} onConfirm={reset} />

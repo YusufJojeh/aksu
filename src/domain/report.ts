@@ -38,7 +38,7 @@ export const treatmentRowSchema = z.object({
   duration: z.string().max(40).optional(),
 })
 
-export const reportSchema = z.object({
+const reportObjectSchema = z.object({
   patient: z.object({
     reportDate: z.string().min(1, 'validation.required'),
     name: z.string().trim().min(1, 'validation.required').max(120),
@@ -57,17 +57,35 @@ export const reportSchema = z.object({
     discountPercentage: moneyInput.pipe(z.number().min(0).max(100)).optional(),
     discountedFinalPrice: moneyInput.pipe(z.number().min(0).max(10_000_000)).optional(),
     discountExpiryDate: z.string().optional(),
-  }).superRefine((visit, ctx) => {
-    if (!visit.discountEnabled) return
-    if (!visit.discountExpiryDate) ctx.addIssue({ code: 'custom', path: ['discountExpiryDate'], message: 'validation.required' })
-    if (visit.discountMode === 'manual_final_price' && visit.discountedFinalPrice === undefined) {
-      ctx.addIssue({ code: 'custom', path: ['discountedFinalPrice'], message: 'validation.required' })
-    }
-    if (visit.discountMode === 'percentage' && visit.discountPercentage === undefined) {
-      ctx.addIssue({ code: 'custom', path: ['discountPercentage'], message: 'validation.required' })
-    }
   }),
   secondVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7) }),
+})
+
+// Gates the Download action: every field a publishable document requires must be present.
+export const reportSchema = reportObjectSchema.superRefine((report, ctx) => {
+  const visit = report.firstVisit
+  if (!visit.discountEnabled) return
+  if (report.document.locale !== 'ar' && !visit.discountExpiryDate) {
+    ctx.addIssue({ code: 'custom', path: ['firstVisit', 'discountExpiryDate'], message: 'validation.required' })
+  }
+  if (visit.discountMode === 'manual_final_price' && visit.discountedFinalPrice === undefined) {
+    ctx.addIssue({ code: 'custom', path: ['firstVisit', 'discountedFinalPrice'], message: 'validation.required' })
+  }
+  if (visit.discountMode === 'percentage' && visit.discountPercentage === undefined) {
+    ctx.addIssue({ code: 'custom', path: ['firstVisit', 'discountPercentage'], message: 'validation.required' })
+  }
+})
+
+// Gates nothing: used to render a live preview from incomplete, in-progress form data.
+// Fields a publishable document requires (name, phone, ...) fall back to blank/zero
+// instead of failing, so the preview always has something to show, even on an empty form.
+export const draftReportSchema = reportObjectSchema.extend({
+  patient: z.object({
+    reportDate: z.string().catch(''),
+    name: z.string().trim().max(120).catch(''),
+    age: z.coerce.number().int().min(0).max(120).catch(0),
+    phone: z.string().trim().max(30).catch(''),
+  }),
 })
 
 export type TreatmentRow = z.infer<typeof treatmentRowSchema>
@@ -88,22 +106,22 @@ const row = (id: string, treatmentKey: string, overrides: Partial<TreatmentRow> 
 
 export function createDefaultReport(): ReportData {
   return {
-    patient: { reportDate: new Date().toISOString().slice(0, 10), name: '', age: 34, phone: '' },
+    patient: { reportDate: new Date().toISOString().slice(0, 10), name: '', age: 0, phone: '' },
     document: { locale: 'en', currency: 'GBP' },
     assessment: Object.fromEntries(assessmentKeys.map((key) => [key, false])) as Record<AssessmentKey, boolean>,
     firstVisit: {
       treatmentRows: [
-        row('fv-1', 'gingivectomy', { quantity: 1, unitPrice: 215 }),
-        row('fv-2', 'emaxVeneers', { quality: 'Ivoclar - German', quantity: 20, unitPrice: 171 }),
-        row('fv-3', 'zirconiumCrowns', { quality: 'Ivoclar - German', quantity: 2, unitPrice: 100 }),
+        row('fv-1', 'gingivectomy'),
+        row('fv-2', 'emaxVeneers'),
+        row('fv-3', 'zirconiumCrowns'),
         row('fv-4', 'nightGuard'),
-        row('fv-5', 'gumTreatment', { quantity: 1, unitPrice: 129 }),
-        row('fv-6', 'rootCanals', { quantity: 2, unitPrice: 65 }),
-        row('fv-7', 'hotelVipTransfer', { quality: '4 Stars', included: true, duration: '7 nights / 8 days' }),
+        row('fv-5', 'gumTreatment'),
+        row('fv-6', 'rootCanals'),
+        row('fv-7', 'hotelVipTransfer'),
       ],
-      discountEnabled: true,
+      discountEnabled: false,
       discountMode: 'manual_final_price',
-      discountedFinalPrice: 3774,
+      discountedFinalPrice: 0,
       discountPercentage: 0,
       discountExpiryDate: '',
     },

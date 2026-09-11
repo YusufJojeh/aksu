@@ -8,5 +8,5 @@ export function sanitizeFilenamePart(value: string): string {
 export function reportFilename(name: string, date: string, locale: Locale): string {
   const safeName = sanitizeFilenamePart(name) || 'Patient'
   const safeDate = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Date().toISOString().slice(0, 10)
-  return `Treatment_Plan_${safeName}_${safeDate}_${locale.toUpperCase()}.pdf`
+  return `Doctor-Aksu-Treatment-Plan_${safeName}_${safeDate}_${locale.toUpperCase()}.pdf`
 }

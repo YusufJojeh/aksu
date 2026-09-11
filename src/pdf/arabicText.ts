@@ -34,6 +34,9 @@ export async function drawBrowserShapedText(pdf: PDFDocument, page: PDFPage, tex
     fontSize -= 0.5
     context.font = `${fontSize}px TreatmentArabic, Arial, sans-serif`
   }
+  if (context.measureText(text).width > box.width - 2) {
+    throw new Error(`Text does not fit the calibrated PDF field: ${text.slice(0, 32)}`)
+  }
   const x = box.alignment === 'center' ? box.width / 2 : box.alignment === 'left' ? 1 : box.width - 1
   context.fillText(text, x, box.height / 2)
   const png = await pdf.embedPng(canvas.toDataURL('image/png'))

@@ -57,13 +57,13 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
 
   return <div className="relative flex min-h-[420px] flex-col items-center">
     <div className="sticky top-0 z-10 flex w-full items-center justify-center gap-3 border-b border-stone-300/70 bg-stone-200/95 p-2 backdrop-blur">
-      <Button aria-label="Previous page" className="size-9 min-h-9 bg-white p-0 text-ink shadow-sm" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}><ChevronLeft size={17} /></Button>
-      <span className="min-w-28 text-center text-xs font-semibold text-stone-600">{t('status.page', { current: page, total: pages })}</span>
-      <Button aria-label="Next page" className="size-9 min-h-9 bg-white p-0 text-ink shadow-sm" disabled={page >= pages} onClick={() => setPage((value) => value + 1)}><ChevronRight size={17} /></Button>
+      <Button aria-label="Previous page" variant="icon" size="icon" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}><ChevronLeft size={17} /></Button>
+      <span className="flex min-w-28 items-center justify-center gap-1.5 text-center text-xs font-semibold text-stone-600">{t('status.page', { current: page, total: pages })}{loading && url && <LoaderCircle aria-hidden size={12} className="animate-spin text-gold" />}</span>
+      <Button aria-label="Next page" variant="icon" size="icon" disabled={page >= pages} onClick={() => setPage((value) => value + 1)}><ChevronRight size={17} /></Button>
     </div>
     <div className="w-full overflow-auto p-4 text-center">
       <canvas ref={canvas} className="mx-auto bg-white shadow-paper" aria-label={t('sections.pdfPreview')} />
     </div>
-    {loading && <div className="absolute inset-0 z-20 grid place-items-center bg-stone-100/65 backdrop-blur-[1px]"><div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink shadow-lg"><LoaderCircle className="me-2 inline animate-spin" size={17} />{t('status.generating')}</div></div>}
+    {loading && !url && <div className="absolute inset-0 z-20 grid place-items-center bg-stone-100/65 backdrop-blur-[1px]"><div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink shadow-lg"><LoaderCircle className="me-2 inline animate-spin" size={17} />{t('status.generating')}</div></div>}
   </div>
 }

@@ -14,6 +14,16 @@ export function formatMoneyMinor(minor: number, currency: Currency, locale: Loca
   }).format(minor / 100)
 }
 
+export function formatDocumentMoneyMinor(minor: number, currency: Currency, locale: Locale): string {
+  const amount = new Intl.NumberFormat('en-GB', {
+    minimumFractionDigits: minor % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(minor / 100)
+  if (locale === 'ar' && currency === 'EUR') return `${amount} يورو`
+  const symbols: Record<Currency, string> = { GBP: '£', EUR: '€', USD: '$', TRY: '₺' }
+  return `${symbols[currency]}${amount}`
+}
+
 export function formatReportDate(value: string, locale: Locale): string {
   if (!value) return ''
   if (locale === 'ar') {

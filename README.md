@@ -15,7 +15,7 @@ The production bundle is written to `dist/`. The development-only coordinate map
 
 ## How it works
 
-React Hook Form and Zod produce a typed `ReportData` model. Financial functions calculate deterministic minor-unit totals. `pdf-lib` loads `public/templates/en.pdf`, clears calibrated dynamic regions, and overlays patient, assessment, treatment, total, and discount values. PDF.js renders the generated Blob URL in the workspace. Arabic uses an embedded Noto Sans Arabic font and browser canvas shaping before the shaped text is embedded as PNG assets.
+React Hook Form and Zod produce a validated `ReportData` model. Shared minor-unit functions calculate row, visit, and discounted totals. `pdf-lib` selects the locale template and writes only dynamic fields. PDF.js previews the generated Blob, and download reuses that exact Blob. Arabic text is shaped by the browser with the bundled Noto Sans Arabic font; only the shaped dynamic glyph runs are embedded as transparent high-resolution images, never whole PDF pages.
 
 ## Languages and templates
 
@@ -29,7 +29,9 @@ To add a language:
 4. Add the locale to `availableLocalizedTemplates` in `src/pdf/generateReport.ts`.
 5. Calibrate longer translated fields in `/dev/pdf-mapper` and add visual tests.
 
-Only the supplied English artwork is bundled. Until clinic-approved localized artwork is added, localized documents use the English template with a visible warning while dynamic treatment and patient content uses the selected document language. This is intentional: unreviewed machine translation is not presented as pixel-perfect artwork.
+English and Arabic artwork are bundled. `public/templates/ar.pdf` is the sanitized clinic-supplied five-page Arabic template and does not fall back to English. Other document locales continue to use the English artwork with a visible warning. Selecting Arabic defaults document currency to EUR without coupling document language to interface language.
+
+The Arabic source was flat and contained sample patient/treatment data. `scripts/sanitize_arabic_template.py` removes those text objects and sample selection/underline vectors once, then writes a clean reusable template. Runtime generation never performs sanitization or hides old text with rectangles. See `PDF_FIELD_MAP.md` for the removal regions, assessment semantics, and recalibration workflow.
 
 ## Clinic configuration
 

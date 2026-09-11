@@ -5,7 +5,6 @@ test('English PDF page remains aligned with A4 template', async ({ page }, testI
   await page.goto('/')
   await page.getByLabel('Patient name').fill('A very long patient name for layout verification Adrian Jacek')
   await page.getByLabel('Phone').fill('+44 7985 747921')
-  await page.getByLabel('Discount expiry date').fill('2026-09-10')
   const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
   await expect(canvas).toBeVisible({ timeout: 20_000 })
   await expect(canvas).toHaveScreenshot('english-page-1.png', { maxDiffPixelRatio: 0.02 })

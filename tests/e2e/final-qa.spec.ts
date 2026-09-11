@@ -4,7 +4,9 @@ import path from 'node:path'
 import { PDFDocument } from 'pdf-lib'
 
 const live = process.env.QA_MODE === 'live'
-const target = live ? 'https://dist-ten-eta-38.vercel.app' : '/'
+const target = live
+  ? (process.env.LIVE_BASE_URL ?? 'https://dist-ten-eta-38.vercel.app')
+  : '/'
 const artifactDir = path.join(process.cwd(), 'qa-artifacts')
 
 async function assertPdf(file: string) {
@@ -46,9 +48,11 @@ async function fillProductionReport(page: import('@playwright/test').Page) {
     if (index !== 6) await page.locator(`[name="firstVisit.treatmentRows.${index}.unitPrice"]`).fill(String(expected[index]![1]))
   }
   await expect(page.getByTestId('firstVisit-total')).toContainText('4,094')
+  await page.getByLabel('Apply discount').check()
   await page.locator('[name="firstVisit.discountedFinalPrice"]').fill('3774')
   await page.locator('[name="firstVisit.discountExpiryDate"]').fill('2026-09-10')
   await page.locator('[name="firstVisit.treatmentRows.6.quality"]').fill('4 Stars')
+  await page.getByText('Included', { exact: true }).nth(6).click()
   await page.locator('[name="firstVisit.treatmentRows.6.duration"]').fill('7 nights / 8 days')
   await page.locator('[name="secondVisit.treatmentRows.0.customTreatment"]').fill('Second visit gum review')
   await page.locator('[name="secondVisit.treatmentRows.0.quality"]').fill('Clinical review and healing assessment')
@@ -150,7 +154,6 @@ test('final mobile QA', async ({ page }, testInfo) => {
   await expect(page.getByRole('tab', { name: 'Edit' })).toBeVisible()
   await page.locator('[name="patient.name"]').fill('John Production Test')
   await page.locator('[name="patient.phone"]').fill('+44 7700 900123')
-  await page.locator('[name="firstVisit.discountExpiryDate"]').fill('2026-09-10')
   await page.getByRole('tab', { name: 'Preview' }).click()
   await expect(page.getByRole('region', { name: 'PDF preview' })).toBeVisible()
   await expect(page.locator('footer button').last()).toBeVisible()

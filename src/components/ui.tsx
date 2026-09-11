@@ -1,12 +1,25 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
+import { Check } from 'lucide-react'
 import type { ButtonHTMLAttributes, InputHTMLAttributes, SelectHTMLAttributes } from 'react'
 import { clsx } from 'clsx'
 
 const cn = (...values: Array<string | false | null | undefined>) => clsx(values)
 
-export function Button({ className, type = 'button', ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
-  return <button type={type} className={cn('inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:pointer-events-none disabled:opacity-50', className)} {...props} />
+const buttonVariants = {
+  primary: 'bg-ink text-white hover:bg-stone-700',
+  outline: 'border border-stone-300 bg-white text-ink hover:bg-stone-100',
+  danger: 'bg-red-700 text-white hover:bg-red-800',
+  icon: 'bg-white text-ink shadow-sm hover:bg-stone-100',
+} as const
+
+const buttonSizes = {
+  default: 'min-h-10 px-4',
+  icon: 'size-9 min-h-9 p-0',
+} as const
+
+export function Button({ className, type = 'button', variant = 'outline', size = 'default', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof buttonVariants; size?: keyof typeof buttonSizes }) {
+  return <button type={type} className={cn('inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:pointer-events-none disabled:opacity-50', buttonVariants[variant], buttonSizes[size], className)} {...props} />
 }
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
@@ -15,6 +28,17 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return <select className={cn('h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none focus:border-gold focus:ring-2 focus:ring-gold/20', className)} {...props} />
+}
+
+export function Checkbox({ label, className, ...props }: { label?: React.ReactNode; className?: string } & Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
+  return <label className={cn('inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm', className)}>
+    <span className="relative inline-flex size-5 shrink-0">
+      <input type="checkbox" className="peer sr-only" {...props} />
+      <span aria-hidden className="absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2" />
+      <Check aria-hidden size={13} strokeWidth={3} className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition peer-checked:opacity-100" />
+    </span>
+    {label}
+  </label>
 }
 
 export function Field({ label, error, children, className }: { label: string; error?: string; children: React.ReactNode; className?: string }) {
@@ -33,8 +57,8 @@ export function ConfirmDialog({ open, onOpenChange, title, body, confirmLabel, c
         <DialogPrimitive.Title className="text-lg font-bold text-ink">{title}</DialogPrimitive.Title>
         <DialogPrimitive.Description className="mt-2 text-sm leading-6 text-stone-600">{body}</DialogPrimitive.Description>
         <div className="mt-6 flex justify-end gap-2">
-          <DialogPrimitive.Close asChild><Button className="border border-stone-300 bg-white text-ink hover:bg-stone-100">{cancelLabel}</Button></DialogPrimitive.Close>
-          <Button className="bg-red-700 text-white hover:bg-red-800" onClick={() => { onConfirm(); onOpenChange(false) }}>{confirmLabel}</Button>
+          <DialogPrimitive.Close asChild><Button variant="outline">{cancelLabel}</Button></DialogPrimitive.Close>
+          <Button variant="danger" onClick={() => { onConfirm(); onOpenChange(false) }}>{confirmLabel}</Button>
         </div>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
