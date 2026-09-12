@@ -8,14 +8,16 @@ import type { ClinicId } from '../clinics/types'
 import { createDefaultReport, locales, reportSchema, type Locale, type ReportData } from '../domain/report'
 import { isRtl } from '../lib/locale'
 import { reportFilename } from '../lib/filename'
+import { submitReport } from '../lib/reportSubmission'
 import { usePdfPreview } from '../hooks/usePdfPreview'
 import { AksuReportForm } from './AksuReportForm'
 import { MbReportForm } from './MbReportForm'
 import { PdfPreview } from './PdfPreview'
 import { Button, ConfirmDialog, Select, Tabs, TabsList, TabsTrigger } from './ui'
 
-export function ClinicWorkspace({ clinicId, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
+export function ClinicWorkspace({ clinicId, employeeName, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
   clinicId: ClinicId
+  employeeName: string
   interfaceLocale: Locale
   onInterfaceLocaleChange: (locale: Locale) => void
   onSwitchClinic: () => void
@@ -32,13 +34,14 @@ export function ClinicWorkspace({ clinicId, interfaceLocale, onInterfaceLocaleCh
 
   const download = async () => {
     if (!await form.trigger()) return
-    if (!preview.blob) return
+    if (!preview.blob || !preview.bytes) return
     const url = URL.createObjectURL(preview.blob)
     const anchor = document.createElement('a')
     anchor.href = url
     anchor.download = reportFilename(clinicId, report.patient.name, report.patient.reportDate, report.document.locale)
     anchor.click()
     window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+    submitReport({ employeeName, clinicId, locale: report.document.locale, patientName: report.patient.name, bytes: preview.bytes })
   }
 
   const reset = () => form.reset(createDefaultReport(clinicId))
