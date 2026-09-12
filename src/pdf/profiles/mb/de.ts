@@ -12,8 +12,14 @@ import type { MbPdfCoordinates } from './types'
 // visually. Keeping every box clear of that boundary lets fitTextToBox's own shrink-to-fit take
 // over for long values instead of letting them silently bleed into the photo.
 //
-// TODO(calibration): the oral-health circle marks and treatment-plan table cells below are still
-// placeholder positions pending real calibration.
+// Oral-health circle marks and treatment-plan table cells below are calibrated against the real
+// template artwork: checkbox squares and table gridlines were measured directly from the rendered
+// PDF pixels (render at scale=3, pixel-scan for gridline/checkbox bounding boxes, convert back to
+// PDF points). Unlike en.ts/fr.ts, the two treatment tables here do NOT share one column layout:
+// the second table's outer border and all 5 column dividers measure a uniform 6pt further left
+// than the first table's (18px at the render scale, confirmed identical across every divider and
+// both outer borders — a real quirk of this artwork, not measurement noise), so firstVisit and
+// secondVisit each get their own row-builder with independently measured column positions.
 //
 // ANOMALY (source artwork, not a bug — do not "fix"): the German template's treatment-table
 // header row is mistranslated/reordered relative to EN/FR. EN/FR read
@@ -24,12 +30,20 @@ import type { MbPdfCoordinates } from './types'
 // the same PHYSICAL column positions as en.ts/fr.ts (col 2 = quality/material, col 3 = quantity),
 // matching what each column visually contains in every other locale, not what the German label
 // happens to say.
-const treatmentRow = (y: number) => ({
-  treatment: box(48, y, 142, 18, 11),
-  quality: box(192, y, 81, 18, 9, 'center' as const),
-  quantity: box(275, y, 60, 18, 10, 'center' as const),
-  unitPrice: box(337, y, 112, 18, 10, 'center' as const),
-  total: box(451, y, 100, 18, 10, 'center' as const),
+const firstVisitRow = (y: number) => ({
+  treatment: box(34, y, 190, 18, 11),
+  quality: box(236, y, 86, 18, 9, 'center' as const),
+  quantity: box(334, y, 62, 18, 10, 'center' as const),
+  unitPrice: box(407, y, 63, 18, 10, 'center' as const),
+  total: box(482, y, 77, 18, 10, 'center' as const),
+})
+
+const secondVisitRow = (y: number) => ({
+  treatment: box(28, y, 190, 18, 11),
+  quality: box(230, y, 86, 18, 9, 'center' as const),
+  quantity: box(328, y, 68, 18, 10, 'center' as const),
+  unitPrice: box(408, y, 56, 18, 10, 'center' as const),
+  total: box(476, y, 77, 18, 10, 'center' as const),
 })
 
 export const deMbPdfCoordinates: MbPdfCoordinates = {
@@ -42,18 +56,18 @@ export const deMbPdfCoordinates: MbPdfCoordinates = {
   },
   oralHealth: {
     currentCondition: {
-      missingTeeth: { x: 60, y: 700 }, looseTeeth: { x: 60, y: 670 }, gumInfectionOrDisease: { x: 60, y: 640 },
-      crowdedOrCrookedTeeth: { x: 60, y: 610 }, toothDecayOrBrokenTeeth: { x: 60, y: 580 }, teethGrindingOrClenching: { x: 60, y: 550 },
-      biteOrJawProblems: { x: 60, y: 520 }, aestheticToothDefects: { x: 60, y: 490 },
+      missingTeeth: { x: 50, y: 670.9 }, looseTeeth: { x: 50, y: 639.1 }, gumInfectionOrDisease: { x: 50, y: 610.4 },
+      crowdedOrCrookedTeeth: { x: 50, y: 583.7 }, toothDecayOrBrokenTeeth: { x: 50, y: 554.6 }, teethGrindingOrClenching: { x: 50, y: 523.7 },
+      biteOrJawProblems: { x: 50, y: 491.9 }, aestheticToothDefects: { x: 50, y: 462.6 },
     },
     recommendedTreatments: {
-      dentalImplants: { x: 420, y: 430 }, dentalFillings: { x: 420, y: 400 }, zirconiaCrowns: { x: 420, y: 370 },
-      emaxVeneers: { x: 420, y: 340 }, boneGrafting: { x: 420, y: 310 }, sinusLift: { x: 420, y: 280 },
-      deepCleaning: { x: 420, y: 250 }, rootCanalTreatment: { x: 420, y: 220 },
+      dentalImplants: { x: 297.3, y: 337.2 }, dentalFillings: { x: 297.3, y: 305.6 }, zirconiaCrowns: { x: 297.3, y: 276.6 },
+      emaxVeneers: { x: 297.3, y: 247.2 }, boneGrafting: { x: 297.3, y: 218.1 }, sinusLift: { x: 297.3, y: 186.1 },
+      deepCleaning: { x: 297.3, y: 156.9 }, rootCanalTreatment: { x: 297.3, y: 127.6 },
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: [560, 530, 500, 470, 440, 410].map(treatmentRow), total: box(451, 590, 100, 22, 14, 'center') },
-    secondVisit: { rows: [300, 270, 240, 210, 180, 150].map(treatmentRow), total: box(451, 330, 100, 22, 14, 'center') },
+    firstVisit: { rows: [640.6, 613.4, 586.1, 559.1, 532.1, 505.1].map(firstVisitRow), total: box(321, 452, 230, 22, 14, 'center') },
+    secondVisit: { rows: [320.3, 292.9, 265.9, 238.9, 211.8, 184.8].map(secondVisitRow), total: box(315, 132, 230, 22, 14, 'center') },
   },
 }
