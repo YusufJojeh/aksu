@@ -57,9 +57,9 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
 
   return <div className="relative flex min-h-[420px] flex-col items-center">
     <div className="sticky top-0 z-10 flex w-full items-center justify-center gap-3 border-b border-stone-300/70 bg-stone-200/95 p-2 backdrop-blur">
-      <Button aria-label="Previous page" variant="icon" size="icon" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}><ChevronLeft size={17} /></Button>
+      <Button aria-label={t('actions.previousPage')} variant="icon" size="icon" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}><ChevronLeft size={17} /></Button>
       <span className="flex min-w-28 items-center justify-center gap-1.5 text-center text-xs font-semibold text-stone-600">{t('status.page', { current: page, total: pages })}{loading && url && <LoaderCircle aria-hidden size={12} className="animate-spin text-gold" />}</span>
-      <Button aria-label="Next page" variant="icon" size="icon" disabled={page >= pages} onClick={() => setPage((value) => value + 1)}><ChevronRight size={17} /></Button>
+      <Button aria-label={t('actions.nextPage')} variant="icon" size="icon" disabled={page >= pages} onClick={() => setPage((value) => value + 1)}><ChevronRight size={17} /></Button>
     </div>
     <div className="w-full overflow-auto p-4 text-center">
       <canvas ref={canvas} className="mx-auto bg-white shadow-paper" aria-label={t('sections.pdfPreview')} />

@@ -1,4 +1,5 @@
-import { box, type PdfCoordinates } from './types'
+import { box } from '../shared/fieldBox'
+import type { AksuPdfCoordinates } from './types'
 
 const arabicRow = (y: number) => ({
   treatment: box(409, y, 151, 18, 10, 'right', 'rtl'),
@@ -8,7 +9,7 @@ const arabicRow = (y: number) => ({
   total: box(37, y, 87, 18, 9, 'center', 'rtl'),
 })
 
-export const arPdfCoordinates: PdfCoordinates = {
+export const arPdfCoordinates: AksuPdfCoordinates = {
   page1: {
     reportDate: box(54, 392, 211, 23, 13, 'center', 'rtl'),
     patientName: box(54, 353, 211, 26, 13, 'center', 'rtl'),

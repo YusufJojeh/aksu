@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { mkdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { PDFDocument } from 'pdf-lib'
+import { selectClinic } from './helpers/selectClinic'
 
 const live = process.env.QA_MODE === 'live'
 const target = live
@@ -77,6 +78,7 @@ test('final production report QA', async ({ page }, testInfo) => {
   })
 
   await page.goto(target, { waitUntil: 'networkidle' })
+  await selectClinic(page, 'aksu')
   await expect(page.getByRole('heading', { name: 'Treatment plan' })).toBeVisible()
   await fillProductionReport(page)
 
@@ -145,12 +147,14 @@ test('final production report QA', async ({ page }, testInfo) => {
 
   await page.locator('[name="patient.name"]').fill('Alexandros Konstantinos Papadopoulos-Worthington')
   await page.reload({ waitUntil: 'networkidle' })
+  await selectClinic(page, 'aksu')
   await expect(page.locator('[name="patient.name"]')).toHaveValue('')
 })
 
 test('final mobile QA', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile')
   await page.goto(target, { waitUntil: 'networkidle' })
+  await selectClinic(page, 'aksu')
   await expect(page.getByRole('tab', { name: 'Edit' })).toBeVisible()
   await page.locator('[name="patient.name"]').fill('John Production Test')
   await page.locator('[name="patient.phone"]').fill('+44 7700 900123')

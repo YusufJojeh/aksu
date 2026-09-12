@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { arPdfCoordinates } from '../../src/pdf/coordinates/ar'
-import { resolveTemplate } from '../../src/pdf/templates'
+import { arPdfCoordinates } from '../../src/pdf/profiles/aksu/ar'
+import { coordinatesForTemplate, resolveTemplate } from '../../src/pdf/profiles/resolve'
 
 describe('PDF templates', () => {
-  it('selects the real Arabic template without fallback', () => {
-    expect(resolveTemplate('ar')).toMatchObject({ usedFallback: false, definition: { locale: 'ar' } })
+  it('selects the real Arabic Aksu template without fallback', () => {
+    expect(resolveTemplate('aksu', 'ar')).toMatchObject({ usedFallback: false, definition: { locale: 'ar' } })
   })
   it('maps Arabic treatment columns right-to-left', () => {
     const row = arPdfCoordinates.page2.firstVisit.rows[0]!
@@ -17,5 +17,11 @@ describe('PDF templates', () => {
     expect(Object.keys(arPdfCoordinates.page2.assessment)).toHaveLength(12)
     expect(arPdfCoordinates.page2.assessment.missingTeeth.x).toBeCloseTo(547.1)
     expect(arPdfCoordinates.page2.assessment.dentalAbscesses.x).toBeCloseTo(187.1)
+  })
+  it('never falls back to another locale for MB Dental', () => {
+    expect(() => resolveTemplate('mb-dental', 'tr')).toThrow(/no template/)
+  })
+  it('keys coordinate resolution by clinic and locale, never locale alone', () => {
+    expect(coordinatesForTemplate('aksu', 'en')).not.toBe(coordinatesForTemplate('mb-dental', 'en'))
   })
 })

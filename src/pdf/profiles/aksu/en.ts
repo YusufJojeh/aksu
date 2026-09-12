@@ -1,6 +1,7 @@
-import { box, type PdfCoordinates } from './types'
+import { box } from '../shared/fieldBox'
+import type { AksuPdfCoordinates } from './types'
 
-export const enPdfCoordinates: PdfCoordinates = {
+export const enPdfCoordinates: AksuPdfCoordinates = {
   page1: {
     reportDate: box(91, 395, 215, 24, 13, 'center'),
     patientName: box(91, 354, 215, 28, 13, 'center'),

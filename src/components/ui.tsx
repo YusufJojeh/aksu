@@ -15,7 +15,7 @@ const buttonVariants = {
 
 const buttonSizes = {
   default: 'min-h-10 px-4',
-  icon: 'size-9 min-h-9 p-0',
+  icon: 'size-11 min-h-11 p-0',
 } as const
 
 export function Button({ className, type = 'button', variant = 'outline', size = 'default', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof buttonVariants; size?: keyof typeof buttonSizes }) {
@@ -43,6 +43,10 @@ export function Checkbox({ label, className, ...props }: { label?: React.ReactNo
 
 export function Field({ label, error, children, className }: { label: string; error?: string; children: React.ReactNode; className?: string }) {
   return <label className={cn('grid gap-1.5 text-sm font-medium text-stone-700', className)}><span>{label}</span>{children}{error && <span className="text-xs font-medium text-red-700">{error}</span>}</label>
+}
+
+export function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return <section className="border-b border-stone-200 px-5 py-6 sm:px-7"><h2 className="relative mb-5 pb-2 text-base font-bold tracking-tight text-ink after:absolute after:bottom-0 after:start-0 after:h-0.5 after:w-8 after:rounded-full after:bg-gold">{title}</h2>{children}</section>
 }
 
 export const Tabs = TabsPrimitive.Root

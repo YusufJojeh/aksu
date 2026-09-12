@@ -1,5 +1,5 @@
 import type { PDFFont } from 'pdf-lib'
-import type { FieldBox } from './coordinates'
+import type { FieldBox } from './profiles/shared/fieldBox'
 
 export interface FittedText { text: string; fontSize: number; width: number }
 
