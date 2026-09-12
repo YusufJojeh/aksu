@@ -1,8 +1,10 @@
 import { expect, test } from '@playwright/test'
+import { selectClinic } from './helpers/selectClinic'
 
 test('English PDF page remains aligned with A4 template', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium')
   await page.goto('/')
+  await selectClinic(page, 'aksu')
   await page.getByLabel('Patient name').fill('A very long patient name for layout verification Adrian Jacek')
   await page.getByLabel('Phone').fill('+44 7985 747921')
   const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')

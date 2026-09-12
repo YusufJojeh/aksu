@@ -1,5 +1,5 @@
 import type { PDFDocument, PDFPage } from 'pdf-lib'
-import type { FieldBox } from './coordinates'
+import type { FieldBox } from './profiles/shared/fieldBox'
 
 let fontReady: Promise<void> | undefined
 

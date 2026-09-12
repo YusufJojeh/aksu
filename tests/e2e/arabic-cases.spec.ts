@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 import { PDFDocument } from 'pdf-lib'
+import { selectClinic } from './helpers/selectClinic'
 
 const diagnoses = ['Existing dental implants', 'Existing dental restorations', 'Teeth are relatively aligned', 'Gingival inflammation', 'Dental caries', 'Malocclusion', 'Tooth wear', 'Missing teeth', 'Dental abscesses', 'Gingival recession', 'Dental crowding', 'Bone resorption']
 
 async function prepare(page: import('@playwright/test').Page, name = 'نور الحسن') {
   await page.goto('/')
+  await selectClinic(page, 'aksu')
   await page.getByLabel('Document language').selectOption('ar')
   await page.getByLabel('Patient name').fill(name)
   await page.locator('[name="patient.age"]').fill('42')

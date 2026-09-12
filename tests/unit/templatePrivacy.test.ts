@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 describe('sanitized Arabic template', () => {
   it('has five pages and exposes none of the old sample data', async () => {
-    const data = new Uint8Array(await readFile(path.join(process.cwd(), 'public/templates/ar.pdf')))
+    const data = new Uint8Array(await readFile(path.join(process.cwd(), 'public/templates/aksu/ar.pdf')))
     const pdf = await getDocument({ data }).promise
     expect(pdf.numPages).toBe(5)
     let extracted = ''
