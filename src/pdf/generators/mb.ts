@@ -16,9 +16,15 @@ const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
 // mark needs this constant vertical correction to land inside the actual checkbox.
 const CHECKBOX_Y_CORRECTION = 7.5
 
-// Draws a bold check mark (not a filled dot) centered on a checkbox's coordinate point.
+// Draws a bold check mark (not a filled dot) centered on a checkbox's coordinate point. The
+// template's own checkbox border is a hairline stroke that can vanish on a low-resolution or
+// recompressed view (e.g. a phone screenshot), which then reads as "the mark isn't in a box at
+// all" even though it's correctly positioned — a soft fill behind the mark makes the checked
+// state unambiguous regardless of whether that hairline border survives the viewing medium.
 function drawCheckMark(page: PDFPage, x: number, y: number) {
   const cy = y + CHECKBOX_Y_CORRECTION
+  const fillHalf = 6.5
+  page.drawRectangle({ x: x - fillHalf, y: cy - fillHalf, width: fillHalf * 2, height: fillHalf * 2, color: CHECK_GREEN, opacity: 0.16 })
   const options = { thickness: 1.8, color: CHECK_GREEN, lineCap: LineCapStyle.Round }
   page.drawLine({ start: { x: x - 3.5, y: cy + 0.5 }, end: { x: x - 1.0, y: cy - 3.0 }, ...options })
   page.drawLine({ start: { x: x - 1.0, y: cy - 3.0 }, end: { x: x + 4.5, y: cy + 4.0 }, ...options })
