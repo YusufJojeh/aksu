@@ -1,5 +1,5 @@
 import fontkit from '@pdf-lib/fontkit'
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { LineCapStyle, PDFDocument, PDFPage, StandardFonts, rgb } from 'pdf-lib'
 import { clinicRegistry } from '../../clinics/registry'
 import { visitTotalMinor } from '../../domain/calculations'
 import { draftReportSchema, mbConditionKeys, mbRecommendedTreatmentKeys, type MbReportData } from '../../domain/report'
@@ -9,7 +9,20 @@ import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
 import { BLACK, drawFitted, drawTreatmentRows, formatPdfMoney } from './shared'
 
-const GOLD = rgb(0.79, 0.61, 0.18)
+const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
+
+// The MB oral-health coordinate data marks each row's divider line, not the checkbox square's
+// visual center (confirmed by overlaying reference markers on the rendered template) — every
+// mark needs this constant vertical correction to land inside the actual checkbox.
+const CHECKBOX_Y_CORRECTION = 7.5
+
+// Draws a bold check mark (not a filled dot) centered on a checkbox's coordinate point.
+function drawCheckMark(page: PDFPage, x: number, y: number) {
+  const cy = y + CHECKBOX_Y_CORRECTION
+  const options = { thickness: 1.8, color: CHECK_GREEN, lineCap: LineCapStyle.Round }
+  page.drawLine({ start: { x: x - 3.5, y: cy + 0.5 }, end: { x: x - 1.0, y: cy - 3.0 }, ...options })
+  page.drawLine({ start: { x: x - 1.0, y: cy - 3.0 }, end: { x: x + 4.5, y: cy + 4.0 }, ...options })
+}
 
 export async function generateMbReport(report: MbReportData): Promise<GeneratedReport> {
   const validated = draftReportSchema.parse(report)
@@ -38,12 +51,12 @@ export async function generateMbReport(report: MbReportData): Promise<GeneratedR
   for (const key of mbConditionKeys) {
     if (!validated.oralHealth.currentCondition[key]) continue
     const point = coordinates.oralHealth.currentCondition[key]
-    oralHealth.drawCircle({ x: point.x, y: point.y, size: 4.5, color: GOLD })
+    drawCheckMark(oralHealth, point.x, point.y)
   }
   for (const key of mbRecommendedTreatmentKeys) {
     if (!validated.oralHealth.recommendedTreatments[key]) continue
     const point = coordinates.oralHealth.recommendedTreatments[key]
-    oralHealth.drawCircle({ x: point.x, y: point.y, size: 4.5, color: GOLD })
+    drawCheckMark(oralHealth, point.x, point.y)
   }
 
   // The MB template's table cells are blank in the source artwork — nothing to clear before drawing.
