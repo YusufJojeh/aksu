@@ -171,6 +171,19 @@ export async function setChannelStatus(id: string, status: 'active' | 'inactive'
   if (error) throw error
 }
 
+export async function updateChannel(id: string, patch: { phone?: string; label?: string; type?: 'whatsapp' | 'phone' }): Promise<void> {
+  const update: { phone_e164?: string; label?: string; type?: 'whatsapp' | 'phone'; updated_at: string } = { updated_at: new Date().toISOString() }
+  if (patch.phone !== undefined) {
+    const phone = normalizePhone(patch.phone)
+    if (!phone) throw new Error('Use E.164 format, for example +905551112233.')
+    update.phone_e164 = phone
+  }
+  if (patch.label !== undefined) update.label = patch.label.trim()
+  if (patch.type !== undefined) update.type = patch.type
+  const { error } = await requireSupabase().from('communication_channels').update(update).eq('id', id)
+  if (error) throw error
+}
+
 export async function assignChannel(channelId: string, employeeId: string): Promise<void> {
   const { error } = await requireSupabase().rpc('assign_channel', { p_channel_id: channelId, p_employee_id: employeeId })
   if (error) throw error
