@@ -40,7 +40,7 @@ async function fillProductionReport(page: import('@playwright/test').Page) {
   await page.locator('[name="patient.phone"]').fill('+44 7700 900123')
   await page.locator('[name="document.currency"]').selectOption('GBP')
   const assessments = page.locator('section').filter({ hasText: 'Aesthetic assessment' }).locator('input[type="checkbox"]')
-  for (const index of [0, 3, 4]) await assessments.nth(index).check({ force: true })
+  for (const index of [0, 3, 4]) await assessments.nth(index).check()
   const expected = [
     [1, 215], [20, 171], [2, 100], [0, 0], [1, 129], [2, 65], [0, 0],
   ]
