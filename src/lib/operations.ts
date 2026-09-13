@@ -38,20 +38,37 @@ export interface CommunicationChannel {
 
 export interface ReportEvent { id: string; report_id: string; actor_id: string; event_type: 'finalized' | 'downloaded' | 'admin_downloaded' | 'duplicated'; created_at: string }
 
-async function sha256(bytes: Uint8Array): Promise<string> {
-  const owned = Uint8Array.from(bytes)
-  const digest = await crypto.subtle.digest('SHA-256', owned.buffer)
-  return [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, '0')).join('')
+async function verifyUploadedPdfHash(storageKey: string): Promise<string> {
+  const { data: sessionData } = await requireSupabase().auth.getSession()
+  const token = sessionData.session?.access_token
+  if (!token) throw new Error('Not authenticated')
+  const response = await fetch('/api/reports/verify-pdf', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ storageKey }),
+  })
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as { error?: string }
+    throw new Error(payload.error ?? 'Failed to verify archived PDF')
+  }
+  const payload = (await response.json()) as { sha256: string }
+  return payload.sha256
 }
 
 export async function finalizeReport(report: ReportData, bytes: Uint8Array, profile: EmployeeProfile, parentReportId?: string): Promise<ArchivedReport> {
   const client = requireSupabase()
   const id = crypto.randomUUID()
   const storageKey = `${profile.id}/${id}.pdf`
-  const hash = await sha256(bytes)
   const blob = new Blob([Uint8Array.from(bytes)], { type: 'application/pdf' })
   const upload = await client.storage.from('report-pdfs').upload(storageKey, blob, { contentType: 'application/pdf', upsert: false })
   if (upload.error) throw upload.error
+  let hash: string
+  try {
+    hash = await verifyUploadedPdfHash(storageKey)
+  } catch (error) {
+    await client.storage.from('report-pdfs').remove([storageKey])
+    throw error
+  }
   const patientIdentifier = report.clinicId === 'mb-dental' ? report.patient.patientId : ''
   const patientPhone = normalizePhone(report.patient.phone) ?? report.patient.phone.trim()
   const args = {
