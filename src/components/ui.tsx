@@ -1,6 +1,6 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
-import { Check } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import type { ButtonHTMLAttributes, InputHTMLAttributes, SelectHTMLAttributes } from 'react'
 import { clsx } from 'clsx'
 
@@ -52,6 +52,24 @@ export function Section({ title, children }: { title: string; children: React.Re
 export const Tabs = TabsPrimitive.Root
 export const TabsList = ({ className, ...props }: TabsPrimitive.TabsListProps) => <TabsPrimitive.List className={cn('grid grid-cols-2 rounded-lg bg-stone-200 p-1', className)} {...props} />
 export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => <TabsPrimitive.Trigger className={cn('rounded-md px-3 py-2 text-sm font-semibold text-stone-600 data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm', className)} {...props} />
+
+export function Accordion({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn('divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-white', className)}>{children}</div>
+}
+
+export function AccordionItem({ summary, children, className, defaultOpen }: { summary: React.ReactNode; children: React.ReactNode; className?: string; defaultOpen?: boolean }) {
+  return <details className={cn('group', className)} open={defaultOpen}>
+    <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-ink marker:content-none [&::-webkit-details-marker]:hidden">
+      <span className="min-w-0 flex-1">{summary}</span>
+      <ChevronDown aria-hidden size={16} className="shrink-0 text-stone-400 transition-transform duration-200 group-open:rotate-180" />
+    </summary>
+    <div className="grid gap-3 border-t border-stone-100 px-4 py-4">{children}</div>
+  </details>
+}
+
+export function AccordionField({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+  return <div className={cn('grid gap-1', className)}><span className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</span>{children}</div>
+}
 
 export function ConfirmDialog({ open, onOpenChange, title, body, confirmLabel, cancelLabel, onConfirm }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; body: string; confirmLabel: string; cancelLabel: string; onConfirm: () => void }) {
   return <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
