@@ -33,8 +33,8 @@ export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectE
 export function Checkbox({ label, className, ...props }: { label?: React.ReactNode; className?: string } & Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
   return <label className={cn('inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm', className)}>
     <span className="relative inline-flex size-5 shrink-0">
-      <input type="checkbox" className="peer sr-only" {...props} />
-      <span aria-hidden className="absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2" />
+      <input type="checkbox" className="peer absolute inset-0 z-10 size-full cursor-pointer opacity-0" {...props} />
+      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2" />
       <Check aria-hidden size={13} strokeWidth={3} className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition peer-checked:opacity-100" />
     </span>
     {label}

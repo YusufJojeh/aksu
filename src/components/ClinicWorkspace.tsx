@@ -3,21 +3,26 @@ import { ArrowLeftRight, Download, FileText, Languages, RotateCcw, ShieldCheck, 
 import { useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { isE2EAuthBypass } from '../auth/AuthProvider'
+import type { EmployeeProfile } from '../auth/types'
 import { clinicRegistry } from '../clinics/registry'
 import type { ClinicId } from '../clinics/types'
 import { createDefaultReport, locales, reportSchema, type Locale, type ReportData } from '../domain/report'
 import { isRtl } from '../lib/locale'
 import { reportFilename } from '../lib/filename'
-import { submitReport } from '../lib/reportSubmission'
+import { downloadArchivedReport, finalizeReport, type ArchivedReport } from '../lib/operations'
 import { usePdfPreview } from '../hooks/usePdfPreview'
+import { generateReport } from '../pdf/generateReport'
 import { AksuReportForm } from './AksuReportForm'
 import { MbReportForm } from './MbReportForm'
 import { PdfPreview } from './PdfPreview'
 import { Button, ConfirmDialog, Select, Tabs, TabsList, TabsTrigger } from './ui'
 
-export function ClinicWorkspace({ clinicId, employeeName, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
+export function ClinicWorkspace({ clinicId, profile, initialReport, parentReportId, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
   clinicId: ClinicId
-  employeeName: string
+  profile: EmployeeProfile
+  initialReport?: ReportData
+  parentReportId?: string
   interfaceLocale: Locale
   onInterfaceLocaleChange: (locale: Locale) => void
   onSwitchClinic: () => void
@@ -25,7 +30,9 @@ export function ClinicWorkspace({ clinicId, employeeName, interfaceLocale, onInt
   const { t } = useTranslation()
   const [mobilePanel, setMobilePanel] = useState('edit')
   const [dialog, setDialog] = useState<'reset' | 'clear' | 'switchClinic'>()
-  const defaults = useMemo(() => createDefaultReport(clinicId), [clinicId])
+  const [finalized, setFinalized] = useState<{ report: ArchivedReport; snapshot: string }>()
+  const [finalizeError, setFinalizeError] = useState<string>()
+  const defaults = useMemo(() => initialReport?.clinicId === clinicId ? initialReport : createDefaultReport(clinicId), [clinicId, initialReport])
   const form = useForm<ReportData>({ defaultValues: defaults, resolver: zodResolver(reportSchema) as Resolver<ReportData>, mode: 'onBlur' })
   const { isDirty } = form.formState
   const report = useWatch({ control: form.control }) as ReportData
@@ -34,14 +41,27 @@ export function ClinicWorkspace({ clinicId, employeeName, interfaceLocale, onInt
 
   const download = async () => {
     if (!await form.trigger()) return
-    if (!preview.blob || !preview.bytes) return
-    const url = URL.createObjectURL(preview.blob)
+    setFinalizeError(undefined)
+    const validated = reportSchema.parse(form.getValues())
+    const snapshot = JSON.stringify(validated)
+    let blob: Blob
+    if (isE2EAuthBypass()) {
+      const generated = await generateReport(validated)
+      blob = new Blob([Uint8Array.from(generated.bytes)], { type: 'application/pdf' })
+    } else if (finalized?.snapshot === snapshot) {
+      blob = await downloadArchivedReport(finalized.report)
+    } else {
+      const generated = await generateReport(validated)
+      const archived = await finalizeReport(validated, generated.bytes, profile, parentReportId)
+      setFinalized({ report: archived, snapshot })
+      blob = await downloadArchivedReport(archived)
+    }
+    const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
     anchor.download = reportFilename(clinicId, report.patient.name, report.patient.reportDate, report.document.locale)
     anchor.click()
     window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-    submitReport({ employeeName, clinicId, locale: report.document.locale, patientName: report.patient.name, bytes: preview.bytes })
   }
 
   const reset = () => form.reset(createDefaultReport(clinicId))
@@ -79,7 +99,7 @@ export function ClinicWorkspace({ clinicId, employeeName, interfaceLocale, onInt
     <footer className="sticky bottom-0 z-30 border-t border-stone-300 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgb(0_0_0/8%)] backdrop-blur sm:px-7">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-2">
         <div className="flex gap-2"><Button variant="outline" onClick={() => setDialog('reset')}><RotateCcw size={16} />{t('actions.reset')}</Button><Button variant="outline" onClick={() => setDialog('clear')}><Trash2 size={16} /><span className="hidden sm:inline">{t('actions.clear')}</span></Button></div>
-        <div className="flex gap-2"><Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={preview.isGenerating || !preview.blob} onClick={() => void download()}><Download size={16} />{t('actions.download')}</Button></div>
+        <div className="flex items-center gap-2">{finalizeError && <span role="alert" className="max-w-sm text-xs text-red-700">{finalizeError}</span>}<Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={preview.isGenerating || !preview.blob} onClick={() => void download().catch((caught: unknown) => setFinalizeError(caught instanceof Error ? caught.message : 'Finalization failed.'))}><Download size={16} />{finalized?.snapshot === JSON.stringify(report) ? t('actions.download') : `Finalize & ${t('actions.download')}`}</Button></div>
       </div>
     </footer>
     <ConfirmDialog open={dialog === 'reset'} onOpenChange={(open) => !open && setDialog(undefined)} title={t('dialog.resetTitle')} body={t('dialog.resetBody')} confirmLabel={t('actions.confirm')} cancelLabel={t('actions.cancel')} onConfirm={reset} />
