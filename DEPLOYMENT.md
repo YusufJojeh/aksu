@@ -51,3 +51,18 @@ Production smoke pass, run against the live REST/RPC/Storage API using the dedic
 - Suspended-user denial — enforced at the database level (RPC + RLS), not just the UI; the account was restored to `active` afterward.
 
 All checks passed with no code or schema changes required.
+
+### 2026-09-13 — commits `7e2a02f`, `98eb1c1`, https://pdfbuilder-chi.vercel.app
+
+Two follow-up fixes, each deployed and smoke-tested against production before being committed:
+
+**Server-side hash verification for `finalize_report` (`7e2a02f`).** An integrity audit found `finalize_report` only validated that `p_pdf_sha256` was *shaped* like a hash and that some object existed at the storage key — it never checked the hash actually matched that object's bytes, so a caller bypassing the app could record any well-formed hash next to a real PDF (confirmed by direct RPC exploit, and by two pre-existing production rows with mismatched hashes). Fixed with:
+- New `report_pdf_checksums` table (migration `202609130003_report_pdf_checksum_verification.sql`), RLS-enabled with no grants to `anon`/`authenticated` — writable only by the service role.
+- New `/api/reports/verify-pdf` serverless function that downloads the just-uploaded object with the service-role key, computes the real SHA-256 server-side, and records it.
+- `finalize_report` now rejects any hash that doesn't match a row in that table; `src/lib/operations.ts` calls the new endpoint after upload instead of trusting a client-computed hash.
+
+Smoke-tested: uploaded a PDF, called `verify-pdf` (returned hash matched the true file hash), confirmed `finalize_report` now rejects a mismatched hash with `pdf hash has not been verified against the archived object`, confirmed it still succeeds with the server-verified hash, and confirmed the archived PDF downloads byte-for-byte identical. The two legacy mismatched-hash rows from earlier testing were left as-is (not retroactively fixed).
+
+**Admin channel editing (`98eb1c1`).** A full-CRUD audit found the database already permitted admins to update a communication channel's `phone_e164`/`label`/`type` (via the existing `channels_admin_all` RLS policy and `UPDATE` grant), but the admin UI never exposed it — only a status toggle and assignment. Added `updateChannel()` and inline-editable phone/label/type fields to `ChannelsAdmin`. Smoke-tested: admin update succeeds and persists; the same update attempted as a SALES account is silently denied by RLS with no rows affected.
+
+Audit conclusion: reports remain intentionally immutable (no `UPDATE`/`DELETE` grant, enforced further by a DB trigger) and employees/channels remain intentionally non-hard-deletable (no `DELETE` grant to the application role) — both are deliberate audit-integrity properties of the system, not gaps, and were left unchanged.
