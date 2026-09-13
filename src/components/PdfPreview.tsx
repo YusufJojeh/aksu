@@ -32,6 +32,7 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
         scratch.height = viewport.height
         const scratchContext = scratch.getContext('2d')
         if (!scratchContext || cancelled) return
+        renderTask?.cancel()
         renderTask = selected.render({ canvas: scratch, canvasContext: scratchContext, viewport })
         await renderTask.promise
         const element = canvas.current
@@ -46,8 +47,21 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
       }
     }
     void render()
+    // Re-render at the current container width on rotation/resize, and when the
+    // mobile Edit/Preview tab toggle (display:none <-> block) reveals this pane
+    // with its real width for the first time -- otherwise the canvas stays stuck
+    // at whatever width was available (possibly 0) when the last render ran.
+    let resizeTimeout: number | undefined
+    const container = canvas.current.parentElement
+    const observer = container && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => {
+      window.clearTimeout(resizeTimeout)
+      resizeTimeout = window.setTimeout(() => void render(), 150)
+    }) : undefined
+    if (container) observer?.observe(container)
     return () => {
       cancelled = true
+      window.clearTimeout(resizeTimeout)
+      observer?.disconnect()
       renderTask?.cancel()
       void loadingTask.destroy()
     }

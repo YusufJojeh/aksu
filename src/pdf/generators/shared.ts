@@ -41,7 +41,7 @@ export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, 
 }
 
 export function formatPdfMoney(minor: number, report: ReportData): string {
-  return formatDocumentMoneyMinor(minor, report.document.currency, report.document.locale)
+  return formatDocumentMoneyMinor(minor, report.document.currency, report.document.locale, report.clinicId)
 }
 
 export function treatmentLabel(row: TreatmentRow, t: ReturnType<typeof i18n.getFixedT>): string {
@@ -64,7 +64,7 @@ export async function drawTreatmentRows(pdf: PDFDocument, page: PDFPage, rows: T
     if (!box) continue
     if (options.clearDynamicRegions) for (const cell of Object.values(box)) clearBox(page, cell)
     if (!rowHasContent(row)) continue
-    const included = t('document.included')
+    const included = t(report.clinicId === 'mb-dental' ? 'document.includedMb' : 'document.included')
     await drawFitted(pdf, page, treatmentLabel(row, t), box.treatment, font, locale, BLACK, undefined, searchFont)
     await drawFitted(pdf, page, row.quality, box.quality, font, locale, BLACK, undefined, searchFont)
     await drawFitted(pdf, page, row.duration || (row.quantity ? String(row.quantity) : ''), box.quantity, font, locale, BLACK, undefined, searchFont)

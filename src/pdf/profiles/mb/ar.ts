@@ -31,18 +31,18 @@ import type { MbPdfCoordinates } from './types'
 // RTL column order differ.
 const firstVisitRow = (y: number) => ({
   treatment: box(416, y, 143, 18, 10, 'right' as const, 'rtl' as const),
-  quantity: box(322, y, 82, 18, 10, 'center' as const, 'rtl' as const),
-  quality: box(213, y, 97, 18, 9, 'center' as const, 'rtl' as const),
-  unitPrice: box(108, y, 93, 18, 9, 'center' as const, 'rtl' as const),
-  total: box(34, y, 62, 18, 9, 'center' as const, 'rtl' as const),
+  quantity: box(322, y, 82, 18, 11, 'center' as const, 'rtl' as const, 8),
+  quality: box(213, y, 97, 18, 10, 'center' as const, 'rtl' as const, 8),
+  unitPrice: box(108, y, 93, 18, 11, 'center' as const, 'rtl' as const, 8),
+  total: box(34, y, 62, 18, 11, 'center' as const, 'rtl' as const, 8),
 })
 
 const secondVisitRow = (y: number) => ({
   treatment: box(416, y, 137, 18, 10, 'right' as const, 'rtl' as const),
-  quantity: box(326, y, 78, 18, 10, 'center' as const, 'rtl' as const),
-  quality: box(213, y, 101, 18, 9, 'center' as const, 'rtl' as const),
-  unitPrice: box(130, y, 71, 18, 9, 'center' as const, 'rtl' as const),
-  total: box(28, y, 90, 18, 9, 'center' as const, 'rtl' as const),
+  quantity: box(326, y, 78, 18, 11, 'center' as const, 'rtl' as const, 8),
+  quality: box(213, y, 101, 18, 10, 'center' as const, 'rtl' as const, 8),
+  unitPrice: box(130, y, 71, 18, 11, 'center' as const, 'rtl' as const, 8),
+  total: box(28, y, 90, 18, 11, 'center' as const, 'rtl' as const, 8),
 })
 
 export const arMbPdfCoordinates: MbPdfCoordinates = {

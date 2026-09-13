@@ -9,6 +9,7 @@ import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
 import { BLACK, drawFitted, drawTreatmentRows, formatPdfMoney } from './shared'
 
+const CHECK_RED = rgb(0.82, 0.11, 0.11)
 const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
 
 // The MB oral-health coordinate data marks each row's divider line, not the checkbox square's
@@ -21,11 +22,14 @@ const CHECKBOX_Y_CORRECTION = 0
 // recompressed view (e.g. a phone screenshot), which then reads as "the mark isn't in a box at
 // all" even though it's correctly positioned — a soft fill behind the mark makes the checked
 // state unambiguous regardless of whether that hairline border survives the viewing medium.
-function drawCheckMark(page: PDFPage, x: number, y: number) {
+// Real filled MB reports (SERGIO ALMEIDO.pdf, السيد خالد..pdf) consistently mark current-condition
+// boxes red and recommended-treatment boxes green, so the color is a parameter rather than a
+// shared constant.
+function drawCheckMark(page: PDFPage, x: number, y: number, color: typeof CHECK_GREEN) {
   const cy = y + CHECKBOX_Y_CORRECTION
   const fillHalf = 6.5
-  page.drawRectangle({ x: x - fillHalf, y: cy - fillHalf, width: fillHalf * 2, height: fillHalf * 2, color: CHECK_GREEN, opacity: 0.16 })
-  const options = { thickness: 1.8, color: CHECK_GREEN, lineCap: LineCapStyle.Round }
+  page.drawRectangle({ x: x - fillHalf, y: cy - fillHalf, width: fillHalf * 2, height: fillHalf * 2, color, opacity: 0.16 })
+  const options = { thickness: 1.8, color, lineCap: LineCapStyle.Round }
   page.drawLine({ start: { x: x - 3.5, y: cy + 0.5 }, end: { x: x - 1.0, y: cy - 3.0 }, ...options })
   page.drawLine({ start: { x: x - 1.0, y: cy - 3.0 }, end: { x: x + 4.5, y: cy + 4.0 }, ...options })
 }
@@ -57,12 +61,12 @@ export async function generateMbReport(report: MbReportData): Promise<GeneratedR
   for (const key of mbConditionKeys) {
     if (!validated.oralHealth.currentCondition[key]) continue
     const point = coordinates.oralHealth.currentCondition[key]
-    drawCheckMark(oralHealth, point.x, point.y)
+    drawCheckMark(oralHealth, point.x, point.y, CHECK_RED)
   }
   for (const key of mbRecommendedTreatmentKeys) {
     if (!validated.oralHealth.recommendedTreatments[key]) continue
     const point = coordinates.oralHealth.recommendedTreatments[key]
-    drawCheckMark(oralHealth, point.x, point.y)
+    drawCheckMark(oralHealth, point.x, point.y, CHECK_GREEN)
   }
 
   // The MB template's table cells are blank in the source artwork — nothing to clear before drawing.

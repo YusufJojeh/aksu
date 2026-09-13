@@ -20,10 +20,10 @@ import type { MbPdfCoordinates } from './types'
 // en.ts's measurements).
 const treatmentRow = (y: number) => ({
   treatment: box(34, y, 190, 18, 11),
-  quality: box(236, y, 86, 18, 9, 'center' as const),
-  quantity: box(332, y, 43, 18, 10, 'center' as const),
-  unitPrice: box(385, y, 85, 18, 10, 'center' as const),
-  total: box(482, y, 77, 18, 10, 'center' as const),
+  quality: box(236, y, 86, 18, 10, 'center' as const, undefined, 8),
+  quantity: box(332, y, 43, 18, 11, 'center' as const, undefined, 8),
+  unitPrice: box(385, y, 85, 18, 11, 'center' as const, undefined, 8),
+  total: box(482, y, 77, 18, 11, 'center' as const, undefined, 8),
 })
 
 export const frMbPdfCoordinates: MbPdfCoordinates = {

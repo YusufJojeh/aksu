@@ -32,18 +32,18 @@ import type { MbPdfCoordinates } from './types'
 // happens to say.
 const firstVisitRow = (y: number) => ({
   treatment: box(34, y, 190, 18, 11),
-  quality: box(236, y, 86, 18, 9, 'center' as const),
-  quantity: box(334, y, 62, 18, 10, 'center' as const),
-  unitPrice: box(407, y, 63, 18, 10, 'center' as const),
-  total: box(482, y, 77, 18, 10, 'center' as const),
+  quality: box(236, y, 86, 18, 10, 'center' as const, undefined, 8),
+  quantity: box(334, y, 62, 18, 11, 'center' as const, undefined, 8),
+  unitPrice: box(407, y, 63, 18, 11, 'center' as const, undefined, 8),
+  total: box(482, y, 77, 18, 11, 'center' as const, undefined, 8),
 })
 
 const secondVisitRow = (y: number) => ({
   treatment: box(28, y, 190, 18, 11),
-  quality: box(230, y, 86, 18, 9, 'center' as const),
-  quantity: box(328, y, 68, 18, 10, 'center' as const),
-  unitPrice: box(408, y, 56, 18, 10, 'center' as const),
-  total: box(476, y, 77, 18, 10, 'center' as const),
+  quality: box(230, y, 86, 18, 10, 'center' as const, undefined, 8),
+  quantity: box(328, y, 68, 18, 11, 'center' as const, undefined, 8),
+  unitPrice: box(408, y, 56, 18, 11, 'center' as const, undefined, 8),
+  total: box(476, y, 77, 18, 11, 'center' as const, undefined, 8),
 })
 
 export const deMbPdfCoordinates: MbPdfCoordinates = {

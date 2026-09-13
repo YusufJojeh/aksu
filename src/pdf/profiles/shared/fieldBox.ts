@@ -28,4 +28,5 @@ export const box = (
   fontSize: number,
   alignment: Alignment = 'left',
   direction?: Direction,
-): FieldBox => ({ x, y, width, height, fontSize, minFontSize: 6, alignment, direction })
+  minFontSize = 6,
+): FieldBox => ({ x, y, width, height, fontSize, minFontSize, alignment, direction })
