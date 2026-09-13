@@ -28,11 +28,11 @@ const treatmentRow = (y: number) => ({
 
 export const frMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
-    patientName: box(200, 400.2, 90, 19, 13),
-    reportDate: box(132, 334, 158, 19, 13),
-    age: box(124, 263.2, 166, 19, 13),
-    patientId: box(247, 204.1, 43, 19, 13),
-    phone: box(176, 141.4, 114, 19, 13),
+    patientName: box(80, 276, 112, 42, 16),
+    reportDate: box(90, 373, 112, 23, 16),
+    age: box(82, 229, 92, 23, 16),
+    patientId: box(88, 43, 92, 25, 18),
+    phone: box(82, 112, 126, 23, 16),
   },
   oralHealth: {
     currentCondition: {
@@ -41,7 +41,8 @@ export const frMbPdfCoordinates: MbPdfCoordinates = {
       biteOrJawProblems: { x: 50, y: 482.9 }, aestheticToothDefects: { x: 50, y: 452.9 },
     },
     recommendedTreatments: {
-      dentalImplants: { x: 297.5, y: 329.4 }, dentalFillings: { x: 297.5, y: 299.4 }, zirconiaCrowns: { x: 297.5, y: 269.4 },
+      dentalExtractions: { x: 297.5, y: 329.4 },
+      dentalImplants: { x: 297.5, y: 299.4 }, dentalFillings: { x: 297.5, y: 299.4 }, zirconiaCrowns: { x: 297.5, y: 269.4 },
       emaxVeneers: { x: 297.5, y: 239.4 }, boneGrafting: { x: 297.5, y: 209.4 }, sinusLift: { x: 297.5, y: 179.4 },
       deepCleaning: { x: 297.5, y: 149.4 }, rootCanalTreatment: { x: 297.5, y: 119.4 },
     },

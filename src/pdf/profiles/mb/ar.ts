@@ -47,22 +47,23 @@ const secondVisitRow = (y: number) => ({
 
 export const arMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
-    patientName: box(37, 398, 120, 18, 12, 'center', 'rtl'),
-    reportDate: box(37, 335, 158, 18, 12, 'center', 'rtl'),
-    age: box(37, 267, 165, 18, 12, 'center', 'rtl'),
-    patientId: box(37, 212, 108, 18, 12, 'center', 'rtl'),
-    phone: box(37, 148, 152, 18, 12, 'center', 'ltr'),
+    patientName: box(110, 364, 122, 25, 18, 'right', 'rtl'),
+    reportDate: box(140, 301, 101, 23, 16, 'center', 'ltr'),
+    age: box(185, 237, 52, 23, 16, 'right', 'rtl'),
+    patientId: box(135, 179, 98, 26, 18, 'center', 'ltr'),
+    phone: box(100, 120, 137, 24, 16, 'center', 'ltr'),
   },
   oralHealth: {
     currentCondition: {
-      missingTeeth: { x: 283.4, y: 671.6 }, looseTeeth: { x: 283.4, y: 639.7 }, gumInfectionOrDisease: { x: 283.4, y: 611.1 },
-      crowdedOrCrookedTeeth: { x: 283.4, y: 584.4 }, toothDecayOrBrokenTeeth: { x: 283.4, y: 555.1 }, teethGrindingOrClenching: { x: 283.4, y: 524.4 },
-      biteOrJawProblems: { x: 283.4, y: 492.6 }, aestheticToothDefects: { x: 283.4, y: 463.2 },
+      missingTeeth: { x: 283.4, y: 663.6 }, looseTeeth: { x: 283.4, y: 631.7 }, gumInfectionOrDisease: { x: 283.4, y: 603.1 },
+      crowdedOrCrookedTeeth: { x: 283.4, y: 576.4 }, toothDecayOrBrokenTeeth: { x: 283.4, y: 547.1 }, teethGrindingOrClenching: { x: 283.4, y: 516.4 },
+      biteOrJawProblems: { x: 283.4, y: 484.6 }, aestheticToothDefects: { x: 283.4, y: 455.2 },
     },
     recommendedTreatments: {
-      dentalImplants: { x: 543.9, y: 338.4 }, dentalFillings: { x: 543.9, y: 306.6 }, zirconiaCrowns: { x: 543.9, y: 277.7 },
-      emaxVeneers: { x: 543.9, y: 248.4 }, boneGrafting: { x: 543.9, y: 219.1 }, sinusLift: { x: 543.9, y: 187.2 },
-      deepCleaning: { x: 543.9, y: 157.9 }, rootCanalTreatment: { x: 543.9, y: 128.7 },
+      dentalExtractions: { x: 543.9, y: 330.4 },
+      dentalImplants: { x: 543.9, y: 330.4 }, dentalFillings: { x: 543.9, y: 298.6 }, zirconiaCrowns: { x: 543.9, y: 269.7 },
+      emaxVeneers: { x: 543.9, y: 240.4 }, boneGrafting: { x: 543.9, y: 211.1 }, sinusLift: { x: 543.9, y: 179.2 },
+      deepCleaning: { x: 543.9, y: 149.9 }, rootCanalTreatment: { x: 543.9, y: 120.7 },
     },
   },
   treatmentPlan: {

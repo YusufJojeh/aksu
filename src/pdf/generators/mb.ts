@@ -14,7 +14,7 @@ const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
 // The MB oral-health coordinate data marks each row's divider line, not the checkbox square's
 // visual center (confirmed by overlaying reference markers on the rendered template) — every
 // mark needs this constant vertical correction to land inside the actual checkbox.
-const CHECKBOX_Y_CORRECTION = 7.5
+const CHECKBOX_Y_CORRECTION = 0
 
 // Draws a bold check mark (not a filled dot) centered on a checkbox's coordinate point. The
 // template's own checkbox border is a hairline stroke that can vanish on a low-resolution or

@@ -36,6 +36,7 @@ export const enMbPdfCoordinates: MbPdfCoordinates = {
       biteOrJawProblems: { x: 50, y: 482.9 }, aestheticToothDefects: { x: 50, y: 452.9 },
     },
     recommendedTreatments: {
+      dentalExtractions: { x: 297.5, y: 329.4 },
       dentalImplants: { x: 297.5, y: 329.4 }, dentalFillings: { x: 297.5, y: 299.4 }, zirconiaCrowns: { x: 297.5, y: 269.4 },
       emaxVeneers: { x: 297.5, y: 239.4 }, boneGrafting: { x: 297.5, y: 209.4 }, sinusLift: { x: 297.5, y: 179.4 },
       deepCleaning: { x: 297.5, y: 149.4 }, rootCanalTreatment: { x: 297.5, y: 119.4 },

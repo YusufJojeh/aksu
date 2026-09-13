@@ -32,6 +32,7 @@ export const mbConditionKeys = [
 
 // "Recommended Treatments" checkboxes, page 2 of the MB Dental template (all 4 locales).
 export const mbRecommendedTreatmentKeys = [
+  'dentalExtractions',
   'dentalImplants',
   'dentalFillings',
   'zirconiaCrowns',
