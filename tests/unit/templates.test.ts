@@ -19,7 +19,7 @@ describe('PDF templates', () => {
   })
   it('uses larger readable table fonts for both clinic templates', () => {
     expect(enPdfCoordinates.page2.firstVisit.rows[0]!.treatment.fontSize).toBe(15)
-    expect(enPdfCoordinates.page2.firstVisit.rows[0]!.total.fontSize).toBe(13)
+    expect(enPdfCoordinates.page2.firstVisit.rows[0]!.total.fontSize).toBe(15)
     expect(arPdfCoordinates.page2.firstVisit.rows[0]!.treatment.fontSize).toBe(14)
     expect(mbEnglishCellSizes.treatment.fontSize).toBe(21)
     expect(mbLatinCellSizes.treatment.fontSize).toBe(19)

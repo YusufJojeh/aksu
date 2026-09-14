@@ -5,8 +5,8 @@ const arabicRow = (y: number) => ({
   treatment: box(409, y, 151, 18, 14, 'right', 'rtl'),
   quality: box(325, y, 81, 18, 13, 'center', 'rtl'),
   quantity: box(241, y, 81, 18, 13, 'center', 'rtl'),
-  unitPrice: box(127, y, 111, 18, 13, 'center', 'rtl'),
-  total: box(37, y, 87, 18, 13, 'center', 'rtl'),
+  unitPrice: box(127, y, 111, 18, 15, 'center', 'rtl'),
+  total: box(37, y, 87, 18, 15, 'center', 'rtl'),
 })
 
 export const arPdfCoordinates: AksuPdfCoordinates = {

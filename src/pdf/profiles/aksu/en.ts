@@ -17,7 +17,7 @@ export const enPdfCoordinates: AksuPdfCoordinates = {
     },
     firstVisit: {
       rows: [509, 490, 470, 450, 427, 400, 377].map((y) => ({
-        treatment: box(48, y, 142, 18, 15), quality: box(192, y, 81, 18, 13, 'center'), quantity: box(275, y, 82, 18, 13, 'center'), unitPrice: box(359, y, 112, 18, 13, 'center'), total: box(473, y, 88, 18, 13, 'center'),
+        treatment: box(48, y, 142, 18, 15), quality: box(192, y, 81, 18, 13, 'center'), quantity: box(275, y, 82, 18, 13, 'center'), unitPrice: box(359, y, 112, 18, 15, 'center'), total: box(473, y, 88, 18, 15, 'center'),
       })),
       total: box(451, 349, 105, 23, 15, 'center'),
     },
@@ -25,7 +25,7 @@ export const enPdfCoordinates: AksuPdfCoordinates = {
     secondVisit: {
       heading: box(56, 286, 505, 28, 14, 'center'),
       rows: [243, 224, 203, 184, 163, 142, 113].map((y) => ({
-        treatment: box(45, y, 138, 18, 15), quality: box(184, y, 80, 18, 13, 'center'), quantity: box(266, y, 68, 18, 13, 'center'), unitPrice: box(336, y, 127, 18, 13, 'center'), total: box(465, y, 96, 18, 13, 'center'),
+        treatment: box(45, y, 138, 18, 15), quality: box(184, y, 80, 18, 13, 'center'), quantity: box(266, y, 68, 18, 13, 'center'), unitPrice: box(336, y, 127, 18, 15, 'center'), total: box(465, y, 96, 18, 15, 'center'),
       })),
       total: box(452, 92, 105, 23, 15, 'center'),
     },

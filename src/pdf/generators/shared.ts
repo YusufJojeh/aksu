@@ -42,7 +42,7 @@ export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, 
 
 // Kept clear inside a table cell so values never touch its gridlines, yet small enough that
 // ordinary values keep their preferred size.
-const CELL_PADDING = { x: 3, y: 2 }
+const CELL_PADDING = { x: 3, y: 0.75 }
 
 // Draws one value centered in a real table cell (box = the cell). Preferred size first; shrinks
 // toward minFontSize only when the value exceeds the usable width (or, for shaped Arabic, height).
