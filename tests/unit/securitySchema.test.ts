@@ -37,6 +37,14 @@ describe('production authorization migration', () => {
     expect(migration).toContain('revoke execute on function public.finalize_report')
   })
 
+  it('allows users to edit their own profile while guarding privileged fields', () => {
+    expect(migration).toContain('create policy profiles_update on public.profiles')
+    expect(migration).toContain('id = auth.uid() or public.is_admin()')
+    expect(migration).toContain('users cannot change their own role, status, or email')
+    expect(migration).toContain('privileged profile fields are admin-only')
+    expect(migration).toContain('grant select, update on public.profiles to authenticated')
+  })
+
   it('unassigns inactive numbers and records duplicate lineage', () => {
     expect(migration).toContain('communication_channel_status_lifecycle')
     expect(migration).toContain("new.status = 'inactive'")

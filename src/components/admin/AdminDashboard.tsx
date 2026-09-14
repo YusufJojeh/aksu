@@ -16,6 +16,7 @@ import { ChannelsAdmin } from './ChannelsAdmin'
 import { CustomersAdmin } from './CustomersAdmin'
 import { EmployeesAdmin } from './EmployeesAdmin'
 import { ReportsAdmin } from './ReportsAdmin'
+import { ProfileSettings } from '../ProfileSettings'
 
 const ADMIN_LANG_KEY = 'admin_dashboard_locale'
 
@@ -25,6 +26,7 @@ const VIEW_TITLE_KEYS: Record<AdminView, string> = {
   channels: 'admin.nav.channels',
   reports: 'admin.nav.reports',
   customers: 'admin.nav.customers',
+  profile: 'admin.nav.profile',
 }
 
 function toDayKey(date: Date): string {
@@ -88,6 +90,7 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             onViewChange={setView}
             user={user}
             onLogout={onLogout}
+            onProfile={() => setView('profile')}
             onSalesWorkspace={() => { window.location.href = '/' }}
           />
           <SidebarInset>
@@ -109,6 +112,7 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 {view === 'channels' && <ChannelsAdmin />}
                 {view === 'reports' && <ReportsAdmin />}
                 {view === 'customers' && <CustomersAdmin />}
+                {view === 'profile' && <ProfileSettings />}
               </div>
             </div>
           </SidebarInset>

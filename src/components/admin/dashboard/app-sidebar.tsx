@@ -1,5 +1,5 @@
 import * as React from "react"
-import { BarChart3Icon, FilesIcon, ArrowRightLeftIcon, PhoneIcon, UserRoundIcon, UsersIcon, StethoscopeIcon } from "lucide-react"
+import { BarChart3Icon, FilesIcon, ArrowRightLeftIcon, PhoneIcon, UserRoundIcon, UsersIcon, StethoscopeIcon, IdCardIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { NavMain } from "@/components/admin/dashboard/nav-main"
@@ -21,6 +21,7 @@ export function AppSidebar({
   onViewChange,
   user,
   onLogout,
+  onProfile,
   onSalesWorkspace,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
@@ -28,6 +29,7 @@ export function AppSidebar({
   onViewChange: (view: AdminView) => void
   user: { name: string; email: string }
   onLogout: () => void
+  onProfile: () => void
   onSalesWorkspace: () => void
 }) {
   const { t } = useTranslation()
@@ -40,6 +42,7 @@ export function AppSidebar({
     { view: "channels", title: t("admin.nav.channels"), icon: <PhoneIcon /> },
     { view: "reports", title: t("admin.nav.reports"), icon: <FilesIcon /> },
     { view: "customers", title: t("admin.nav.customers"), icon: <UsersIcon /> },
+    { view: "profile", title: t("admin.nav.profile", "Profile"), icon: <IdCardIcon /> },
   ]
 
   return (
@@ -65,7 +68,7 @@ export function AppSidebar({
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} onLogout={onLogout} />
+        <NavUser user={user} onLogout={onLogout} onProfile={() => { onProfile(); closeOnMobile() }} />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={() => { onSalesWorkspace(); closeOnMobile() }} tooltip={t("admin.nav.salesWorkspace")}>

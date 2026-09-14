@@ -77,9 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async refreshProfile() { if (bypass) return; await loadProfile(session ?? null) },
     async updateProfile({ fullName, workPhone }) {
       if (!profile) throw new Error('Not authenticated')
+      const trimmedName = fullName.trim()
+      if (trimmedName.length < 2) throw new Error('Enter your full name.')
       const phone = normalizePhone(workPhone)
       if (!phone) throw new Error('Enter an international phone number in E.164 format.')
-      const { error } = await requireSupabase().from('profiles').update({ full_name: fullName.trim(), requested_phone_e164: phone }).eq('id', profile.id)
+      const { error } = await requireSupabase().from('profiles').update({ full_name: trimmedName, requested_phone_e164: phone }).eq('id', profile.id)
       if (error) throw error
       await loadProfile(session ?? null)
     },

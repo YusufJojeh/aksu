@@ -16,18 +16,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, LogOutIcon } from "lucide-react"
+import { EllipsisVerticalIcon, IdCardIcon, LogOutIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 export function NavUser({
   user,
   onLogout,
+  onProfile,
 }: {
   user: {
     name: string
     email: string
   }
   onLogout: () => void
+  onProfile: () => void
 }) {
   const { t } = useTranslation()
   const { isMobile } = useSidebar()
@@ -79,6 +81,10 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onProfile}>
+              <IdCardIcon />
+              {t("admin.nav.profile", "Profile")}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={onLogout}>
               <LogOutIcon />
               {t("admin.nav.logout")}
