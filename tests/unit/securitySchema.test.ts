@@ -1,7 +1,11 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 const migration = readFileSync('supabase/migrations/202609120001_operations.sql', 'utf8')
+const migrations = readdirSync('supabase/migrations')
+  .filter((file) => file.endsWith('.sql'))
+  .map((file) => readFileSync(`supabase/migrations/${file}`, 'utf8'))
+  .join('\n')
 
 describe('production authorization migration', () => {
   it('enables RLS for every patient and operational table', () => {
@@ -43,6 +47,12 @@ describe('production authorization migration', () => {
     expect(migration).toContain('users cannot change their own role, status, or email')
     expect(migration).toContain('privileged profile fields are admin-only')
     expect(migration).toContain('grant select, update on public.profiles to authenticated')
+  })
+
+  it('syncs confirmed Auth email changes into profiles', () => {
+    expect(migrations).toContain('create or replace function public.sync_profile_email_from_auth()')
+    expect(migrations).toContain('after update of email on auth.users')
+    expect(migrations).toContain('set email = lower(new.email)')
   })
 
   it('unassigns inactive numbers and records duplicate lineage', () => {

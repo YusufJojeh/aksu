@@ -14,7 +14,7 @@ interface AuthContextValue {
   register(input: { fullName: string; email: string; password: string; workPhone: string }): Promise<void>
   logout(): Promise<void>
   refreshProfile(): Promise<void>
-  updateProfile(input: { fullName: string; workPhone: string }): Promise<void>
+  updateProfile(input: { fullName: string; email: string; workPhone: string }): Promise<{ emailChangeRequested: boolean }>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -75,15 +75,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     async logout() { if (bypass) return; await requireSupabase().auth.signOut(); setProfile(undefined) },
     async refreshProfile() { if (bypass) return; await loadProfile(session ?? null) },
-    async updateProfile({ fullName, workPhone }) {
+    async updateProfile({ fullName, email, workPhone }) {
       if (!profile) throw new Error('Not authenticated')
       const trimmedName = fullName.trim()
       if (trimmedName.length < 2) throw new Error('Enter your full name.')
+      const normalizedEmail = email.trim().toLowerCase()
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) throw new Error('Enter a valid email address.')
       const phone = normalizePhone(workPhone)
       if (!phone) throw new Error('Enter an international phone number in E.164 format.')
+      const emailChanged = normalizedEmail !== profile.email.toLowerCase()
+      if (emailChanged) {
+        const { error: emailError } = await requireSupabase().auth.updateUser({ email: normalizedEmail })
+        if (emailError) throw emailError
+      }
       const { error } = await requireSupabase().from('profiles').update({ full_name: trimmedName, requested_phone_e164: phone }).eq('id', profile.id)
       if (error) throw error
       await loadProfile(session ?? null)
+      return { emailChangeRequested: emailChanged }
     },
   }), [bypass, loading, profile, session])
 
