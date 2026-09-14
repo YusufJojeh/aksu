@@ -12,7 +12,7 @@ export function ReportsAdmin() {
   useEffect(() => { void Promise.all([listReports(), listEmployees(), listChannels()]).then(([r, e, c]) => { setReports(r); setEmployees(e); setChannels(c) }).catch(() => setError(t('admin.reports.loadError'))) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const visible = useMemo(() => reports.filter((r) => (!query || `${r.patient_name} ${r.patient_phone}`.toLowerCase().includes(query.toLowerCase())) && (!clinic || r.clinic_id === clinic) && (!locale || r.document_locale === locale) && (!employee || r.created_by_employee_id === employee) && (!phone || r.employee_phone_snapshot.includes(phone)) && (!from || r.finalized_at >= from) && (!to || r.finalized_at <= `${to}T23:59:59`)), [reports, query, clinic, locale, employee, phone, from, to])
   const save = async (report: ArchivedReport) => { const blob = await downloadArchivedReport(report); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${report.id}.pdf`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000) }
-  return <main className="mx-auto max-w-[1500px] p-4 sm:p-7">
+  return <main className="mx-auto w-full min-w-0 max-w-[1500px] p-4 sm:p-7">
     <h1 className="text-2xl font-bold">{t('admin.reports.title')}</h1>
     <div className="mt-4 grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2 lg:grid-cols-4">
       <Input aria-label={t('admin.reports.searchLabel')} placeholder={t('admin.reports.searchPlaceholder')} value={query} onChange={(e) => setQuery(e.target.value)} />

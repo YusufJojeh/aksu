@@ -17,7 +17,7 @@ export function EmployeesAdmin() {
     setError(caught instanceof Error && caught.message === 'employee_has_history' ? t('admin.employees.deleteBlocked') : t('admin.employees.deleteFailed'))
   })
   const visible = employees.filter((employee) => (!query || `${employee.full_name} ${employee.email}`.toLowerCase().includes(query.toLowerCase())) && (!status || employee.status === status))
-  return <main className="mx-auto max-w-[1400px] p-4 sm:p-7">
+  return <main className="mx-auto w-full min-w-0 max-w-[1400px] p-4 sm:p-7">
     <h1 className="text-2xl font-bold">{t('admin.employees.title')}</h1>
     <form className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-4" onSubmit={(event) => { event.preventDefault(); mutate(inviteEmployee({ fullName: inviteName, email: inviteEmail, workPhone: invitePhone })); setInviteName(''); setInviteEmail(''); setInvitePhone('') }}>
       <label className="grid gap-1 text-sm">{t('admin.employees.inviteFullName')}<Input required value={inviteName} onChange={(e) => setInviteName(e.target.value)} /></label>

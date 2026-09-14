@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { listChannels, listEmployees, listReportEvents, listReports, type ArchivedReport, type CommunicationChannel, type ReportEvent } from '../../lib/operations'
 import type { EmployeeProfile } from '../../auth/types'
@@ -12,17 +12,11 @@ export function AdminAnalytics() {
   const [events, setEvents] = useState<ReportEvent[]>([])
   const [error, setError] = useState<string>()
   useEffect(() => { void Promise.all([listReports(), listEmployees(), listChannels(), listReportEvents()]).then(([r, e, c, v]) => { setReports(r); setEmployees(e); setChannels(c); setEvents(v) }).catch(() => setError(t('admin.dashboard.loadError'))) }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); const week = new Date(today); week.setDate(today.getDate() - ((today.getDay() + 6) % 7)); const month = new Date(now.getFullYear(), now.getMonth(), 1)
-  const counts = useMemo(() => ({ today: reports.filter((r) => new Date(r.finalized_at) >= today).length, week: reports.filter((r) => new Date(r.finalized_at) >= week).length, month: reports.filter((r) => new Date(r.finalized_at) >= month).length }), [reports]) // eslint-disable-line react-hooks/exhaustive-deps
   const grouped = (key: 'clinic_id' | 'document_locale') => Object.entries(reports.reduce<Record<string, number>>((acc, report) => { acc[report[key]] = (acc[report[key]] ?? 0) + 1; return acc }, {}))
-  return <main className="mx-auto max-w-[1500px] p-4 sm:p-7">
-    <h1 className="text-2xl font-bold">{t('admin.dashboard.title')}</h1>
-    {error && <p role="alert" className="mt-3 text-red-700">{error}</p>}
-    <div className="mt-5 grid gap-4 sm:grid-cols-4">
-      {[[t('admin.dashboard.totalFinalized'), reports.length], [t('admin.dashboard.today'), counts.today], [t('admin.dashboard.thisWeek'), counts.week], [t('admin.dashboard.thisMonth'), counts.month]].map(([label, count]) => <div key={String(label)} className="rounded-xl border bg-white p-5"><p className="text-xs uppercase text-stone-500">{label}</p><p className="text-3xl font-bold">{count}</p></div>)}
-    </div>
-    <div className="mt-5 grid gap-4 lg:grid-cols-3">
-      <div className="rounded-xl border bg-white p-5 lg:col-span-2">
+  return <main className="mx-auto w-full min-w-0 max-w-[1500px]">
+    {error && <p role="alert" className="text-red-700">{error}</p>}
+    <div className="grid min-w-0 gap-4 lg:grid-cols-3">
+      <div className="min-w-0 rounded-xl border bg-white p-5 lg:col-span-2">
         <h2 className="font-bold">{t('admin.dashboard.perEmployee')}</h2>
         <div className="mt-3 hidden overflow-x-auto md:block">
           <table className="w-full min-w-[650px] text-sm">

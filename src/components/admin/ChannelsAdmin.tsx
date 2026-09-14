@@ -10,7 +10,7 @@ export function ChannelsAdmin() {
   const load = () => Promise.all([listChannels(), listEmployees()]).then(([c, e]) => { setChannels(c); setEmployees(e) }).catch(() => setError(t('admin.channels.loadError')))
   useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const mutate = (action: Promise<void>) => void action.then(load).catch((caught: unknown) => setError(caught instanceof Error ? caught.message : t('admin.channels.updateFailed')))
-  return <main className="mx-auto max-w-[1300px] p-4 sm:p-7">
+  return <main className="mx-auto w-full min-w-0 max-w-[1300px] p-4 sm:p-7">
     <h1 className="text-2xl font-bold">{t('admin.channels.title')}</h1>
     <form className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-4" onSubmit={(e) => { e.preventDefault(); mutate(createChannel({ phone, label, type })); setPhone(''); setLabel('') }}>
       <label className="grid gap-1 text-sm">{t('admin.channels.phoneLabel')}<Input required placeholder={t('admin.channels.phonePlaceholder')} value={phone} onChange={(e) => setPhone(e.target.value)} /></label>
