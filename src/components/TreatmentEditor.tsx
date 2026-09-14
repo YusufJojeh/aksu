@@ -22,7 +22,7 @@ export function TreatmentEditor({ visit }: { visit: 'firstVisit' | 'secondVisit'
       <div className="grid gap-2">
         <label className="grid gap-1 text-xs font-semibold text-stone-500 lg:block"><span className="lg:hidden">{t('fields.unitPrice')}</span><Input aria-label={t('fields.unitPrice')} className="h-9" type="number" min="0" step="0.01" disabled={row.included} {...register(`${visit}.treatmentRows.${index}.unitPrice`, { valueAsNumber: true })} /></label>
         <Controller control={control} name={`${visit}.treatmentRows.${index}.included`} render={({ field }) => <Checkbox className="text-xs text-stone-600" checked={field.value} onChange={field.onChange} label={t('fields.included')} />} />
-        {row.included && <Input aria-label={t('fields.duration')} className="h-8" placeholder={t('fields.duration')} {...register(`${visit}.treatmentRows.${index}.duration`)} />}
+        {(row.included || report.clinicId === 'mb-dental') && <Input aria-label={t('fields.duration')} className="h-8" placeholder={t('fields.duration')} {...register(`${visit}.treatmentRows.${index}.duration`)} />}
       </div>
       <output className="text-end text-sm font-bold text-ink">{row.included ? t('document.included') : formatMoneyMinor(rowTotalMinor(row), report.document.currency, report.document.locale)}</output>
     </div>)}

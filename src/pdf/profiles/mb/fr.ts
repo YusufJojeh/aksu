@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { mbLatinCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
 // Cover-page fields are calibrated against the real supplied French template (measured directly
@@ -13,18 +14,21 @@ import type { MbPdfCoordinates } from './types'
 // boundary lets fitTextToBox's own shrink-to-fit take over for long values instead of letting
 // them silently bleed into the photo.
 //
-// Oral-health circle marks and treatment-plan table cells below are calibrated against the real
-// template artwork: checkbox squares and table gridlines were measured directly from the rendered
-// PDF pixels (fixed, locale-independent positions — the same physical squares/gridlines print in
-// the same place regardless of which language's labels reflow around them; confirmed identical to
-// en.ts's measurements).
-const treatmentRow = (y: number) => ({
-  treatment: box(34, y, 190, 18, 11),
-  quality: box(236, y, 86, 18, 10, 'center' as const, undefined, 8),
-  quantity: box(332, y, 43, 18, 11, 'center' as const, undefined, 8),
-  unitPrice: box(385, y, 85, 18, 11, 'center' as const, undefined, 8),
-  total: box(482, y, 77, 18, 11, 'center' as const, undefined, 8),
-})
+// Oral-health circle marks are calibrated against the real template artwork (checkbox squares
+// measured directly from the rendered PDF pixels).
+//
+// Treatment-table cells are NOT shared with en.ts: the French artwork's first table has its own
+// grid (dividers at x=229.8/308.6/401.2/476.4, row lines at y=622.3/595.0/568.0/541.0/513.5, header
+// bottom 649.0, bottom border 485.3 — measured at 4x, matching SERGIO ALMEIDO.pdf). The second
+// visit prints only an empty placeholder frame whose left edge sits 6pt further left (x=22.2, the
+// same shift as the other templates' second tables), so it reuses these columns shifted by 6pt
+// and the shared MB second-table row lines.
+const firstVisitColumns = {
+  treatment: [28.4, 229.8], quality: [229.8, 308.6], quantity: [308.6, 401.2], unitPrice: [401.2, 476.4], total: [476.4, 565.8],
+} as const
+const secondVisitColumns = {
+  treatment: [22.4, 223.8], quality: [223.8, 302.6], quantity: [302.6, 395.2], unitPrice: [395.2, 470.4], total: [470.4, 559.8],
+} as const
 
 export const frMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
@@ -48,7 +52,7 @@ export const frMbPdfCoordinates: MbPdfCoordinates = {
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: [632.8, 605.8, 578.8, 551.8, 524.4, 497.4].map(treatmentRow), total: box(320, 444, 230, 22, 14, 'center') },
-    secondVisit: { rows: [312.4, 285.4, 258.1, 231.1, 204.1, 177.1].map(treatmentRow), total: box(315, 124, 230, 22, 14, 'center') },
+    firstVisit: { rows: mbTableRows(firstVisitColumns, [649.0, 622.3, 595.0, 568.0, 541.0, 513.5, 485.3], mbLatinCellSizes), total: box(320, 439, 230, 32, 20, 'center') },
+    secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0], mbLatinCellSizes), total: box(315, 119, 230, 32, 20, 'center') },
   },
 }

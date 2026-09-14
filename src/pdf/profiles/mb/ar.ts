@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { mbArabicCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
 // Cover-page fields are calibrated against the real supplied Arabic template (measured directly
@@ -23,33 +24,23 @@ import type { MbPdfCoordinates } from './types'
 //    directly left of treatment, with quality/material one column further left. That's
 //    quantity-before-quality going right-to-left, not quality-before-quantity as the placeholder
 //    guessed.
-// As with de.ts, the two tables' column dividers are NOT identical: the second table's outer
-// border and every internal divider sit a uniform 6pt further left than the first table's (an
-// artwork quirk shared with de.ts's second table), so each visit gets its own row-builder with
-// independently measured column positions. Row y-positions, however, are pixel-identical to
-// de.ts's for both visits — this template shares the same page grid, only column widths and the
-// RTL column order differ.
-const firstVisitRow = (y: number) => ({
-  treatment: box(416, y, 143, 18, 10, 'right' as const, 'rtl' as const),
-  quantity: box(322, y, 82, 18, 11, 'center' as const, 'rtl' as const, 8),
-  quality: box(213, y, 97, 18, 10, 'center' as const, 'rtl' as const, 8),
-  unitPrice: box(108, y, 93, 18, 11, 'center' as const, 'rtl' as const, 8),
-  total: box(34, y, 62, 18, 11, 'center' as const, 'rtl' as const, 8),
-})
-
-const secondVisitRow = (y: number) => ({
-  treatment: box(416, y, 137, 18, 10, 'right' as const, 'rtl' as const),
-  quantity: box(326, y, 78, 18, 11, 'center' as const, 'rtl' as const, 8),
-  quality: box(213, y, 101, 18, 10, 'center' as const, 'rtl' as const, 8),
-  unitPrice: box(130, y, 71, 18, 11, 'center' as const, 'rtl' as const, 8),
-  total: box(28, y, 90, 18, 11, 'center' as const, 'rtl' as const, 8),
-})
+// Treatment-table cells are the real gridline-bounded cells, re-measured at 4x against the
+// artwork and the filled references (السيد رامي.pdf). Printed header order right-to-left is
+// العلاج (treatment) | المواد (material/quality) | الكمية (quantity) | السعر (unit price) |
+// المجموع (total). As with de.ts, the second table's outer border and dividers sit further left
+// than the first table's, so each visit has its own measured columns and row lines.
+const firstVisitColumns = {
+  treatment: [409.8, 565.4], quality: [315.2, 409.8], quantity: [232.0, 315.2], unitPrice: [130.0, 232.0], total: [27.6, 130.0],
+} as const
+const secondVisitColumns = {
+  treatment: [409.8, 559.8], quality: [319.8, 409.8], quantity: [238.0, 319.8], unitPrice: [136.0, 238.0], total: [21.8, 136.0],
+} as const
 
 export const arMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
-    patientName: box(110, 364, 122, 25, 18, 'right', 'rtl'),
-    reportDate: box(140, 301, 101, 23, 16, 'center', 'ltr'),
-    age: box(185, 237, 52, 23, 16, 'right', 'rtl'),
+    patientName: box(100, 364, 125, 25, 18, 'right', 'rtl'),
+    reportDate: box(150, 301, 92, 23, 12, 'center', 'ltr'),
+    age: box(179, 237, 52, 23, 12, 'right', 'rtl'),
     patientId: box(135, 179, 98, 26, 18, 'center', 'ltr'),
     phone: box(100, 120, 137, 24, 16, 'center', 'ltr'),
   },
@@ -67,7 +58,7 @@ export const arMbPdfCoordinates: MbPdfCoordinates = {
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: [640.6, 613.4, 586.1, 559.1, 532.1, 505.1].map(firstVisitRow), total: box(49, 448, 230, 22, 14, 'center', 'rtl') },
-    secondVisit: { rows: [320.3, 292.9, 265.9, 238.9, 211.8, 184.8].map(secondVisitRow), total: box(47, 126, 230, 22, 14, 'center', 'rtl') },
+    firstVisit: { rows: mbTableRows(firstVisitColumns, [655.25, 628.1, 601.0, 573.2, 546.2, 519.2, 484.2], mbArabicCellSizes, 'rtl'), total: box(49, 430, 230, 44, 32, 'center', 'ltr') },
+    secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 252.8, 225.8, 198.8, 163.8], mbArabicCellSizes, 'rtl'), total: box(47, 108, 230, 44, 32, 'center', 'ltr') },
   },
 }
