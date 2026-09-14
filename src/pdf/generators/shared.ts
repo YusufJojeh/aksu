@@ -109,7 +109,8 @@ function splitIntoTwoLines(text: string, font: PDFFont): string[] | undefined {
 }
 
 export function formatPdfMoney(minor: number, report: ReportData): string {
-  return formatDocumentMoneyMinor(minor, report.document.currency, report.document.locale, report.clinicId)
+  const value = formatDocumentMoneyMinor(minor, report.document.currency, report.document.locale, report.clinicId)
+  return report.clinicId === 'aksu' ? value.replace(/^([^\d\s-]+)(?=\d)/u, '$1 ') : value
 }
 
 export function treatmentLabel(row: TreatmentRow, t: ReturnType<typeof i18n.getFixedT>): string {

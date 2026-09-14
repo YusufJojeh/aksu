@@ -14,23 +14,17 @@ import { alignX, BLACK, drawFitted, drawTreatmentRows, formatPdfMoney, rowHasCon
 const CHECK_RED = rgb(0.82, 0.11, 0.11)
 const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
 
-// The MB oral-health coordinate data marks each row's divider line, not the checkbox square's
-// visual center (confirmed by overlaying reference markers on the rendered template) — every
-// mark needs this constant vertical correction to land inside the actual checkbox.
-const CHECKBOX_Y_CORRECTION = 0
+// The MB oral-health coordinate data sits slightly below the visual center of each checkbox.
+// This correction places the check mark in the middle of the printed square.
+const CHECKBOX_Y_CORRECTION = 7
 
-// Draws a bold check mark (not a filled dot) centered on a checkbox's coordinate point. The
-// template's own checkbox border is a hairline stroke that can vanish on a low-resolution or
-// recompressed view (e.g. a phone screenshot), which then reads as "the mark isn't in a box at
-// all" even though it's correctly positioned — a soft fill behind the mark makes the checked
-// state unambiguous regardless of whether that hairline border survives the viewing medium.
-// Real filled MB reports (SERGIO ALMEIDO.pdf, السيد خالد..pdf) consistently mark current-condition
-// boxes red and recommended-treatment boxes green, so the color is a parameter rather than a
-// shared constant.
+// Real filled MB reports consistently mark current-condition boxes red and recommended-treatment
+// boxes green. Draw a centered tick instead of a filled square so the original checkbox remains
+// visible in the generated PDF.
 function drawCheckMark(page: PDFPage, x: number, y: number, color: typeof CHECK_GREEN) {
   const cy = y + CHECKBOX_Y_CORRECTION
-  const fillHalf = 6.5
-  page.drawRectangle({ x: x - fillHalf, y: cy - fillHalf, width: fillHalf * 2, height: fillHalf * 2, color })
+  page.drawLine({ start: { x: x - 5.8, y: cy - 0.4 }, end: { x: x - 1.9, y: cy - 4.1 }, color, thickness: 2.2 })
+  page.drawLine({ start: { x: x - 1.9, y: cy - 4.1 }, end: { x: x + 6.1, y: cy + 4.6 }, color, thickness: 2.2 })
 }
 
 function drawFrenchPatientName(page: PDFPage, text: string, box: FieldBox, font: PDFFont): boolean {

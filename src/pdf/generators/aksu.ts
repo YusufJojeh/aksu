@@ -53,7 +53,7 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
     }
   }
 
-  await drawTreatmentRows(pdf, page2, validated.firstVisit.treatmentRows, coordinates.page2.firstVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions }, arabicFont)
+  await drawTreatmentRows(pdf, page2, validated.firstVisit.treatmentRows, coordinates.page2.firstVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont)
   await drawFitted(pdf, page2, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.page2.firstVisit.total, bold, locale, BLACK, definition.clearDynamicRegions ? WHITE : undefined, arabicFont)
   if (definition.clearDynamicRegions) {
     clearBox(page2, coordinates.page2.discount.sentence, GOLD)
@@ -68,7 +68,7 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   if (definition.drawSecondVisitHeading) {
     await drawFitted(pdf, page2, t('document.secondVisitHeading', { interval: clinicRegistry.aksu.docOnly?.secondVisitInterval ?? '' }), coordinates.page2.secondVisit.heading, bold, locale, BLACK, WHITE, arabicFont)
   }
-  await drawTreatmentRows(pdf, page2, validated.secondVisit.treatmentRows, coordinates.page2.secondVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions }, arabicFont)
+  await drawTreatmentRows(pdf, page2, validated.secondVisit.treatmentRows, coordinates.page2.secondVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont)
   await drawFitted(pdf, page2, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.page2.secondVisit.total, bold, locale, BLACK, definition.clearDynamicRegions ? WHITE : undefined, arabicFont)
   if (definition.redrawTableGrid) {
     drawTableGrid(page2, [191, 274, 358, 472], 529, 377, [509, 489, 469, 449, 427, 400, 377])
