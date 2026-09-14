@@ -52,6 +52,17 @@ export interface Customer {
   updated_at: string
 }
 
+export interface SalesIdentity { fullName: string; phone: string }
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = ''
+  const chunkSize = 0x8000
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize))
+  }
+  return btoa(binary)
+}
+
 async function callAdminEndpoint(path: string, body: Record<string, unknown>): Promise<void> {
   const { data: sessionData } = await requireSupabase().auth.getSession()
   const token = sessionData.session?.access_token
@@ -147,6 +158,19 @@ export async function downloadArchivedReport(report: ArchivedReport): Promise<Bl
   const event = await client.rpc('log_report_download', { p_report_id: archived.id })
   if (event.error) throw new Error(event.error.message)
   return blob
+}
+
+export async function finalizePublicReport(report: ReportData, bytes: Uint8Array, identity: SalesIdentity, parentReportId?: string): Promise<ArchivedReport> {
+  await assertArchivedPdf(bytes)
+  const pdfBase64 = bytesToBase64(bytes)
+  const response = await fetch('/api/reports/finalize-public', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ report, pdfBase64, salesName: identity.fullName, salesPhone: identity.phone, parentReportId: parentReportId ?? null }),
+  })
+  const payload = await response.json().catch(() => ({})) as { report?: ArchivedReport; error?: string }
+  if (!response.ok || !payload.report) throw new Error(payload.error ?? 'Failed to finalize report.')
+  return payload.report
 }
 
 export async function listReports(): Promise<ArchivedReport[]> {

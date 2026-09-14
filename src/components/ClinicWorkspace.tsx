@@ -10,7 +10,8 @@ import type { ClinicId } from '../clinics/types'
 import { createDefaultReport, locales, reportSchema, type Locale, type ReportData } from '../domain/report'
 import { isRtl } from '../lib/locale'
 import { reportFilename } from '../lib/filename'
-import { downloadArchivedReport, finalizeReport, type ArchivedReport } from '../lib/operations'
+import { downloadArchivedReport, finalizePublicReport, finalizeReport, type ArchivedReport, type SalesIdentity } from '../lib/operations'
+import { normalizePhone } from '../lib/phone'
 import { usePdfPreview } from '../hooks/usePdfPreview'
 import { generateReport } from '../pdf/generateReport'
 import { AksuReportForm } from './AksuReportForm'
@@ -18,9 +19,10 @@ import { MbReportForm } from './MbReportForm'
 import { PdfPreview } from './PdfPreview'
 import { Button, ConfirmDialog, Select, Tabs, TabsList, TabsTrigger } from './ui'
 
-export function ClinicWorkspace({ clinicId, profile, initialReport, parentReportId, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
+export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialReport, parentReportId, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
   clinicId: ClinicId
-  profile: EmployeeProfile
+  profile?: EmployeeProfile
+  salesIdentity?: SalesIdentity
   initialReport?: ReportData
   parentReportId?: string
   interfaceLocale: Locale
@@ -49,13 +51,18 @@ export function ClinicWorkspace({ clinicId, profile, initialReport, parentReport
     if (isE2EAuthBypass()) {
       const generated = await generateReport(validated)
       blob = new Blob([Uint8Array.from(generated.bytes)], { type: 'application/pdf' })
-    } else if (finalized?.snapshot === snapshot) {
+    } else if (profile && finalized?.snapshot === snapshot) {
       blob = await downloadArchivedReport(finalized.report)
     } else {
       const generated = await generateReport(validated)
-      const archived = await finalizeReport(validated, generated.bytes, profile, parentReportId)
+      const publicName = salesIdentity?.fullName.trim() ?? ''
+      const publicPhone = normalizePhone(salesIdentity?.phone ?? '')
+      if (!profile && (publicName.length < 2 || !publicPhone)) throw new Error('Enter your sales name and phone number in international format before downloading.')
+      const archived = profile
+        ? await finalizeReport(validated, generated.bytes, profile, parentReportId)
+        : await finalizePublicReport(validated, generated.bytes, { fullName: publicName, phone: publicPhone! }, parentReportId)
       setFinalized({ report: archived, snapshot })
-      blob = await downloadArchivedReport(archived)
+      blob = profile ? await downloadArchivedReport(archived) : new Blob([Uint8Array.from(generated.bytes)], { type: 'application/pdf' })
     }
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
