@@ -48,7 +48,13 @@ export const enMbPdfCoordinates: MbPdfCoordinates = {
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbEnglishCellSizes), total: box(320, 444, 230, 22, 14, 'center') },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbEnglishCellSizes), total: box(315, 124, 230, 22, 14, 'center') },
+    // The gold TOTAL pill itself (measured directly from the rendered artwork, gridline-scan at
+    // 200dpi) spans x=307.1-564.8, y=432.2-478.6 (first visit) and x=301.0-559.1, y=111.8-158.3
+    // (second visit) — a 46-47pt-tall pill, over twice the 22pt this box previously used, which
+    // left the total looking far smaller than the table's own 21pt cell text. Boxes below inset
+    // that real pill by ~10pt horizontally / ~5pt vertically for padding; drawCenteredCell (with
+    // VISIT_TOTAL_PADDING) centers the big preferred size inside on real glyph/font metrics.
+    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbEnglishCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
+    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbEnglishCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
   },
 }

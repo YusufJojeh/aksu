@@ -64,7 +64,10 @@ export const deMbPdfCoordinates: MbPdfCoordinates = {
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbLatinCellSizes), total: box(321, 452, 230, 22, 14, 'center') },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbLatinCellSizes), total: box(315, 132, 230, 22, 14, 'center') },
+    // Same physical gold TOTAL pill as en.ts (identical base artwork): x=307.1-564.8,
+    // y=432.2-478.6 (first visit) / x=301.0-559.1, y=111.8-158.3 (second visit), ~46-47pt tall —
+    // over twice the 22pt this box previously used. See en.ts for the full measurement note.
+    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbLatinCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
+    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbLatinCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
   },
 }

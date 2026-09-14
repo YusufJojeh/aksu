@@ -52,7 +52,10 @@ export const frMbPdfCoordinates: MbPdfCoordinates = {
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: mbTableRows(firstVisitColumns, [649.0, 622.3, 595.0, 568.0, 541.0, 513.5, 485.3], mbLatinCellSizes), total: box(320, 439, 230, 32, 20, 'center') },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0], mbLatinCellSizes), total: box(315, 119, 230, 32, 20, 'center') },
+    // The gold TOTAL pill (measured directly from the rendered artwork) spans x=307.1-564.8,
+    // y=432.5-479.3 (first visit) — same physical size as en.ts/de.ts's pill. Widened/enlarged to
+    // match: the total should read as dramatically more prominent than ordinary table text.
+    firstVisit: { rows: mbTableRows(firstVisitColumns, [649.0, 622.3, 595.0, 568.0, 541.0, 513.5, 485.3], mbLatinCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
+    secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0], mbLatinCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
   },
 }

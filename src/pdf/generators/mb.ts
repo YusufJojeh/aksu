@@ -9,7 +9,7 @@ import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
 import { fitTextToBox } from '../textFit'
 import type { FieldBox } from '../profiles/shared/fieldBox'
-import { alignX, BLACK, drawFitted, drawTreatmentRows, formatPdfMoney, rowHasContent, WHITE } from './shared'
+import { alignX, BLACK, drawCenteredCell, drawFitted, drawTreatmentRows, formatPdfMoney, rowHasContent, VISIT_TOTAL_PADDING, WHITE } from './shared'
 
 const CHECK_RED = rgb(0.82, 0.11, 0.11)
 const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
@@ -101,11 +101,11 @@ export async function generateMbReport(report: MbReportData): Promise<GeneratedR
   const tableOptions = { clearDynamicRegions: false, centerInCells: true }
   await drawTreatmentRows(pdf, treatmentPlan, validated.firstVisit.treatmentRows, coordinates.treatmentPlan.firstVisit.rows, numberFont, validated, tableOptions, arabicFont)
   if (validated.firstVisit.treatmentRows.some(rowHasContent)) {
-    await drawFitted(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.treatmentPlan.firstVisit.total, numberFont, locale, WHITE, undefined, arabicFont)
+    await drawCenteredCell(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.treatmentPlan.firstVisit.total, numberFont, WHITE, arabicFont, VISIT_TOTAL_PADDING)
   }
   await drawTreatmentRows(pdf, treatmentPlan, validated.secondVisit.treatmentRows, coordinates.treatmentPlan.secondVisit.rows, numberFont, validated, tableOptions, arabicFont)
   if (validated.secondVisit.treatmentRows.some(rowHasContent)) {
-    await drawFitted(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.treatmentPlan.secondVisit.total, numberFont, locale, WHITE, undefined, arabicFont)
+    await drawCenteredCell(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.treatmentPlan.secondVisit.total, numberFont, WHITE, arabicFont, VISIT_TOTAL_PADDING)
   }
 
   pdf.setTitle(`Dental Report - ${validated.patient.name}`)

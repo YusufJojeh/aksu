@@ -44,18 +44,22 @@ export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, 
 // ordinary values keep their preferred size.
 const CELL_PADDING = { x: 3, y: 0.75 }
 
+// The gold visit-total pill is a much larger, standalone box (not a dense table cell), so it gets
+// its own more generous padding — comfortable breathing room around a dramatically larger number.
+export const VISIT_TOTAL_PADDING = { x: 8, y: 3 }
+
 // Draws one value centered in a real table cell (box = the cell). Preferred size first; shrinks
 // toward minFontSize only when the value exceeds the usable width (or, for shaped Arabic, height).
-export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: string, cell: FieldBox, font: PDFFont, color = BLACK, searchFont?: PDFFont): Promise<void> {
+export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: string, cell: FieldBox, font: PDFFont, color = BLACK, searchFont?: PDFFont, padding = CELL_PADDING): Promise<void> {
   if (!text) return
   if (/[؀-ۿ]/.test(text)) {
     const direction = /[ء-ي]/.test(text) ? 'rtl' : 'ltr'
-    await drawBrowserShapedText(pdf, page, text, { ...cell, alignment: 'center', direction }, color === WHITE ? '#ffffff' : '#171515', { centerInk: true, padding: CELL_PADDING })
+    await drawBrowserShapedText(pdf, page, text, { ...cell, alignment: 'center', direction }, color === WHITE ? '#ffffff' : '#171515', { centerInk: true, padding })
     if (searchFont) page.drawText(text, { x: cell.x, y: cell.y, size: 1, font: searchFont, opacity: 0 })
     return
   }
-  const usableWidth = cell.width - 2 * CELL_PADDING.x
-  const usableHeight = cell.height - 2 * CELL_PADDING.y
+  const usableWidth = cell.width - 2 * padding.x
+  const usableHeight = cell.height - 2 * padding.y
   // heightAtSize(1) spans ascender to descender, so this cap keeps descenders inside the cell too.
   const lineHeight = font.heightAtSize(1)
   const ascentAt = (size: number) => font.heightAtSize(size, { descender: false })
@@ -85,7 +89,7 @@ export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: st
   // baseline is only nudged up if a descender (g, p, y) would otherwise enter the bottom padding.
   const ascent = ascentAt(fitted.fontSize)
   const descent = lineHeight * fitted.fontSize - ascent
-  const baseline = Math.max(cell.y + (cell.height - ascent) / 2, cell.y + CELL_PADDING.y + descent)
+  const baseline = Math.max(cell.y + (cell.height - ascent) / 2, cell.y + padding.y + descent)
   page.drawText(fitted.text, { x: cell.x + (cell.width - fitted.width) / 2, y: baseline, size: fitted.fontSize, font, color })
 }
 
