@@ -7,7 +7,7 @@ export function AuthScreen() {
   const auth = useAuth()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [phone, setPhone] = useState('')
   const [error, setError] = useState<string>()
@@ -17,9 +17,9 @@ export function AuthScreen() {
   const submit = async () => {
     setBusy(true); setError(undefined); setNotice(undefined)
     try {
-      if (mode === 'login') await auth.login(email, password)
+      if (mode === 'login') await auth.login(identifier, password)
       else {
-        await auth.register({ fullName, email, password, workPhone: phone })
+        await auth.register({ fullName, email: identifier, password, workPhone: phone })
         setNotice('Registration received. Confirm your email if requested, then wait for admin approval.')
       }
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'Authentication failed.') }
@@ -32,7 +32,7 @@ export function AuthScreen() {
       <Tabs value={mode} onValueChange={(value) => setMode(value as typeof mode)}><TabsList className="mb-5"><TabsTrigger value="login">Sign in</TabsTrigger><TabsTrigger value="register">Register</TabsTrigger></TabsList></Tabs>
       <div className="grid gap-4">
         {mode === 'register' && <Field label="Full name"><Input required minLength={2} autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} /></Field>}
-        <Field label="Email"><Input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></Field>
+        <Field label={mode === 'login' ? 'Email or phone number' : 'Email'}><Input required type={mode === 'login' ? 'text' : 'email'} placeholder={mode === 'login' ? 'email@example.com or +905551112233' : undefined} autoComplete={mode === 'login' ? 'username' : 'email'} value={identifier} onChange={(event) => setIdentifier(event.target.value)} /></Field>
         <Field label="Password"><Input required minLength={10} type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
         {mode === 'register' && <Field label="Work / WhatsApp number (E.164)"><Input required type="tel" placeholder="+905551112233" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} /></Field>}
       </div>

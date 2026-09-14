@@ -10,7 +10,7 @@ interface AuthContextValue {
   configured: boolean
   session?: Session
   profile?: EmployeeProfile
-  login(email: string, password: string): Promise<void>
+  login(identifier: string, password: string): Promise<void>
   register(input: { fullName: string; email: string; password: string; workPhone: string }): Promise<void>
   logout(): Promise<void>
   refreshProfile(): Promise<void>
@@ -59,8 +59,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     configured: Boolean(bypass) || isSupabaseConfigured,
     session,
     profile,
-    async login(email, password) {
-      const { data, error } = await requireSupabase().auth.signInWithPassword({ email: email.trim().toLowerCase(), password })
+    async login(identifier, password) {
+      const trimmed = identifier.trim()
+      if (trimmed.includes('@')) {
+        const { data, error } = await requireSupabase().auth.signInWithPassword({ email: trimmed.toLowerCase(), password })
+        if (error) throw error
+        await loadProfile(data.session)
+        return
+      }
+      const phone = normalizePhone(trimmed)
+      if (!phone) throw new Error('Enter your email or an international phone number, for example +905551112233.')
+      const response = await fetch('/api/auth/login-phone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password }),
+      })
+      const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
+      if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? 'Invalid phone number or password.')
+      const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
       if (error) throw error
       await loadProfile(data.session)
     },

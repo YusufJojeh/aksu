@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { arPdfCoordinates } from '../../src/pdf/profiles/aksu/ar'
+import { enPdfCoordinates } from '../../src/pdf/profiles/aksu/en'
+import { mbArabicCellSizes, mbEnglishCellSizes, mbLatinCellSizes } from '../../src/pdf/profiles/mb/table'
 import { coordinatesForTemplate, resolveTemplate } from '../../src/pdf/profiles/resolve'
 
 describe('PDF templates', () => {
@@ -12,6 +14,14 @@ describe('PDF templates', () => {
     expect(row.quality.x).toBeGreaterThan(row.quantity.x)
     expect(row.quantity.x).toBeGreaterThan(row.unitPrice.x)
     expect(row.unitPrice.x).toBeGreaterThan(row.total.x)
+  })
+  it('uses larger readable table fonts for both clinic templates', () => {
+    expect(enPdfCoordinates.page2.firstVisit.rows[0]!.treatment.fontSize).toBe(14)
+    expect(enPdfCoordinates.page2.firstVisit.rows[0]!.total.fontSize).toBe(12)
+    expect(arPdfCoordinates.page2.firstVisit.rows[0]!.treatment.fontSize).toBe(12)
+    expect(mbEnglishCellSizes.treatment.fontSize).toBe(21)
+    expect(mbLatinCellSizes.treatment.fontSize).toBe(19)
+    expect(mbArabicCellSizes.total.fontSize).toBe(21)
   })
   it('maps all twelve semantic assessment keys', () => {
     expect(Object.keys(arPdfCoordinates.page2.assessment)).toHaveLength(12)

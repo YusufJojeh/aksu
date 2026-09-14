@@ -14,11 +14,11 @@ const GRIDLINE_INSET = 0.75
 // derived from measured glyph widths). The preferred size sits above that for legibility; the
 // renderer only shrinks a value toward the minimum when it would exceed its cell's usable width.
 export const mbLatinCellSizes: Record<MbTableColumn, MbCellSize> = {
-  treatment: { fontSize: 18, minFontSize: 11 },
-  quality: { fontSize: 18, minFontSize: 11 },
-  quantity: { fontSize: 18, minFontSize: 11 },
-  unitPrice: { fontSize: 18, minFontSize: 11 },
-  total: { fontSize: 18, minFontSize: 11 },
+  treatment: { fontSize: 19, minFontSize: 11 },
+  quality: { fontSize: 19, minFontSize: 11 },
+  quantity: { fontSize: 19, minFontSize: 11 },
+  unitPrice: { fontSize: 19, minFontSize: 11 },
+  total: { fontSize: 19, minFontSize: 11 },
 }
 
 // The English template's columns are wider than the French ones (material 97.8pt vs 78.8pt,
@@ -26,22 +26,22 @@ export const mbLatinCellSizes: Record<MbTableColumn, MbCellSize> = {
 // 20pt keeps descenders (g, p, y) clear of the bottom gridline in the 27pt rows; the narrow 51pt
 // Qty column falls back to two centered lines instead of truncating.
 export const mbEnglishCellSizes: Record<MbTableColumn, MbCellSize> = {
-  treatment: { fontSize: 20, minFontSize: 11 },
-  quality: { fontSize: 20, minFontSize: 11 },
-  quantity: { fontSize: 20, minFontSize: 11 },
-  unitPrice: { fontSize: 20, minFontSize: 11 },
-  total: { fontSize: 20, minFontSize: 11 },
+  treatment: { fontSize: 21, minFontSize: 11 },
+  quality: { fontSize: 21, minFontSize: 11 },
+  quantity: { fontSize: 21, minFontSize: 11 },
+  unitPrice: { fontSize: 21, minFontSize: 11 },
+  total: { fontSize: 21, minFontSize: 11 },
 }
 
 // Arabic cells mix browser-shaped Arabic (Noto Sans Arabic) with plain Latin digits drawn in
 // Helvetica. Shaped Arabic with hamza/lam-alef ascenders and descenders is limited by ink height
 // in the 27pt rows (~19pt max), while digit-only prices and totals have room to stay more prominent.
 export const mbArabicCellSizes: Record<MbTableColumn, MbCellSize> = {
-  treatment: { fontSize: 19, minFontSize: 11 },
-  quality: { fontSize: 19, minFontSize: 11 },
-  quantity: { fontSize: 19, minFontSize: 11 },
-  unitPrice: { fontSize: 20, minFontSize: 12 },
-  total: { fontSize: 20, minFontSize: 12 },
+  treatment: { fontSize: 20, minFontSize: 11 },
+  quality: { fontSize: 20, minFontSize: 11 },
+  quantity: { fontSize: 20, minFontSize: 11 },
+  unitPrice: { fontSize: 21, minFontSize: 12 },
+  total: { fontSize: 21, minFontSize: 12 },
 }
 
 // `rowEdges` lists the horizontal gridlines top to bottom (header bottom edge first, table bottom
