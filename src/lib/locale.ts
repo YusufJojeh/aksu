@@ -26,11 +26,11 @@ export function formatDocumentMoneyMinor(minor: number, currency: Currency, loca
   }).format(minor / 100)
   if (clinicId === 'mb-dental' && currency === 'EUR') {
     if (locale === 'fr') return `${amount} Euro`
-    if (locale === 'ar') return `${amount}€`
+    if (locale === 'ar') return `${amount} €`
   }
   if (locale === 'ar' && currency === 'EUR') return `${amount} يورو`
   const symbols: Record<Currency, string> = { GBP: '£', EUR: '€', USD: '$', TRY: '₺' }
-  return `${symbols[currency]}${amount}`
+  return `${symbols[currency]} ${amount}`
 }
 
 export function formatReportDate(value: string, locale: Locale): string {
