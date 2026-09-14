@@ -3,6 +3,7 @@ import type { ReportData } from '../domain/report'
 import { visitTotalMinor } from '../domain/calculations'
 import { normalizePhone } from './phone'
 import { requireSupabase } from './supabase'
+import { assertArchivedPdf } from './pdfIntegrity'
 
 export interface ArchivedReport {
   id: string
@@ -84,6 +85,7 @@ async function verifyUploadedPdfHash(storageKey: string): Promise<string> {
 }
 
 export async function finalizeReport(report: ReportData, bytes: Uint8Array, profile: EmployeeProfile, parentReportId?: string): Promise<ArchivedReport> {
+  await assertArchivedPdf(bytes)
   const client = requireSupabase()
   const id = crypto.randomUUID()
   const storageKey = `${profile.id}/${id}.pdf`
@@ -124,11 +126,27 @@ export async function finalizeReport(report: ReportData, bytes: Uint8Array, prof
 
 export async function downloadArchivedReport(report: ArchivedReport): Promise<Blob> {
   const client = requireSupabase()
-  const result = await client.storage.from('report-pdfs').download(report.pdf_storage_key)
-  if (result.error) throw result.error
-  const event = await client.rpc('log_report_download', { p_report_id: report.id })
-  if (event.error) throw event.error
-  return result.data
+  // Recheck RLS before using saved data, including after an account is suspended.
+  const fresh = await client.from('reports').select('*').eq('id', report.id).single()
+  if (fresh.error || !fresh.data) throw new Error('This report is unavailable or you no longer have permission to download it.')
+  const archived = fresh.data as ArchivedReport
+  const result = await client.storage.from('report-pdfs').download(archived.pdf_storage_key)
+  const blob = result.data
+  if (result.error) {
+    const code = 'statusCode' in result.error ? String(result.error.statusCode) : ''
+    if (code !== '404' && !/^object not found$/i.test(result.error.message)) throw new Error(result.error.message)
+    throw new Error('The original finalized PDF is missing from storage. No replacement PDF has been generated.')
+  } else if (blob) {
+    const bytes = new Uint8Array(await blob.arrayBuffer())
+    try {
+      await assertArchivedPdf(bytes)
+    } catch { throw new Error('This archive contains an incomplete or damaged PDF, not a finalized treatment report. The file cannot be downloaded.') }
+    const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (byte) => byte.toString(16).padStart(2, '0')).join('')
+    if (hash !== archived.pdf_sha256.toLowerCase()) throw new Error('The archived PDF does not match the saved original checksum. Download stopped to protect report integrity.')
+  } else { throw new Error('The archive did not return a PDF. Please try again.') }
+  const event = await client.rpc('log_report_download', { p_report_id: archived.id })
+  if (event.error) throw new Error(event.error.message)
+  return blob
 }
 
 export async function listReports(): Promise<ArchivedReport[]> {

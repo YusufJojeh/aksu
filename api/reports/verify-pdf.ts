@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { createHash } from 'node:crypto'
+import { assertArchivedPdf } from '../../src/lib/pdfIntegrity.js'
 
 interface ServerlessRequest {
   method?: string
@@ -47,6 +48,12 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
   if (download.error || !download.data) { res.status(404).json({ error: 'object_not_found' }); return }
 
   const bytes = new Uint8Array(await download.data.arrayBuffer())
+  try {
+    await assertArchivedPdf(bytes)
+  } catch {
+    res.status(422).json({ error: 'Upload a complete five-page treatment PDF. Blank or malformed files cannot be finalized.' })
+    return
+  }
   const sha256 = createHash('sha256').update(bytes).digest('hex')
 
   const { error: upsertError } = await service

@@ -32,6 +32,7 @@ export function ClinicWorkspace({ clinicId, profile, initialReport, parentReport
   const [dialog, setDialog] = useState<'reset' | 'clear' | 'switchClinic'>()
   const [finalized, setFinalized] = useState<{ report: ArchivedReport; snapshot: string }>()
   const [finalizeError, setFinalizeError] = useState<string>()
+  const [isDownloading, setIsDownloading] = useState(false)
   const defaults = useMemo(() => initialReport?.clinicId === clinicId ? initialReport : createDefaultReport(clinicId), [clinicId, initialReport])
   const form = useForm<ReportData>({ defaultValues: defaults, resolver: zodResolver(reportSchema) as Resolver<ReportData>, mode: 'onBlur' })
   const { isDirty } = form.formState
@@ -60,8 +61,16 @@ export function ClinicWorkspace({ clinicId, profile, initialReport, parentReport
     const anchor = document.createElement('a')
     anchor.href = url
     anchor.download = reportFilename(clinicId, report.patient.name, report.patient.reportDate, report.document.locale)
-    anchor.click()
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+    document.body.appendChild(anchor); anchor.click(); anchor.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+  }
+
+  const handleDownload = async () => {
+    if (isDownloading) return
+    setIsDownloading(true); setFinalizeError(undefined)
+    try { await download() }
+    catch (caught) { setFinalizeError(caught instanceof Error ? caught.message : 'Finalization failed.') }
+    finally { setIsDownloading(false) }
   }
 
   const reset = () => form.reset(createDefaultReport(clinicId))
@@ -99,7 +108,7 @@ export function ClinicWorkspace({ clinicId, profile, initialReport, parentReport
     <footer className="sticky bottom-0 z-30 border-t border-stone-300 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgb(0_0_0/8%)] backdrop-blur sm:px-7">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-2">
         <div className="flex gap-2"><Button variant="outline" onClick={() => setDialog('reset')}><RotateCcw size={16} />{t('actions.reset')}</Button><Button variant="outline" onClick={() => setDialog('clear')}><Trash2 size={16} /><span className="hidden sm:inline">{t('actions.clear')}</span></Button></div>
-        <div className="flex items-center gap-2">{finalizeError && <span role="alert" className="max-w-sm text-xs text-red-700">{finalizeError}</span>}<Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={preview.isGenerating || !preview.blob} onClick={() => void download().catch((caught: unknown) => setFinalizeError(caught instanceof Error ? caught.message : 'Finalization failed.'))}><Download size={16} />{finalized?.snapshot === JSON.stringify(report) ? t('actions.download') : `Finalize & ${t('actions.download')}`}</Button></div>
+        <div className="flex items-center gap-2">{finalizeError && <span role="alert" className="max-w-sm text-xs text-red-700">{finalizeError}</span>}<Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={isDownloading || preview.isGenerating || !preview.blob} aria-busy={isDownloading} onClick={() => void handleDownload()}><Download size={16} />{finalized?.snapshot === JSON.stringify(report) ? t('actions.download') : `Finalize & ${t('actions.download')}`}</Button></div>
       </div>
     </footer>
     <ConfirmDialog open={dialog === 'reset'} onOpenChange={(open) => !open && setDialog(undefined)} title={t('dialog.resetTitle')} body={t('dialog.resetBody')} confirmLabel={t('actions.confirm')} cancelLabel={t('actions.cancel')} onConfirm={reset} />

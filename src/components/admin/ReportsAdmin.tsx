@@ -3,15 +3,29 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { downloadArchivedReport, listChannels, listEmployees, listReports, type ArchivedReport, type CommunicationChannel } from '../../lib/operations'
 import type { EmployeeProfile } from '../../auth/types'
+import { archivedReportFilename } from '../../lib/filename'
 import { locales } from '../../domain/report'
 import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
 
 export function ReportsAdmin() {
   const { t } = useTranslation()
+  const [downloading, setDownloading] = useState<string>()
   const [reports, setReports] = useState<ArchivedReport[]>([]); const [employees, setEmployees] = useState<EmployeeProfile[]>([]); const [channels, setChannels] = useState<CommunicationChannel[]>([]); const [query, setQuery] = useState(''); const [clinic, setClinic] = useState(''); const [locale, setLocale] = useState(''); const [employee, setEmployee] = useState(''); const [phone, setPhone] = useState(''); const [from, setFrom] = useState(''); const [to, setTo] = useState(''); const [error, setError] = useState<string>()
   useEffect(() => { void Promise.all([listReports(), listEmployees(), listChannels()]).then(([r, e, c]) => { setReports(r); setEmployees(e); setChannels(c) }).catch(() => setError(t('admin.reports.loadError'))) }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const visible = useMemo(() => reports.filter((r) => (!query || `${r.patient_name} ${r.patient_phone}`.toLowerCase().includes(query.toLowerCase())) && (!clinic || r.clinic_id === clinic) && (!locale || r.document_locale === locale) && (!employee || r.created_by_employee_id === employee) && (!phone || r.employee_phone_snapshot.includes(phone)) && (!from || r.finalized_at >= from) && (!to || r.finalized_at <= `${to}T23:59:59`)), [reports, query, clinic, locale, employee, phone, from, to])
-  const save = async (report: ArchivedReport) => { const blob = await downloadArchivedReport(report); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${report.id}.pdf`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000) }
+  const save = async (report: ArchivedReport) => {
+    setError(undefined); setDownloading(report.id)
+    try {
+      const blob = await downloadArchivedReport(report)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a'); a.href = url
+      a.download = archivedReportFilename(report)
+      document.body.appendChild(a); a.click(); a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : t('admin.reports.downloadFailed'))
+    } finally { setDownloading(undefined) }
+  }
   return <main className="mx-auto w-full min-w-0 max-w-[1500px] p-4 sm:p-7">
     <h1 className="text-2xl font-bold">{t('admin.reports.title')}</h1>
     <div className="mt-4 grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -50,7 +64,7 @@ export function ReportsAdmin() {
             <td>{r.employee_phone_snapshot}</td>
             <td>{channel?.current_assignment?.profile?.full_name ?? t('admin.common.unassigned')}</td>
             <td className="flex gap-1">
-              <Button size="icon" aria-label={`${t('admin.reports.download')} ${r.id}`} onClick={() => void save(r).catch(() => setError(t('admin.reports.downloadFailed')))}><Download size={15} /></Button>
+              <Button size="icon" aria-label={`${t('admin.reports.download')} ${r.id}`} disabled={Boolean(downloading)} aria-busy={downloading === r.id} onClick={() => void save(r)}><Download size={15} /></Button>
               <Button size="icon" aria-label={`${t('admin.reports.duplicate')} ${r.id}`} title={t('admin.reports.duplicate')} onClick={() => { sessionStorage.setItem('duplicateReport', JSON.stringify({ payload: r.report_payload, parentReportId: r.id })); window.location.href = '/' }}><Copy size={15} /></Button>
             </td>
           </tr>
@@ -73,7 +87,7 @@ export function ReportsAdmin() {
           <AccordionField label={t('admin.reports.colCurrentOwner')}>{channel?.current_assignment?.profile?.full_name ?? t('admin.common.unassigned')}</AccordionField>
           <AccordionField label={t('admin.reports.colPdf')}>
             <div className="flex gap-2">
-              <Button className="flex-1" onClick={() => void save(r).catch(() => setError(t('admin.reports.downloadFailed')))}><Download size={15} />{t('admin.reports.download')}</Button>
+              <Button className="flex-1" disabled={Boolean(downloading)} aria-busy={downloading === r.id} onClick={() => void save(r)}><Download size={15} />{t('admin.reports.download')}</Button>
               <Button className="flex-1" onClick={() => { sessionStorage.setItem('duplicateReport', JSON.stringify({ payload: r.report_payload, parentReportId: r.id })); window.location.href = '/' }}><Copy size={15} />{t('admin.reports.duplicate')}</Button>
             </div>
           </AccordionField>
