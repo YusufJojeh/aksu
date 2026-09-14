@@ -2,16 +2,15 @@ import { expect, test, type Page } from '@playwright/test'
 import { selectClinic } from './helpers/selectClinic'
 
 async function waitForPage(page: Page) {
-  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas').first()
   await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 600 && node.height > 900), { timeout: 20_000 }).toBe(true)
   return canvas
 }
 
-async function nextPage(page: Page, canvas: ReturnType<Page['locator']>, pageNumber: number) {
-  const before = await canvas.evaluate((node: HTMLCanvasElement) => node.toDataURL())
-  await page.getByRole('button', { name: 'Next page' }).click()
-  await expect(page.getByText(`Page ${pageNumber} of 5`)).toBeVisible()
-  await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement, previous) => node.toDataURL() !== previous, before), { timeout: 20_000 }).toBe(true)
+async function waitForRenderedCanvas(page: Page, index: number) {
+  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas').nth(index)
+  await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 600 && node.height > 900), { timeout: 20_000 }).toBe(true)
+  return canvas
 }
 
 for (const locale of ['fr', 'ar'] as const) {
@@ -36,11 +35,9 @@ for (const locale of ['fr', 'ar'] as const) {
 
     let canvas = await waitForPage(page)
     await expect(canvas).toHaveScreenshot(`mb-${locale}-page-1.png`, { maxDiffPixelRatio: 0.01 })
-    await nextPage(page, canvas, 2)
-    canvas = await waitForPage(page)
+    canvas = await waitForRenderedCanvas(page, 1)
     await expect(canvas).toHaveScreenshot(`mb-${locale}-page-2.png`, { maxDiffPixelRatio: 0.01 })
-    await nextPage(page, canvas, 3)
-    canvas = await waitForPage(page)
+    canvas = await waitForRenderedCanvas(page, 2)
     await expect(canvas).toHaveScreenshot(`mb-${locale}-page-3.png`, { maxDiffPixelRatio: 0.01 })
   })
 }

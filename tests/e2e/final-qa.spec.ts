@@ -82,7 +82,7 @@ test('final production report QA', async ({ page }, testInfo) => {
   await expect(page.getByRole('heading', { name: 'Treatment plan' })).toBeVisible()
   await fillProductionReport(page)
 
-  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas').first()
   await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 500 && node.height > 700), { timeout: 30_000 }).toBe(true)
 
   for (const currency of ['GBP', 'EUR', 'USD', 'TRY']) {

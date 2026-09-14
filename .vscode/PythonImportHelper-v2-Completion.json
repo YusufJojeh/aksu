@@ -1,0 +1,1104 @@
+[
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "argparse",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "argparse",
+        "description": "argparse",
+        "detail": "argparse",
+        "documentation": {}
+    },
+    {
+        "label": "deque",
+        "importPath": "collections",
+        "description": "collections",
+        "isExtraImport": true,
+        "detail": "collections",
+        "documentation": {}
+    },
+    {
+        "label": "Counter",
+        "importPath": "collections",
+        "description": "collections",
+        "isExtraImport": true,
+        "detail": "collections",
+        "documentation": {}
+    },
+    {
+        "label": "deque",
+        "importPath": "collections",
+        "description": "collections",
+        "isExtraImport": true,
+        "detail": "collections",
+        "documentation": {}
+    },
+    {
+        "label": "Counter",
+        "importPath": "collections",
+        "description": "collections",
+        "isExtraImport": true,
+        "detail": "collections",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageDraw",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageDraw",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageChops",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageEnhance",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageStat",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "Image",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "ImageDraw",
+        "importPath": "PIL",
+        "description": "PIL",
+        "isExtraImport": true,
+        "detail": "PIL",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "pdfplumber",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pdfplumber",
+        "description": "pdfplumber",
+        "detail": "pdfplumber",
+        "documentation": {}
+    },
+    {
+        "label": "PdfReader",
+        "importPath": "pypdf",
+        "description": "pypdf",
+        "isExtraImport": true,
+        "detail": "pypdf",
+        "documentation": {}
+    },
+    {
+        "label": "PdfReader",
+        "importPath": "pypdf",
+        "description": "pypdf",
+        "isExtraImport": true,
+        "detail": "pypdf",
+        "documentation": {}
+    },
+    {
+        "label": "fitz",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "fitz",
+        "description": "fitz",
+        "detail": "fitz",
+        "documentation": {}
+    },
+    {
+        "label": "re",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "re",
+        "description": "re",
+        "detail": "re",
+        "documentation": {}
+    },
+    {
+        "label": "pypdfium2",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pypdfium2",
+        "description": "pypdfium2",
+        "detail": "pypdfium2",
+        "documentation": {}
+    },
+    {
+        "label": "_Known",
+        "kind": 6,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    for i in range(len(value)):\n        yield i",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    for i in range(len(value)):\n        yield i\ndef _object_keys(value):\n    for key in value:\n        yield key\ndef _is_array(value):",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.find_color_components",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.find_color_components",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"image\", type=Path)\n    args = parser.parse_args()\n    image = Image.open(args.image).convert(\"RGB\")\n    width, height = image.size\n    pixels = image.load()\n    points = set()\n    for y in range(height):\n        for x in range(width):",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.find_color_components",
+        "documentation": {}
+    },
+    {
+        "label": "inspect_pdf",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.pdf_forensics",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.pdf_forensics",
+        "peekOfCode": "def inspect_pdf(path: Path) -> None:\n    reader = PdfReader(path)\n    print(f\"\\n=== {path.name} ===\")\n    print(f\"pages={len(reader.pages)} bytes={path.stat().st_size}\")\n    for index, page in enumerate(reader.pages, 1):\n        media = tuple(round(float(value), 2) for value in page.mediabox)\n        crop = tuple(round(float(value), 2) for value in page.cropbox)\n        print(f\"page={index} media={media} crop={crop} rotate={page.get('/Rotate', 0)}\")\n    with pdfplumber.open(path) as document:\n        for index, page in enumerate(document.pages[:3], 1):",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.pdf_forensics",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.pdf_forensics",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.pdf_forensics",
+        "peekOfCode": "def main() -> None:\n    if hasattr(sys.stdout, \"reconfigure\"):\n        sys.stdout.reconfigure(encoding=\"utf-8\", errors=\"replace\")\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"paths\", nargs=\"+\", type=Path)\n    args = parser.parse_args()\n    for path in args.paths:\n        inspect_pdf(path)\nif __name__ == \"__main__\":\n    main()",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.pdf_forensics",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.render_pdf",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.render_pdf",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"pdf\", type=Path)\n    parser.add_argument(\"output\", type=Path)\n    parser.add_argument(\"--pages\", default=\"1,2,3\")\n    parser.add_argument(\"--dpi\", type=int, default=180)\n    args = parser.parse_args()\n    args.output.mkdir(parents=True, exist_ok=True)\n    requested = [int(value) for value in args.pages.split(\",\")]\n    document = fitz.open(args.pdf)",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.render_pdf",
+        "documentation": {}
+    },
+    {
+        "label": "add_redactions",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "def add_redactions(page: fitz.Page, rectangles: list[tuple[int, int, int, int]]) -> None:\n    for rectangle in rectangles:\n        page.add_redact_annot(fitz.Rect(*rectangle), fill=False, cross_out=False)\ndef sanitize(source: Path, output: Path) -> None:\n    document = fitz.open(source)\n    if document.page_count != 5:\n        raise ValueError(f\"Expected five pages, found {document.page_count}\")\n    add_redactions(document[0], PAGE_1_TEXT)\n    document[0].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_TEXT)",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "sanitize",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "def sanitize(source: Path, output: Path) -> None:\n    document = fitz.open(source)\n    if document.page_count != 5:\n        raise ValueError(f\"Expected five pages, found {document.page_count}\")\n    add_redactions(document[0], PAGE_1_TEXT)\n    document[0].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_TEXT)\n    document[1].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_SAMPLE_GRAPHICS)\n    document[1].apply_redactions(images=0, graphics=2, text=1)",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"source\", type=Path)\n    parser.add_argument(\"--output\", type=Path, default=Path(\"public/templates/ar.pdf\"))\n    args = parser.parse_args()\n    sanitize(args.source, args.output)\nif __name__ == \"__main__\":\n    main()",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_1_TEXT",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_1_TEXT = [\n    (120, 428, 215, 451),\n    (118, 464, 198, 491),\n    (150, 499, 202, 526),\n    (100, 540, 235, 564),\n]\nPAGE_2_TEXT = [\n    (55, 330, 565, 462),\n    (55, 465, 145, 484),\n    (105, 485, 170, 507),",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_2_TEXT",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_2_TEXT = [\n    (55, 330, 565, 462),\n    (55, 465, 145, 484),\n    (105, 485, 170, 507),\n    (55, 625, 560, 651),\n    (95, 730, 150, 751),\n]\nPAGE_2_SAMPLE_GRAPHICS = [\n    (339, 204, 357, 221),\n    (538, 164, 556, 181),",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_2_SAMPLE_GRAPHICS",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_2_SAMPLE_GRAPHICS = [\n    (339, 204, 357, 221),\n    (538, 164, 556, 181),\n    (109, 500, 171, 506),\n    (99, 744, 147, 750),\n]\nSTALE_MARKERS = [\n    \"سكينة\",\n    \"02/09/2026\",\n    \"+34 613 43 52 52\",",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "STALE_MARKERS",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "peekOfCode": "STALE_MARKERS = [\n    \"سكينة\",\n    \"02/09/2026\",\n    \"+34 613 43 52 52\",\n    \"30 سنة\",\n    \"4315\",\n    \"3970\",\n    \"3240\",\n    \"975\",\n    \"480\",",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "add_text_redactions",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "peekOfCode": "def add_text_redactions(page: fitz.Page, rectangles: list[tuple[float, float, float, float]]) -> None:\n    for rectangle in rectangles:\n        page.add_redact_annot(fitz.Rect(*rectangle), fill=None, cross_out=False)\n    page.apply_redactions(images=0, graphics=0, text=0)\ndef reset_checkbox(page: fitz.Page, x: float, bottom_y: float, offset: float) -> None:\n    center_y = page.rect.height - (bottom_y + offset)\n    # Selected source reports use colored strokes that extend just beyond the\n    # printed checkbox. Clear that complete mark before restoring the artwork.\n    clear_half = 12.0\n    page.draw_rect(",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "reset_checkbox",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "peekOfCode": "def reset_checkbox(page: fitz.Page, x: float, bottom_y: float, offset: float) -> None:\n    center_y = page.rect.height - (bottom_y + offset)\n    # Selected source reports use colored strokes that extend just beyond the\n    # printed checkbox. Clear that complete mark before restoring the artwork.\n    clear_half = 12.0\n    page.draw_rect(\n        fitz.Rect(x - clear_half, center_y - clear_half, x + clear_half, center_y + clear_half),\n        color=(1, 1, 1),\n        fill=(1, 1, 1),\n        width=0,",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"locale\", choices=PROFILES)\n    parser.add_argument(\"source\", type=Path)\n    parser.add_argument(\"output\", type=Path)\n    args = parser.parse_args()\n    profile = PROFILES[args.locale]\n    document = fitz.open(args.source)\n    add_text_redactions(document[0], profile[\"page1\"])\n    for y in profile[\"condition_y\"]:",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "GOLD",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "peekOfCode": "GOLD = (0.72, 0.51, 0.18)\nPROFILES = {\n    \"fr\": {\n        \"page1\": [(88, 447, 180, 470), (78, 523, 194, 566), (80, 591, 150, 614), (82, 708, 205, 731), (88, 774, 170, 799)],\n        \"condition_x\": 50.0,\n        \"condition_y\": [662.9, 632.9, 602.9, 572.9, 542.9, 512.9, 482.9, 452.9],\n        \"recommended_x\": 297.5,\n        \"recommended_y\": [329.4, 299.4, 269.4, 239.4, 209.4, 179.4, 149.4, 119.4],\n        \"checkbox_y_offset\": 0.0,\n        \"totals\": [(380, 370, 510, 415), (365, 690, 510, 740)],",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "PROFILES",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "peekOfCode": "PROFILES = {\n    \"fr\": {\n        \"page1\": [(88, 447, 180, 470), (78, 523, 194, 566), (80, 591, 150, 614), (82, 708, 205, 731), (88, 774, 170, 799)],\n        \"condition_x\": 50.0,\n        \"condition_y\": [662.9, 632.9, 602.9, 572.9, 542.9, 512.9, 482.9, 452.9],\n        \"recommended_x\": 297.5,\n        \"recommended_y\": [329.4, 299.4, 269.4, 239.4, 209.4, 179.4, 149.4, 119.4],\n        \"checkbox_y_offset\": 0.0,\n        \"totals\": [(380, 370, 510, 415), (365, 690, 510, 740)],\n    },",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "pixels",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "peekOfCode": "def pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:\n            raise RuntimeError(f\"{pdf_path}: expected five pages\")",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "verify",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "peekOfCode": "def verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:\n            raise RuntimeError(f\"{pdf_path}: expected five pages\")\n        for page in document:\n            if abs(page.rect.width - EXPECTED_SIZE[0]) > 0.01 or abs(page.rect.height - EXPECTED_SIZE[1]) > 0.01:",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"template\", type=Path)\n    parser.add_argument(\"pdfs\", nargs=\"+\", type=Path)\n    parser.add_argument(\"--render-dir\", type=Path, default=Path(\"tmp/pdfs/arabic-cases-rendered\"))\n    args = parser.parse_args()\n    verify(args.template, args.pdfs, args.render_dir)\nif __name__ == \"__main__\":\n    main()",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "STALE",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "peekOfCode": "STALE = [\"سكينة\", \"02/09/2026\", \"+34 613 43 52 52\", \"30 سنة\", \"4315\", \"3970\", \"3240\", \"975\", \"480\"]\nEXPECTED_SIZE = (594.75, 842.25)\ndef pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "EXPECTED_SIZE",
+        "kind": 5,
+        "importPath": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "peekOfCode": "EXPECTED_SIZE = (594.75, 842.25)\ndef pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:",
+        "detail": ".claude.worktrees.admin-dashboard-shadcn.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "add_redactions",
+        "kind": 2,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "def add_redactions(page: fitz.Page, rectangles: list[tuple[int, int, int, int]]) -> None:\n    for rectangle in rectangles:\n        page.add_redact_annot(fitz.Rect(*rectangle), fill=False, cross_out=False)\ndef sanitize(source: Path, output: Path) -> None:\n    document = fitz.open(source)\n    if document.page_count != 5:\n        raise ValueError(f\"Expected five pages, found {document.page_count}\")\n    add_redactions(document[0], PAGE_1_TEXT)\n    document[0].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_TEXT)",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "sanitize",
+        "kind": 2,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "def sanitize(source: Path, output: Path) -> None:\n    document = fitz.open(source)\n    if document.page_count != 5:\n        raise ValueError(f\"Expected five pages, found {document.page_count}\")\n    add_redactions(document[0], PAGE_1_TEXT)\n    document[0].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_TEXT)\n    document[1].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_SAMPLE_GRAPHICS)\n    document[1].apply_redactions(images=0, graphics=2, text=1)",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"source\", type=Path)\n    parser.add_argument(\"--output\", type=Path, default=Path(\"public/templates/ar.pdf\"))\n    args = parser.parse_args()\n    sanitize(args.source, args.output)\nif __name__ == \"__main__\":\n    main()",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_1_TEXT",
+        "kind": 5,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_1_TEXT = [\n    (120, 428, 215, 451),\n    (118, 464, 198, 491),\n    (150, 499, 202, 526),\n    (100, 540, 235, 564),\n]\nPAGE_2_TEXT = [\n    (55, 330, 565, 462),\n    (55, 465, 145, 484),\n    (105, 485, 170, 507),",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_2_TEXT",
+        "kind": 5,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_2_TEXT = [\n    (55, 330, 565, 462),\n    (55, 465, 145, 484),\n    (105, 485, 170, 507),\n    (55, 625, 560, 651),\n    (95, 730, 150, 751),\n]\nPAGE_2_SAMPLE_GRAPHICS = [\n    (339, 204, 357, 221),\n    (538, 164, 556, 181),",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_2_SAMPLE_GRAPHICS",
+        "kind": 5,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_2_SAMPLE_GRAPHICS = [\n    (339, 204, 357, 221),\n    (538, 164, 556, 181),\n    (109, 500, 171, 506),\n    (99, 744, 147, 750),\n]\nSTALE_MARKERS = [\n    \"سكينة\",\n    \"02/09/2026\",\n    \"+34 613 43 52 52\",",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "STALE_MARKERS",
+        "kind": 5,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "peekOfCode": "STALE_MARKERS = [\n    \"سكينة\",\n    \"02/09/2026\",\n    \"+34 613 43 52 52\",\n    \"30 سنة\",\n    \"4315\",\n    \"3970\",\n    \"3240\",\n    \"975\",\n    \"480\",",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "pixels",
+        "kind": 2,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "peekOfCode": "def pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:\n            raise RuntimeError(f\"{pdf_path}: expected five pages\")",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "verify",
+        "kind": 2,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "peekOfCode": "def verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:\n            raise RuntimeError(f\"{pdf_path}: expected five pages\")\n        for page in document:\n            if abs(page.rect.width - EXPECTED_SIZE[0]) > 0.01 or abs(page.rect.height - EXPECTED_SIZE[1]) > 0.01:",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"template\", type=Path)\n    parser.add_argument(\"pdfs\", nargs=\"+\", type=Path)\n    parser.add_argument(\"--render-dir\", type=Path, default=Path(\"tmp/pdfs/arabic-cases-rendered\"))\n    args = parser.parse_args()\n    verify(args.template, args.pdfs, args.render_dir)\nif __name__ == \"__main__\":\n    main()",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "STALE",
+        "kind": 5,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "peekOfCode": "STALE = [\"سكينة\", \"02/09/2026\", \"+34 613 43 52 52\", \"30 سنة\", \"4315\", \"3970\", \"3240\", \"975\", \"480\"]\nEXPECTED_SIZE = (594.75, 842.25)\ndef pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "EXPECTED_SIZE",
+        "kind": 5,
+        "importPath": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "description": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "peekOfCode": "EXPECTED_SIZE = (594.75, 842.25)\ndef pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:",
+        "detail": ".claude.worktrees.vigorous-cori-4836ad.scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "_Known",
+        "kind": 6,
+        "importPath": "node_modules.flatted.python.flatted",
+        "description": "node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    for i in range(len(value)):\n        yield i",
+        "detail": "node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": "node_modules.flatted.python.flatted",
+        "description": "node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    for i in range(len(value)):\n        yield i\ndef _object_keys(value):\n    for key in value:\n        yield key\ndef _is_array(value):",
+        "detail": "node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": "node_modules.flatted.python.flatted",
+        "description": "node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": "node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": "node_modules.flatted.python.flatted",
+        "description": "node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": "node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "kind": 2,
+        "importPath": "scripts.compare_pdf_visuals",
+        "description": "scripts.compare_pdf_visuals",
+        "peekOfCode": "def render(page: fitz.Page, dpi: int) -> Image.Image:\n    pixmap = page.get_pixmap(dpi=dpi, alpha=False)\n    return Image.frombytes(\"RGB\", (pixmap.width, pixmap.height), pixmap.samples)\ndef main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"reference\", type=Path)\n    parser.add_argument(\"generated\", type=Path)\n    parser.add_argument(\"output\", type=Path)\n    parser.add_argument(\"--dpi\", type=int, default=200)\n    parser.add_argument(\"--pages\", default=\"1,2,3\")",
+        "detail": "scripts.compare_pdf_visuals",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.compare_pdf_visuals",
+        "description": "scripts.compare_pdf_visuals",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"reference\", type=Path)\n    parser.add_argument(\"generated\", type=Path)\n    parser.add_argument(\"output\", type=Path)\n    parser.add_argument(\"--dpi\", type=int, default=200)\n    parser.add_argument(\"--pages\", default=\"1,2,3\")\n    args = parser.parse_args()\n    args.output.mkdir(parents=True, exist_ok=True)\n    reference = fitz.open(args.reference)",
+        "detail": "scripts.compare_pdf_visuals",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.find_color_components",
+        "description": "scripts.find_color_components",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"image\", type=Path)\n    args = parser.parse_args()\n    image = Image.open(args.image).convert(\"RGB\")\n    width, height = image.size\n    pixels = image.load()\n    points = set()\n    for y in range(height):\n        for x in range(width):",
+        "detail": "scripts.find_color_components",
+        "documentation": {}
+    },
+    {
+        "label": "inspect_pdf",
+        "kind": 2,
+        "importPath": "scripts.pdf_forensics",
+        "description": "scripts.pdf_forensics",
+        "peekOfCode": "def inspect_pdf(path: Path) -> None:\n    reader = PdfReader(path)\n    print(f\"\\n=== {path.name} ===\")\n    print(f\"pages={len(reader.pages)} bytes={path.stat().st_size}\")\n    for index, page in enumerate(reader.pages, 1):\n        media = tuple(round(float(value), 2) for value in page.mediabox)\n        crop = tuple(round(float(value), 2) for value in page.cropbox)\n        print(f\"page={index} media={media} crop={crop} rotate={page.get('/Rotate', 0)}\")\n    with pdfplumber.open(path) as document:\n        for index, page in enumerate(document.pages[:3], 1):",
+        "detail": "scripts.pdf_forensics",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.pdf_forensics",
+        "description": "scripts.pdf_forensics",
+        "peekOfCode": "def main() -> None:\n    if hasattr(sys.stdout, \"reconfigure\"):\n        sys.stdout.reconfigure(encoding=\"utf-8\", errors=\"replace\")\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"paths\", nargs=\"+\", type=Path)\n    args = parser.parse_args()\n    for path in args.paths:\n        inspect_pdf(path)\nif __name__ == \"__main__\":\n    main()",
+        "detail": "scripts.pdf_forensics",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.render_pdf",
+        "description": "scripts.render_pdf",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"pdf\", type=Path)\n    parser.add_argument(\"output\", type=Path)\n    parser.add_argument(\"--pages\", default=\"1,2,3\")\n    parser.add_argument(\"--dpi\", type=int, default=180)\n    args = parser.parse_args()\n    args.output.mkdir(parents=True, exist_ok=True)\n    requested = [int(value) for value in args.pages.split(\",\")]\n    document = fitz.open(args.pdf)",
+        "detail": "scripts.render_pdf",
+        "documentation": {}
+    },
+    {
+        "label": "add_redactions",
+        "kind": 2,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "def add_redactions(page: fitz.Page, rectangles: list[tuple[int, int, int, int]]) -> None:\n    for rectangle in rectangles:\n        page.add_redact_annot(fitz.Rect(*rectangle), fill=False, cross_out=False)\ndef sanitize(source: Path, output: Path) -> None:\n    document = fitz.open(source)\n    if document.page_count != 5:\n        raise ValueError(f\"Expected five pages, found {document.page_count}\")\n    add_redactions(document[0], PAGE_1_TEXT)\n    document[0].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_TEXT)",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "sanitize",
+        "kind": 2,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "def sanitize(source: Path, output: Path) -> None:\n    document = fitz.open(source)\n    if document.page_count != 5:\n        raise ValueError(f\"Expected five pages, found {document.page_count}\")\n    add_redactions(document[0], PAGE_1_TEXT)\n    document[0].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_TEXT)\n    document[1].apply_redactions(images=0, graphics=0, text=0)\n    add_redactions(document[1], PAGE_2_SAMPLE_GRAPHICS)\n    document[1].apply_redactions(images=0, graphics=2, text=1)",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"source\", type=Path)\n    parser.add_argument(\"--output\", type=Path, default=Path(\"public/templates/ar.pdf\"))\n    args = parser.parse_args()\n    sanitize(args.source, args.output)\nif __name__ == \"__main__\":\n    main()",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_1_TEXT",
+        "kind": 5,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_1_TEXT = [\n    (120, 428, 215, 451),\n    (118, 464, 198, 491),\n    (150, 499, 202, 526),\n    (100, 540, 235, 564),\n]\nPAGE_2_TEXT = [\n    (55, 330, 565, 462),\n    (55, 465, 145, 484),\n    (105, 485, 170, 507),",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_2_TEXT",
+        "kind": 5,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_2_TEXT = [\n    (55, 330, 565, 462),\n    (55, 465, 145, 484),\n    (105, 485, 170, 507),\n    (55, 625, 560, 651),\n    (95, 730, 150, 751),\n]\nPAGE_2_SAMPLE_GRAPHICS = [\n    (339, 204, 357, 221),\n    (538, 164, 556, 181),",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "PAGE_2_SAMPLE_GRAPHICS",
+        "kind": 5,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "PAGE_2_SAMPLE_GRAPHICS = [\n    (339, 204, 357, 221),\n    (538, 164, 556, 181),\n    (109, 500, 171, 506),\n    (99, 744, 147, 750),\n]\nSTALE_MARKERS = [\n    \"سكينة\",\n    \"02/09/2026\",\n    \"+34 613 43 52 52\",",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "STALE_MARKERS",
+        "kind": 5,
+        "importPath": "scripts.sanitize_arabic_template",
+        "description": "scripts.sanitize_arabic_template",
+        "peekOfCode": "STALE_MARKERS = [\n    \"سكينة\",\n    \"02/09/2026\",\n    \"+34 613 43 52 52\",\n    \"30 سنة\",\n    \"4315\",\n    \"3970\",\n    \"3240\",\n    \"975\",\n    \"480\",",
+        "detail": "scripts.sanitize_arabic_template",
+        "documentation": {}
+    },
+    {
+        "label": "add_text_redactions",
+        "kind": 2,
+        "importPath": "scripts.sanitize_latest_mb_template",
+        "description": "scripts.sanitize_latest_mb_template",
+        "peekOfCode": "def add_text_redactions(page: fitz.Page, rectangles: list[tuple[float, float, float, float]]) -> None:\n    for rectangle in rectangles:\n        page.add_redact_annot(fitz.Rect(*rectangle), fill=None, cross_out=False)\n    page.apply_redactions(images=0, graphics=0, text=0)\ndef reset_checkbox(page: fitz.Page, x: float, bottom_y: float, offset: float) -> None:\n    center_y = page.rect.height - (bottom_y + offset)\n    # Selected source reports use colored strokes that extend just beyond the\n    # printed checkbox. Clear that complete mark before restoring the artwork.\n    clear_half = 12.0\n    page.draw_rect(",
+        "detail": "scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "reset_checkbox",
+        "kind": 2,
+        "importPath": "scripts.sanitize_latest_mb_template",
+        "description": "scripts.sanitize_latest_mb_template",
+        "peekOfCode": "def reset_checkbox(page: fitz.Page, x: float, bottom_y: float, offset: float) -> None:\n    center_y = page.rect.height - (bottom_y + offset)\n    # Selected source reports use colored strokes that extend just beyond the\n    # printed checkbox. Clear that complete mark before restoring the artwork.\n    clear_half = 12.0\n    page.draw_rect(\n        fitz.Rect(x - clear_half, center_y - clear_half, x + clear_half, center_y + clear_half),\n        color=(1, 1, 1),\n        fill=(1, 1, 1),\n        width=0,",
+        "detail": "scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.sanitize_latest_mb_template",
+        "description": "scripts.sanitize_latest_mb_template",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"locale\", choices=PROFILES)\n    parser.add_argument(\"source\", type=Path)\n    parser.add_argument(\"output\", type=Path)\n    args = parser.parse_args()\n    profile = PROFILES[args.locale]\n    document = fitz.open(args.source)\n    add_text_redactions(document[0], profile[\"page1\"])\n    for y in profile[\"condition_y\"]:",
+        "detail": "scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "GOLD",
+        "kind": 5,
+        "importPath": "scripts.sanitize_latest_mb_template",
+        "description": "scripts.sanitize_latest_mb_template",
+        "peekOfCode": "GOLD = (0.72, 0.51, 0.18)\nPROFILES = {\n    \"fr\": {\n        \"page1\": [(88, 447, 180, 470), (78, 523, 194, 566), (80, 591, 150, 614), (82, 708, 205, 731), (88, 774, 170, 799)],\n        \"condition_x\": 50.0,\n        \"condition_y\": [662.9, 632.9, 602.9, 572.9, 542.9, 512.9, 482.9, 452.9],\n        \"recommended_x\": 297.5,\n        \"recommended_y\": [329.4, 299.4, 269.4, 239.4, 209.4, 179.4, 149.4, 119.4],\n        \"checkbox_y_offset\": 0.0,\n        \"totals\": [(380, 370, 510, 415), (365, 690, 510, 740)],",
+        "detail": "scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "PROFILES",
+        "kind": 5,
+        "importPath": "scripts.sanitize_latest_mb_template",
+        "description": "scripts.sanitize_latest_mb_template",
+        "peekOfCode": "PROFILES = {\n    \"fr\": {\n        \"page1\": [(88, 447, 180, 470), (78, 523, 194, 566), (80, 591, 150, 614), (82, 708, 205, 731), (88, 774, 170, 799)],\n        \"condition_x\": 50.0,\n        \"condition_y\": [662.9, 632.9, 602.9, 572.9, 542.9, 512.9, 482.9, 452.9],\n        \"recommended_x\": 297.5,\n        \"recommended_y\": [329.4, 299.4, 269.4, 239.4, 209.4, 179.4, 149.4, 119.4],\n        \"checkbox_y_offset\": 0.0,\n        \"totals\": [(380, 370, 510, 415), (365, 690, 510, 740)],\n    },",
+        "detail": "scripts.sanitize_latest_mb_template",
+        "documentation": {}
+    },
+    {
+        "label": "pixels",
+        "kind": 2,
+        "importPath": "scripts.verify_arabic_outputs",
+        "description": "scripts.verify_arabic_outputs",
+        "peekOfCode": "def pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:\n            raise RuntimeError(f\"{pdf_path}: expected five pages\")",
+        "detail": "scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "verify",
+        "kind": 2,
+        "importPath": "scripts.verify_arabic_outputs",
+        "description": "scripts.verify_arabic_outputs",
+        "peekOfCode": "def verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:\n            raise RuntimeError(f\"{pdf_path}: expected five pages\")\n        for page in document:\n            if abs(page.rect.width - EXPECTED_SIZE[0]) > 0.01 or abs(page.rect.height - EXPECTED_SIZE[1]) > 0.01:",
+        "detail": "scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "scripts.verify_arabic_outputs",
+        "description": "scripts.verify_arabic_outputs",
+        "peekOfCode": "def main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"template\", type=Path)\n    parser.add_argument(\"pdfs\", nargs=\"+\", type=Path)\n    parser.add_argument(\"--render-dir\", type=Path, default=Path(\"tmp/pdfs/arabic-cases-rendered\"))\n    args = parser.parse_args()\n    verify(args.template, args.pdfs, args.render_dir)\nif __name__ == \"__main__\":\n    main()",
+        "detail": "scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "STALE",
+        "kind": 5,
+        "importPath": "scripts.verify_arabic_outputs",
+        "description": "scripts.verify_arabic_outputs",
+        "peekOfCode": "STALE = [\"سكينة\", \"02/09/2026\", \"+34 613 43 52 52\", \"30 سنة\", \"4315\", \"3970\", \"3240\", \"975\", \"480\"]\nEXPECTED_SIZE = (594.75, 842.25)\ndef pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)",
+        "detail": "scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "EXPECTED_SIZE",
+        "kind": 5,
+        "importPath": "scripts.verify_arabic_outputs",
+        "description": "scripts.verify_arabic_outputs",
+        "peekOfCode": "EXPECTED_SIZE = (594.75, 842.25)\ndef pixels(page: fitz.Page) -> fitz.Pixmap:\n    return page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)\ndef verify(template_path: Path, pdf_paths: list[Path], render_dir: Path) -> None:\n    template = fitz.open(template_path)\n    render_dir.mkdir(parents=True, exist_ok=True)\n    thumbnails: list[tuple[str, Image.Image, Image.Image]] = []\n    for pdf_path in pdf_paths:\n        document = fitz.open(pdf_path)\n        if document.page_count != 5:",
+        "detail": "scripts.verify_arabic_outputs",
+        "documentation": {}
+    },
+    {
+        "label": "root",
+        "kind": 5,
+        "importPath": "tmp.pdfs.inspect_source",
+        "description": "tmp.pdfs.inspect_source",
+        "peekOfCode": "root = Path(__file__).resolve().parents[2]\nsource = root / \"public\" / \"templates\" / \"en.pdf\"\noutput = root / \"tmp\" / \"pdfs\"\nwith pdfplumber.open(source) as pdf:\n    print(f\"pages={len(pdf.pages)}\")\n    for index, page in enumerate(pdf.pages, start=1):\n        print(f\"page{index}={page.width}x{page.height}\")\n        text = page.extract_text(layout=True) or \"\"\n        (output / f\"source-{index}.txt\").write_text(text, encoding=\"utf-8\")\ndocument = pdfium.PdfDocument(source)",
+        "detail": "tmp.pdfs.inspect_source",
+        "documentation": {}
+    },
+    {
+        "label": "source",
+        "kind": 5,
+        "importPath": "tmp.pdfs.inspect_source",
+        "description": "tmp.pdfs.inspect_source",
+        "peekOfCode": "source = root / \"public\" / \"templates\" / \"en.pdf\"\noutput = root / \"tmp\" / \"pdfs\"\nwith pdfplumber.open(source) as pdf:\n    print(f\"pages={len(pdf.pages)}\")\n    for index, page in enumerate(pdf.pages, start=1):\n        print(f\"page{index}={page.width}x{page.height}\")\n        text = page.extract_text(layout=True) or \"\"\n        (output / f\"source-{index}.txt\").write_text(text, encoding=\"utf-8\")\ndocument = pdfium.PdfDocument(source)\nfor index in range(len(document)):",
+        "detail": "tmp.pdfs.inspect_source",
+        "documentation": {}
+    },
+    {
+        "label": "output",
+        "kind": 5,
+        "importPath": "tmp.pdfs.inspect_source",
+        "description": "tmp.pdfs.inspect_source",
+        "peekOfCode": "output = root / \"tmp\" / \"pdfs\"\nwith pdfplumber.open(source) as pdf:\n    print(f\"pages={len(pdf.pages)}\")\n    for index, page in enumerate(pdf.pages, start=1):\n        print(f\"page{index}={page.width}x{page.height}\")\n        text = page.extract_text(layout=True) or \"\"\n        (output / f\"source-{index}.txt\").write_text(text, encoding=\"utf-8\")\ndocument = pdfium.PdfDocument(source)\nfor index in range(len(document)):\n    page = document[index]",
+        "detail": "tmp.pdfs.inspect_source",
+        "documentation": {}
+    },
+    {
+        "label": "document",
+        "kind": 5,
+        "importPath": "tmp.pdfs.inspect_source",
+        "description": "tmp.pdfs.inspect_source",
+        "peekOfCode": "document = pdfium.PdfDocument(source)\nfor index in range(len(document)):\n    page = document[index]\n    bitmap = page.render(scale=2.0)\n    bitmap.to_pil().save(output / f\"source-{index + 1}.png\")",
+        "detail": "tmp.pdfs.inspect_source",
+        "documentation": {}
+    },
+    {
+        "label": "source",
+        "kind": 5,
+        "importPath": "tmp.pdfs.render_pdf",
+        "description": "tmp.pdfs.render_pdf",
+        "peekOfCode": "source = Path(sys.argv[1]).resolve()\noutput = Path(sys.argv[2]).resolve()\noutput.mkdir(parents=True, exist_ok=True)\ndocument = pdfium.PdfDocument(source)\nprint(f\"pages={len(document)}\")\nfor index in range(len(document)):\n    page = document[index]\n    width, height = page.get_size()\n    print(f\"page{index + 1}={width:.2f}x{height:.2f}\")\n    page.render(scale=2.0).to_pil().save(output / f\"page-{index + 1}.png\")",
+        "detail": "tmp.pdfs.render_pdf",
+        "documentation": {}
+    },
+    {
+        "label": "output",
+        "kind": 5,
+        "importPath": "tmp.pdfs.render_pdf",
+        "description": "tmp.pdfs.render_pdf",
+        "peekOfCode": "output = Path(sys.argv[2]).resolve()\noutput.mkdir(parents=True, exist_ok=True)\ndocument = pdfium.PdfDocument(source)\nprint(f\"pages={len(document)}\")\nfor index in range(len(document)):\n    page = document[index]\n    width, height = page.get_size()\n    print(f\"page{index + 1}={width:.2f}x{height:.2f}\")\n    page.render(scale=2.0).to_pil().save(output / f\"page-{index + 1}.png\")",
+        "detail": "tmp.pdfs.render_pdf",
+        "documentation": {}
+    },
+    {
+        "label": "document",
+        "kind": 5,
+        "importPath": "tmp.pdfs.render_pdf",
+        "description": "tmp.pdfs.render_pdf",
+        "peekOfCode": "document = pdfium.PdfDocument(source)\nprint(f\"pages={len(document)}\")\nfor index in range(len(document)):\n    page = document[index]\n    width, height = page.get_size()\n    print(f\"page{index + 1}={width:.2f}x{height:.2f}\")\n    page.render(scale=2.0).to_pil().save(output / f\"page-{index + 1}.png\")",
+        "detail": "tmp.pdfs.render_pdf",
+        "documentation": {}
+    }
+]

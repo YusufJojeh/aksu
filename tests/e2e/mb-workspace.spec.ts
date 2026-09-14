@@ -15,8 +15,10 @@ test('MB Dental workspace: no form before clinic selection, EN default preview, 
   await expect(page.getByLabel('Currency')).toHaveValue('EUR')
 
   if (testInfo.project.name === 'mobile') await page.getByRole('tab', { name: 'Preview' }).click()
-  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  const canvases = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  const canvas = canvases.first()
   await expect(canvas).toBeVisible({ timeout: 20_000 })
+  await expect(canvases).toHaveCount(5)
   if (testInfo.project.name === 'mobile') await page.getByRole('tab', { name: 'Edit' }).click()
 
   await page.getByLabel('Patient name').fill('Marie Dupont')

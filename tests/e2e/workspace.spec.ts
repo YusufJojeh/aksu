@@ -51,13 +51,15 @@ test('preview renders once and remains stable while idle', async ({ page }, test
   await selectClinic(page, 'aksu')
   await page.getByLabel('Patient name').fill('Preview Patient')
   await page.getByLabel('Phone').fill('+44 7000 000000')
-  const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  const canvases = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
+  const canvas = canvases.first()
   await expect.poll(async () => canvas.evaluate((element) => {
     const node = element as HTMLCanvasElement
     if (!node.width || !node.height) return false
     const pixels = node.getContext('2d')?.getImageData(0, 0, Math.min(40, node.width), Math.min(40, node.height)).data
     return Boolean(pixels && Array.from(pixels).some((value, index) => index % 4 !== 3 && value < 245))
   }), { timeout: 20_000 }).toBe(true)
+  await expect(canvases).toHaveCount(5)
   await page.waitForTimeout(3_000)
   expect(errors).toEqual([])
   expect(templateRequests).toBe(1)
