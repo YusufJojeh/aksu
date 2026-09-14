@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { mbEnglishCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
 // Cover-page fields are calibrated against the real supplied English template (measured directly
@@ -12,14 +13,18 @@ import type { MbPdfCoordinates } from './types'
 // Oral-health circle marks and treatment-plan table cells below are calibrated against the real
 // template artwork: checkbox squares and table gridlines were measured directly from the rendered
 // PDF pixels (fixed, locale-independent positions — the same physical squares/gridlines print in
-// the same place regardless of which language's labels reflow around them).
-const treatmentRow = (y: number) => ({
-  treatment: box(34, y, 190, 18, 11),
-  quality: box(236, y, 86, 18, 10, 'center' as const, undefined, 8),
-  quantity: box(332, y, 43, 18, 11, 'center' as const, undefined, 8),
-  unitPrice: box(385, y, 85, 18, 11, 'center' as const, undefined, 8),
-  total: box(482, y, 77, 18, 11, 'center' as const, undefined, 8),
-})
+// the same place regardless of which language's labels reflow around them). Table cells are the
+// real gridline-bounded cells (re-measured at 4x); the second table sits 6pt further left.
+// This template's MediaBox starts at y=7.83 (not 0), and pdf-lib draws in raw PDF user space, so
+// row edges measured from the rendered page are shifted by that origin.
+const MEDIA_BOX_Y = 7.83
+const pdfRowEdges = (edges: number[]) => edges.map((y) => y + MEDIA_BOX_Y)
+const firstVisitColumns = {
+  treatment: [28.1, 230.1], quality: [230.1, 327.9], quantity: [327.9, 378.9], unitPrice: [378.9, 476.4], total: [476.4, 565.4],
+} as const
+const secondVisitColumns = {
+  treatment: [22.1, 224.1], quality: [224.1, 321.9], quantity: [321.9, 373.0], unitPrice: [373.0, 470.5], total: [470.5, 559.5],
+} as const
 
 export const enMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
@@ -43,7 +48,7 @@ export const enMbPdfCoordinates: MbPdfCoordinates = {
     },
   },
   treatmentPlan: {
-    firstVisit: { rows: [632.8, 605.8, 578.8, 551.8, 524.4, 497.4].map(treatmentRow), total: box(320, 444, 230, 22, 14, 'center') },
-    secondVisit: { rows: [312.4, 285.4, 258.1, 231.1, 204.1, 177.1].map(treatmentRow), total: box(315, 124, 230, 22, 14, 'center') },
+    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbEnglishCellSizes), total: box(320, 444, 230, 22, 14, 'center') },
+    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbEnglishCellSizes), total: box(315, 124, 230, 22, 14, 'center') },
   },
 }
