@@ -38,6 +38,34 @@ export interface CommunicationChannel {
 
 export interface ReportEvent { id: string; report_id: string; actor_id: string; event_type: 'finalized' | 'downloaded' | 'admin_downloaded' | 'duplicated'; created_at: string }
 
+export interface Customer {
+  id: string
+  clinic_id: string
+  full_name: string
+  phone_e164: string | null
+  patient_identifier: string | null
+  notes: string | null
+  status: 'active' | 'archived'
+  created_by_employee_id: string
+  created_at: string
+  updated_at: string
+}
+
+async function callAdminEndpoint(path: string, body: Record<string, unknown>): Promise<void> {
+  const { data: sessionData } = await requireSupabase().auth.getSession()
+  const token = sessionData.session?.access_token
+  if (!token) throw new Error('Not authenticated')
+  const response = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  })
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as { error?: string }
+    throw new Error(payload.error ?? 'Request failed')
+  }
+}
+
 async function verifyUploadedPdfHash(storageKey: string): Promise<string> {
   const { data: sessionData } = await requireSupabase().auth.getSession()
   const token = sessionData.session?.access_token
@@ -124,18 +152,11 @@ export async function listEmployees(): Promise<EmployeeProfile[]> {
 export async function inviteEmployee(input: { fullName: string; email: string; workPhone: string }): Promise<void> {
   const phone = normalizePhone(input.workPhone)
   if (!phone) throw new Error('Use E.164 format, for example +905551112233.')
-  const { data: sessionData } = await requireSupabase().auth.getSession()
-  const token = sessionData.session?.access_token
-  if (!token) throw new Error('Not authenticated')
-  const response = await fetch('/api/admin/invite-employee', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164: phone }),
-  })
-  if (!response.ok) {
-    const payload = (await response.json().catch(() => ({}))) as { error?: string }
-    throw new Error(payload.error ?? 'Failed to invite employee')
-  }
+  await callAdminEndpoint('/api/admin/invite-employee', { fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164: phone })
+}
+
+export async function deleteEmployee(id: string): Promise<void> {
+  await callAdminEndpoint('/api/admin/delete-employee', { employeeId: id })
 }
 
 export async function updateEmployee(id: string, patch: { full_name?: string; role?: UserRole; status?: EmployeeStatus }): Promise<void> {
@@ -191,5 +212,42 @@ export async function assignChannel(channelId: string, employeeId: string): Prom
 
 export async function unassignChannel(channelId: string): Promise<void> {
   const { error } = await requireSupabase().rpc('unassign_channel', { p_channel_id: channelId })
+  if (error) throw error
+}
+
+export async function listCustomers(): Promise<Customer[]> {
+  const { data, error } = await requireSupabase().from('customers').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return data as Customer[]
+}
+
+export async function createCustomer(input: { clinicId: string; fullName: string; phone?: string; patientIdentifier?: string; notes?: string }): Promise<void> {
+  const phone = input.phone?.trim() ? normalizePhone(input.phone) : null
+  if (input.phone?.trim() && !phone) throw new Error('Use E.164 format, for example +905551112233.')
+  const { error } = await requireSupabase().from('customers').insert({
+    clinic_id: input.clinicId,
+    full_name: input.fullName.trim(),
+    phone_e164: phone,
+    patient_identifier: input.patientIdentifier?.trim() || null,
+    notes: input.notes?.trim() || null,
+  })
+  if (error) throw error
+}
+
+export async function updateCustomer(id: string, patch: { fullName?: string; phone?: string; patientIdentifier?: string; notes?: string; status?: 'active' | 'archived' }): Promise<void> {
+  const update: { full_name?: string; phone_e164?: string | null; patient_identifier?: string | null; notes?: string | null; status?: 'active' | 'archived' } = {}
+  if (patch.fullName !== undefined) update.full_name = patch.fullName.trim()
+  if (patch.phone !== undefined) {
+    if (!patch.phone.trim()) { update.phone_e164 = null }
+    else {
+      const phone = normalizePhone(patch.phone)
+      if (!phone) throw new Error('Use E.164 format, for example +905551112233.')
+      update.phone_e164 = phone
+    }
+  }
+  if (patch.patientIdentifier !== undefined) update.patient_identifier = patch.patientIdentifier.trim() || null
+  if (patch.notes !== undefined) update.notes = patch.notes.trim() || null
+  if (patch.status !== undefined) update.status = patch.status
+  const { error } = await requireSupabase().from('customers').update(update).eq('id', id)
   if (error) throw error
 }

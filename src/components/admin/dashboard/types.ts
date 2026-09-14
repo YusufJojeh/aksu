@@ -1,1 +1,1 @@
-export type AdminView = "dashboard" | "employees" | "channels" | "reports"
+export type AdminView = "dashboard" | "employees" | "channels" | "reports" | "customers"

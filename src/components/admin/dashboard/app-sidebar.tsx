@@ -1,5 +1,6 @@
 import * as React from "react"
-import { BarChart3Icon, FilesIcon, ArrowRightLeftIcon, PhoneIcon, UserRoundIcon, StethoscopeIcon } from "lucide-react"
+import { BarChart3Icon, FilesIcon, ArrowRightLeftIcon, PhoneIcon, UserRoundIcon, UsersIcon, StethoscopeIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { NavMain } from "@/components/admin/dashboard/nav-main"
 import { NavUser } from "@/components/admin/dashboard/nav-user"
@@ -29,14 +30,16 @@ export function AppSidebar({
   onLogout: () => void
   onSalesWorkspace: () => void
 }) {
+  const { t } = useTranslation()
   const { isMobile, setOpenMobile } = useSidebar()
   const closeOnMobile = () => { if (isMobile) setOpenMobile(false) }
 
   const navItems: { view: AdminView; title: string; icon: React.ReactNode }[] = [
-    { view: "dashboard", title: "Dashboard", icon: <BarChart3Icon /> },
-    { view: "employees", title: "Employees", icon: <UserRoundIcon /> },
-    { view: "channels", title: "Communication Numbers", icon: <PhoneIcon /> },
-    { view: "reports", title: "Reports", icon: <FilesIcon /> },
+    { view: "dashboard", title: t("admin.nav.dashboard"), icon: <BarChart3Icon /> },
+    { view: "employees", title: t("admin.nav.employees"), icon: <UserRoundIcon /> },
+    { view: "channels", title: t("admin.nav.channels"), icon: <PhoneIcon /> },
+    { view: "reports", title: t("admin.nav.reports"), icon: <FilesIcon /> },
+    { view: "customers", title: t("admin.nav.customers"), icon: <UsersIcon /> },
   ]
 
   return (
@@ -46,7 +49,7 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton className="data-[slot=sidebar-menu-button]:p-1.5! pointer-events-none">
               <StethoscopeIcon className="size-5!" />
-              <span className="text-base font-semibold">Dental Operations</span>
+              <span className="text-base font-semibold">{t("admin.nav.brand")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -65,9 +68,9 @@ export function AppSidebar({
         <NavUser user={user} onLogout={onLogout} />
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => { onSalesWorkspace(); closeOnMobile() }} tooltip="Sales workspace">
+            <SidebarMenuButton onClick={() => { onSalesWorkspace(); closeOnMobile() }} tooltip={t("admin.nav.salesWorkspace")}>
               <ArrowRightLeftIcon />
-              <span>Sales workspace</span>
+              <span>{t("admin.nav.salesWorkspace")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

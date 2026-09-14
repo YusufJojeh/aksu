@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AppSidebar } from './dashboard/app-sidebar'
 import { SectionCards } from './dashboard/section-cards'
 import { ChartAreaInteractive } from './dashboard/chart-area-interactive'
@@ -8,16 +9,22 @@ import { SidebarInset, SidebarProvider } from '../ui/sidebar'
 import { TooltipProvider } from '../ui/tooltip'
 import { listReports, type ArchivedReport } from '../../lib/operations'
 import { useAuth } from '../../auth/AuthProvider'
+import { locales, type Locale } from '../../domain/report'
+import { isRtl } from '../../lib/locale'
 import { AdminAnalytics } from './AdminAnalytics'
 import { ChannelsAdmin } from './ChannelsAdmin'
+import { CustomersAdmin } from './CustomersAdmin'
 import { EmployeesAdmin } from './EmployeesAdmin'
 import { ReportsAdmin } from './ReportsAdmin'
 
-const VIEW_TITLES: Record<AdminView, string> = {
-  dashboard: 'Dashboard',
-  employees: 'Employees',
-  channels: 'Communication Numbers',
-  reports: 'Reports',
+const ADMIN_LANG_KEY = 'admin_dashboard_locale'
+
+const VIEW_TITLE_KEYS: Record<AdminView, string> = {
+  dashboard: 'admin.nav.dashboard',
+  employees: 'admin.nav.employees',
+  channels: 'admin.nav.channels',
+  reports: 'admin.nav.reports',
+  customers: 'admin.nav.customers',
 }
 
 function toDayKey(date: Date): string {
@@ -39,10 +46,24 @@ function buildDailySeries(reports: ArchivedReport[], days: number): { date: stri
 
 export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const auth = useAuth()
+  const { t, i18n } = useTranslation()
   const [view, setView] = useState<AdminView>('dashboard')
   const [reports, setReports] = useState<ArchivedReport[]>([])
+  const [locale, setLocale] = useState<Locale>(() => {
+    const saved = (() => { try { return localStorage.getItem(ADMIN_LANG_KEY) } catch { return null } })()
+    return (locales as readonly string[]).includes(saved ?? '') ? (saved as Locale) : 'en'
+  })
 
   useEffect(() => { void listReports().then(setReports).catch(() => setReports([])) }, [])
+
+  const applyLocale = (next: Locale) => {
+    setLocale(next)
+    void i18n.changeLanguage(next)
+    document.documentElement.lang = next
+    document.documentElement.dir = isRtl(next) ? 'rtl' : 'ltr'
+    try { localStorage.setItem(ADMIN_LANG_KEY, next) } catch { /* private browsing / storage disabled */ }
+  }
+  if (i18n.language !== locale) applyLocale(locale)
 
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -70,7 +91,7 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             onSalesWorkspace={() => { window.location.href = '/' }}
           />
           <SidebarInset>
-            <SiteHeader title={VIEW_TITLES[view]} />
+            <SiteHeader title={t(VIEW_TITLE_KEYS[view])} locale={locale} onLocaleChange={applyLocale} />
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="@container/main flex min-w-0 flex-1 flex-col gap-2">
                 {view === 'dashboard' && (
@@ -87,6 +108,7 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 {view === 'employees' && <EmployeesAdmin />}
                 {view === 'channels' && <ChannelsAdmin />}
                 {view === 'reports' && <ReportsAdmin />}
+                {view === 'customers' && <CustomersAdmin />}
               </div>
             </div>
           </SidebarInset>
