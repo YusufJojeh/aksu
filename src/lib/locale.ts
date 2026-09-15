@@ -16,18 +16,15 @@ export function formatMoneyMinor(minor: number, currency: Currency, locale: Loca
 }
 
 // The Aksu Arabic template spells out "يورو" for EUR (its own calibrated convention), but the real
-// filled MB Dental Arabic reports (e.g. السيد خالد..pdf) print the plain "€" symbol like every other
-// currency — so MB opts out of the spelled-out form via `clinicId`.
+// filled MB Dental reports print the plain "€" symbol like every other currency, in every locale
+// including French — so MB opts out of the spelled-out form via `clinicId`.
 export function formatDocumentMoneyMinor(minor: number, currency: Currency, locale: Locale, clinicId?: ClinicId): string {
   const amount = new Intl.NumberFormat('en-GB', {
     useGrouping: clinicId !== 'mb-dental',
     minimumFractionDigits: minor % 100 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(minor / 100)
-  if (clinicId === 'mb-dental' && currency === 'EUR') {
-    if (locale === 'fr') return `${amount} Euro`
-    if (locale === 'ar') return `${amount} €`
-  }
+  if (clinicId === 'mb-dental' && currency === 'EUR') return `${amount} €`
   if (locale === 'ar' && currency === 'EUR') return `${amount} يورو`
   const symbols: Record<Currency, string> = { GBP: '£', EUR: '€', USD: '$', TRY: '₺' }
   return `${symbols[currency]} ${amount}`
