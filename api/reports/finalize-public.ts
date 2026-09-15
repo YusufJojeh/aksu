@@ -47,19 +47,15 @@ async function ensureSalesProfile(service: ReturnType<typeof createClient>, full
     .order('created_at', { ascending: true })
   if (error) throw error
 
+  // This endpoint is intentionally reachable without a Supabase session (a sales rep
+  // self-identifies by name + phone before ever logging in), so an existing profile match
+  // must never be authenticated here. Only a profile that is already 'active' may be reused;
+  // an unauthenticated caller must not be able to flip a pending/suspended/former profile to
+  // active or overwrite its name/phone, since name + work phone are guessable/public and doing
+  // so would let anyone impersonate or hijack another employee's account.
   const match = (data as ProfileRow[] | null)?.find((profile) => canonicalName(profile.full_name) === canonicalName(fullName))
   if (match) {
-    if (match.status === 'suspended' || match.status === 'former') throw new Error('This sales profile is not active.')
-    if (match.status !== 'active') {
-      const { data: updated, error: updateError } = await service
-        .from('profiles')
-        .update({ status: 'active', full_name: fullName.trim(), requested_phone_e164: phone })
-        .eq('id', match.id)
-        .select('id,full_name,email,role,status,requested_phone_e164')
-        .single()
-      if (updateError) throw updateError
-      return updated as ProfileRow
-    }
+    if (match.status !== 'active') throw new Error('This sales profile is not active.')
     return match
   }
 
