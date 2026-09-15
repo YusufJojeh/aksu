@@ -5,7 +5,7 @@ test('switching clinics after edits asks for confirmation and remounts with a cl
   await page.goto('/')
   await selectClinic(page, 'aksu')
   await page.getByLabel('Patient name').fill('Adrian Jacek')
-  await page.getByLabel('Phone').fill('+44 7985 747921')
+  await page.getByLabel('Phone', { exact: true }).fill('+44 7985 747921')
 
   await page.getByRole('button', { name: 'Switch clinic' }).click()
   await expect(page.getByRole('heading', { name: 'Switch clinic?' })).toBeVisible()

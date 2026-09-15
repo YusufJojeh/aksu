@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { checkboxColumn, mbConditionRowOrder, mbRecommendedRowOrderLatin } from './checkbox'
 import { mbArabicCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
@@ -45,17 +46,18 @@ export const arMbPdfCoordinates: MbPdfCoordinates = {
     phone: box(100, 120, 137, 24, 16, 'center', 'ltr'),
   },
   oralHealth: {
-    currentCondition: {
-      missingTeeth: { x: 283.4, y: 663.6 }, looseTeeth: { x: 283.4, y: 631.7 }, gumInfectionOrDisease: { x: 283.4, y: 603.1 },
-      crowdedOrCrookedTeeth: { x: 283.4, y: 576.4 }, toothDecayOrBrokenTeeth: { x: 283.4, y: 547.1 }, teethGrindingOrClenching: { x: 283.4, y: 516.4 },
-      biteOrJawProblems: { x: 283.4, y: 484.6 }, aestheticToothDefects: { x: 283.4, y: 455.2 },
-    },
-    recommendedTreatments: {
-      dentalExtractions: { x: 543.9, y: 330.4 },
-      dentalImplants: { x: 543.9, y: 330.4 }, dentalFillings: { x: 543.9, y: 298.6 }, zirconiaCrowns: { x: 543.9, y: 269.7 },
-      emaxVeneers: { x: 543.9, y: 240.4 }, boneGrafting: { x: 543.9, y: 211.1 }, sinusLift: { x: 543.9, y: 179.2 },
-      deepCleaning: { x: 543.9, y: 149.9 }, rootCanalTreatment: { x: 543.9, y: 120.7 },
-    },
+    // Measured from the artwork's own gold outlines (scripts/measure_mb_checkboxes.py). The
+    // Arabic page draws two overlapping square layers; these are the outer filled-and-stroked
+    // squares, which are the visible border. Panels sit on the same physical sides as the Latin
+    // templates with the columns mirrored, so conditions are the left-hand x=283 column.
+    currentCondition: checkboxColumn(mbConditionRowOrder, 283.4, [
+      [663.60, 13.20, 13.20], [631.70, 13.20, 13.20], [603.10, 13.20, 13.20], [576.40, 13.20, 13.20],
+      [547.10, 13.20, 13.20], [516.40, 13.20, 13.20], [484.60, 13.20, 13.20], [455.20, 13.20, 13.20],
+    ]),
+    recommendedTreatments: checkboxColumn(mbRecommendedRowOrderLatin, 543.9, [
+      [330.40, 13.20, 13.20], [298.60, 13.20, 13.20], [269.70, 13.20, 13.20], [240.40, 13.20, 13.20],
+      [211.10, 13.20, 13.20], [179.20, 13.20, 13.20], [149.90, 13.20, 13.20], [120.70, 13.20, 13.20],
+    ]),
   },
   treatmentPlan: {
     firstVisit: { rows: mbTableRows(firstVisitColumns, [655.25, 628.1, 601.0, 573.2, 546.2, 519.2, 484.2], mbArabicCellSizes, 'rtl'), total: box(49, 430, 230, 44, 32, 'center', 'ltr') },

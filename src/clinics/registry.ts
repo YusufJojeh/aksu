@@ -18,7 +18,7 @@ export const clinicRegistry: Record<ClinicId, ClinicDefinition> = {
     id: 'mb-dental',
     displayName: 'MB Dental',
     capabilities: { hasDiscount: false, hasPatientId: true, treatmentRowsPerVisit: 6 },
-    supportedDocumentLocales: ['en', 'fr', 'de', 'ar'],
+    supportedDocumentLocales: ['en', 'fr', 'de', 'es', 'ar'],
     defaultDocumentLocale: 'en',
     defaultCurrency: 'EUR',
     filenamePrefix: 'MB-Dental-Treatment-Plan',

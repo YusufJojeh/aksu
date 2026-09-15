@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { checkboxColumn, mbConditionRowOrder, mbRecommendedRowOrderLatin } from './checkbox'
 import { mbEnglishCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
@@ -25,6 +26,18 @@ const firstVisitColumns = {
 const secondVisitColumns = {
   treatment: [22.1, 224.1], quality: [224.1, 321.9], quantity: [321.9, 373.0], unitPrice: [373.0, 470.5], total: [470.5, 559.5],
 } as const
+// Checkbox squares are measured directly from this artwork's own gold outlines, in pdf-lib user
+// space — see profiles/mb/checkbox.ts and scripts/measure_mb_checkboxes.py. en.pdf and de.pdf are
+// byte-identical apart from their printed labels, so both import these squares.
+export const enConditionColumn = checkboxColumn(mbConditionRowOrder, 50.2, [
+  [670.62, 12.60, 13.08], [638.76, 12.60, 13.08], [610.04, 12.60, 13.08], [583.36, 12.60, 13.08],
+  [554.17, 12.60, 13.08], [523.43, 12.60, 13.08], [491.59, 12.60, 13.08], [462.27, 12.60, 13.08],
+])
+
+export const enRecommendedColumn = checkboxColumn(mbRecommendedRowOrderLatin, 297.47, [
+  [337.05, 13.75, 14.28], [305.25, 13.75, 14.28], [276.34, 13.75, 14.28], [247.06, 13.75, 14.28],
+  [217.79, 13.75, 14.28], [185.88, 13.75, 14.28], [156.61, 13.75, 14.28], [127.34, 13.75, 14.28],
+])
 
 export const enMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
@@ -35,17 +48,8 @@ export const enMbPdfCoordinates: MbPdfCoordinates = {
     phone: box(149, 142.5, 141, 19, 13),
   },
   oralHealth: {
-    currentCondition: {
-      missingTeeth: { x: 50, y: 662.9 }, looseTeeth: { x: 50, y: 632.9 }, gumInfectionOrDisease: { x: 50, y: 602.9 },
-      crowdedOrCrookedTeeth: { x: 50, y: 572.9 }, toothDecayOrBrokenTeeth: { x: 50, y: 542.9 }, teethGrindingOrClenching: { x: 50, y: 512.9 },
-      biteOrJawProblems: { x: 50, y: 482.9 }, aestheticToothDefects: { x: 50, y: 452.9 },
-    },
-    recommendedTreatments: {
-      dentalExtractions: { x: 297.5, y: 329.4 },
-      dentalImplants: { x: 297.5, y: 329.4 }, dentalFillings: { x: 297.5, y: 299.4 }, zirconiaCrowns: { x: 297.5, y: 269.4 },
-      emaxVeneers: { x: 297.5, y: 239.4 }, boneGrafting: { x: 297.5, y: 209.4 }, sinusLift: { x: 297.5, y: 179.4 },
-      deepCleaning: { x: 297.5, y: 149.4 }, rootCanalTreatment: { x: 297.5, y: 119.4 },
-    },
+    currentCondition: enConditionColumn,
+    recommendedTreatments: enRecommendedColumn,
   },
   treatmentPlan: {
     // The gold TOTAL pill itself (measured directly from the rendered artwork, gridline-scan at

@@ -23,7 +23,7 @@ test('MB Dental workspace: no form before clinic selection, EN default preview, 
 
   await page.getByLabel('Patient name').fill('Marie Dupont')
   await page.getByLabel('Patient ID').fill('MB-1042')
-  await page.getByLabel('Phone').fill('+33 6 12 34 56 78')
+  await page.getByLabel('Phone', { exact: true }).fill('+33 6 12 34 56 78')
   await page.getByText('Missing Teeth', { exact: true }).click()
   await page.getByText('Dental Implants', { exact: true }).click()
   await page.locator('[name="firstVisit.treatmentRows.0.customTreatment"]').fill('Dental Implant')

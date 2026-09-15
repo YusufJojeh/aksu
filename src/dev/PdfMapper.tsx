@@ -7,6 +7,7 @@ import type { FieldBox } from '../pdf/profiles/shared/fieldBox'
 import { enMbPdfCoordinates } from '../pdf/profiles/mb/en'
 import { frMbPdfCoordinates } from '../pdf/profiles/mb/fr'
 import { deMbPdfCoordinates } from '../pdf/profiles/mb/de'
+import { esMbPdfCoordinates } from '../pdf/profiles/mb/es'
 import { arMbPdfCoordinates } from '../pdf/profiles/mb/ar'
 import type { MbLocale } from '../pdf/profiles/mb'
 import { Button, Field, Input, Select } from '../components/ui'
@@ -14,7 +15,7 @@ import { Button, Field, Input, Select } from '../components/ui'
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
 
 const mbCoordinatesByLocale: Record<MbLocale, typeof enMbPdfCoordinates> = {
-  en: enMbPdfCoordinates, fr: frMbPdfCoordinates, de: deMbPdfCoordinates, ar: arMbPdfCoordinates,
+  en: enMbPdfCoordinates, fr: frMbPdfCoordinates, de: deMbPdfCoordinates, es: esMbPdfCoordinates, ar: arMbPdfCoordinates,
 }
 
 type AksuLocale = keyof typeof aksuPdfCoordinatesByLocale
@@ -43,8 +44,8 @@ function flattenMb(locale: MbLocale): Record<string, FieldBox> {
     'treatmentPlan.firstVisit.total': { ...coordinates.treatmentPlan.firstVisit.total },
     'treatmentPlan.secondVisit.total': { ...coordinates.treatmentPlan.secondVisit.total },
   }
-  for (const [key, point] of Object.entries(coordinates.oralHealth.currentCondition)) fields[`oralHealth.currentCondition.${key}`] = { x: point.x - 8, y: point.y - 8, width: 16, height: 16, fontSize: 10, minFontSize: 6, alignment: 'center' }
-  for (const [key, point] of Object.entries(coordinates.oralHealth.recommendedTreatments)) fields[`oralHealth.recommendedTreatments.${key}`] = { x: point.x - 8, y: point.y - 8, width: 16, height: 16, fontSize: 10, minFontSize: 6, alignment: 'center' }
+  for (const [key, checkbox] of Object.entries(coordinates.oralHealth.currentCondition)) fields[`oralHealth.currentCondition.${key}`] = { x: checkbox.centerX - checkbox.width / 2, y: checkbox.centerY - checkbox.height / 2, width: checkbox.width, height: checkbox.height, fontSize: 10, minFontSize: 6, alignment: 'center' }
+  for (const [key, checkbox] of Object.entries(coordinates.oralHealth.recommendedTreatments)) fields[`oralHealth.recommendedTreatments.${key}`] = { x: checkbox.centerX - checkbox.width / 2, y: checkbox.centerY - checkbox.height / 2, width: checkbox.width, height: checkbox.height, fontSize: 10, minFontSize: 6, alignment: 'center' }
   for (const visit of ['firstVisit', 'secondVisit'] as const) coordinates.treatmentPlan[visit].rows.forEach((row, index) => {
     for (const [cell, field] of Object.entries(row)) fields[`treatmentPlan.${visit}.rows.${index}.${cell}`] = { ...field }
   })

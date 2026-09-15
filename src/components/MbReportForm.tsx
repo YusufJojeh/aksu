@@ -2,6 +2,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { clinicRegistry } from '../clinics/registry'
 import { currencies, mbConditionKeys, mbRecommendedTreatmentKeys, type MbReportData } from '../domain/report'
+import { coordinatesForMbTemplate, resolveMbTemplate } from '../pdf/profiles/mb'
 import { Checkbox, Field, Input, Section, Select } from './ui'
 import { TreatmentEditor } from './TreatmentEditor'
 
@@ -9,9 +10,12 @@ export function MbReportForm() {
   const { t } = useTranslation()
   const { register, control, formState: { errors } } = useFormContext<MbReportData>()
   const locale = useWatch({ control, name: 'document.locale' })
-  const recommendedKeys = locale === 'fr'
-    ? mbRecommendedTreatmentKeys.filter((key) => key !== 'dentalFillings')
-    : mbRecommendedTreatmentKeys.filter((key) => key !== 'dentalExtractions')
+  // Offer exactly the rows this locale's artwork actually prints — the PDF profile's measured
+  // checkbox squares are the single source of truth, so the form can never offer a treatment
+  // that has nowhere to be marked (French prints an extraction row and no fillings row; the
+  // other templates print fillings and no extraction row).
+  const recommendedBoxes = coordinatesForMbTemplate(resolveMbTemplate(locale).usedTemplate).oralHealth.recommendedTreatments
+  const recommendedKeys = mbRecommendedTreatmentKeys.filter((key) => recommendedBoxes[key])
   return <div>
     <Section title={t('sections.document')}><div className="grid gap-4 sm:grid-cols-2">
       <Field label={t('fields.documentLanguage')}><Select {...register('document.locale')}>{clinicRegistry['mb-dental'].supportedDocumentLocales.map((locale) => <option key={locale} value={locale}>{t(`languages.${locale}`)}</option>)}</Select></Field>

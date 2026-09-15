@@ -4,6 +4,7 @@ import { clinicRegistry } from '../../clinics/registry'
 import { visitTotalMinor } from '../../domain/calculations'
 import { draftReportSchema, mbConditionKeys, mbRecommendedTreatmentKeys, type MbReportData } from '../../domain/report'
 import { formatReportDate } from '../../lib/locale'
+import type { CheckboxBox } from '../profiles/mb/checkbox'
 import { coordinatesForTemplate } from '../profiles/resolve'
 import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
@@ -11,20 +12,28 @@ import { fitTextToBox } from '../textFit'
 import type { FieldBox } from '../profiles/shared/fieldBox'
 import { alignX, BLACK, drawCenteredCell, drawFitted, drawTreatmentRows, formatPdfMoney, rowHasContent, VISIT_TOTAL_PADDING, WHITE } from './shared'
 
-const CHECK_RED = rgb(0.82, 0.11, 0.11)
-const CHECK_GREEN = rgb(0.13, 0.59, 0.3)
+// Real MB Dental reports produced by the clinic mark a selection with a solid filled square that
+// sits inside the printed checkbox, not with a vector tick — verified in two independent populated
+// references (SERGIO ALMEIDO.pdf, French; السيد أحمد،-1.pdf, Arabic), whose fills are exactly
+// rgb(1, 0, 0) for current conditions and rgb(0, 0.69, 0.314) for recommended treatments.
+// Aksu uses its own selection artwork (see generators/aksu.ts) and is deliberately untouched here.
+const SELECTED_CONDITION = rgb(1, 0, 0)
+const SELECTED_TREATMENT = rgb(0, 0.69, 0.314)
 
-// The MB oral-health coordinate data sits slightly below the visual center of each checkbox.
-// This correction places the check mark in the middle of the printed square.
-const CHECKBOX_Y_CORRECTION = 7
+// Inset of the fill inside the printed square, per side, taken from those same references
+// (11.25pt fill in a 13.5pt square horizontally, 12.76pt in a 14.26pt square vertically). Keeping
+// the inset leaves the gold outline visible all the way round, so the mark can never touch — let
+// alone overhang — a border, which is what the old fixed-size tick did.
+const SELECTION_INSET = { x: 1.125, y: 0.75 }
 
-// Real filled MB reports consistently mark current-condition boxes red and recommended-treatment
-// boxes green. Draw a centered tick instead of a filled square so the original checkbox remains
-// visible in the generated PDF.
-function drawCheckMark(page: PDFPage, x: number, y: number, color: typeof CHECK_GREEN) {
-  const cy = y + CHECKBOX_Y_CORRECTION
-  page.drawLine({ start: { x: x - 5.8, y: cy - 0.4 }, end: { x: x - 1.9, y: cy - 4.1 }, color, thickness: 2.2 })
-  page.drawLine({ start: { x: x - 1.9, y: cy - 4.1 }, end: { x: x + 6.1, y: cy + 4.6 }, color, thickness: 2.2 })
+/**
+ * Draws the selection mark centred inside one checkbox. Placement is computed from that box's own
+ * measured geometry — profiles hold every square in pdf-lib user space, so nothing is offset here.
+ */
+function drawSelectionMark(page: PDFPage, box: CheckboxBox, color: typeof SELECTED_TREATMENT) {
+  const width = Math.max(1, box.width - 2 * SELECTION_INSET.x)
+  const height = Math.max(1, box.height - 2 * SELECTION_INSET.y)
+  page.drawRectangle({ x: box.centerX - width / 2, y: box.centerY - height / 2, width, height, color })
 }
 
 function drawFrenchPatientName(page: PDFPage, text: string, box: FieldBox, font: PDFFont): boolean {
@@ -87,13 +96,14 @@ export async function generateMbReport(report: MbReportData): Promise<GeneratedR
 
   for (const key of mbConditionKeys) {
     if (!validated.oralHealth.currentCondition[key]) continue
-    const point = coordinates.oralHealth.currentCondition[key]
-    drawCheckMark(oralHealth, point.x, point.y, CHECK_RED)
+    drawSelectionMark(oralHealth, coordinates.oralHealth.currentCondition[key], SELECTED_CONDITION)
   }
   for (const key of mbRecommendedTreatmentKeys) {
     if (!validated.oralHealth.recommendedTreatments[key]) continue
-    const point = coordinates.oralHealth.recommendedTreatments[key]
-    drawCheckMark(oralHealth, point.x, point.y, CHECK_GREEN)
+    // A locale's artwork only prints the rows it prints: a key with no square in this template is
+    // left unmarked rather than marking whichever neighbouring row happens to be closest.
+    const box = coordinates.oralHealth.recommendedTreatments[key]
+    if (box) drawSelectionMark(oralHealth, box, SELECTED_TREATMENT)
   }
 
   // The MB template's table cells are blank in the source artwork — nothing to clear before drawing.

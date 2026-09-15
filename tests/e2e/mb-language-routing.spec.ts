@@ -3,16 +3,16 @@ import { readFile } from 'node:fs/promises'
 import { PDFDocument } from 'pdf-lib'
 import { selectClinic } from './helpers/selectClinic'
 
-test('MB Dental document language picker offers only its four evidenced locales', async ({ page }) => {
+test('MB Dental document language picker offers only its five evidenced locales', async ({ page }) => {
   await page.goto('/')
   await selectClinic(page, 'mb-dental')
   const picker = page.getByLabel('Document language')
-  await expect(picker.locator('option')).toHaveCount(4)
+  await expect(picker.locator('option')).toHaveCount(5)
   const values = await picker.locator('option').evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value))
-  expect(values.sort()).toEqual(['ar', 'de', 'en', 'fr'])
+  expect(values.sort()).toEqual(['ar', 'de', 'en', 'es', 'fr'])
 })
 
-for (const locale of ['en', 'fr', 'de', 'ar'] as const) {
+for (const locale of ['en', 'fr', 'de', 'es', 'ar'] as const) {
   test(`MB Dental regenerates a five-page report in ${locale}`, async ({ page }, testInfo) => {
     let templateRequests = 0
     page.on('request', (request) => { if (request.url().includes(`/templates/mb-dental/${locale}.pdf`)) templateRequests += 1 })

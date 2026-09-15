@@ -90,9 +90,9 @@ const aksuReportObjectSchema = z.object({
   secondVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7) }),
 })
 
-// MB's 4 supported document locales (evidence: only EN/FR/DE/AR template PDFs exist) — a strict
+// MB's 5 supported document locales (evidence: only EN/FR/DE/ES/AR template PDFs exist) — a strict
 // subset of the app-wide `locales`, so an MB report can never carry a locale MB has no artwork for.
-const mbDocumentLocales = ['en', 'fr', 'de', 'ar'] as const
+const mbDocumentLocales = ['en', 'fr', 'de', 'es', 'ar'] as const
 
 const mbReportObjectSchema = z.object({
   clinicId: z.literal('mb-dental'),

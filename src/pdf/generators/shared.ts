@@ -21,10 +21,12 @@ export function clearBox(page: PDFPage, box: FieldBox, background = WHITE): void
   page.drawRectangle({ x: box.x - 1, y: box.y - 1, width: box.width + 2, height: box.height + 2, color: background })
 }
 
-export function drawTableGrid(page: PDFPage, verticals: number[], top: number, bottom: number, horizontals: number[]): void {
+// Redraws a table's own printed rules after its cells have been cleared. `left`/`right` are the
+// table's outer edges, which differ per template, so they are passed in rather than assumed.
+export function drawTableGrid(page: PDFPage, grid: { verticals: number[]; top: number; bottom: number; horizontals: number[]; left: number; right: number }): void {
   const color = rgb(0.79, 0.79, 0.79)
-  for (const x of verticals) page.drawLine({ start: { x, y: bottom }, end: { x, y: top }, color, thickness: 0.55 })
-  for (const y of horizontals) page.drawLine({ start: { x: 40, y }, end: { x: 562, y }, color, thickness: 0.55 })
+  for (const x of grid.verticals) page.drawLine({ start: { x, y: grid.bottom }, end: { x, y: grid.top }, color, thickness: 0.55 })
+  for (const y of grid.horizontals) page.drawLine({ start: { x: grid.left, y }, end: { x: grid.right, y }, color, thickness: 0.55 })
 }
 
 export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, box: FieldBox, font: PDFFont, locale: Locale, color = BLACK, background?: ReturnType<typeof rgb>, searchFont?: PDFFont): Promise<void> {

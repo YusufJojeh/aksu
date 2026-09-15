@@ -20,6 +20,9 @@ export const enPdfCoordinates: AksuPdfCoordinates = {
         treatment: box(48, y, 142, 18, 15), quality: box(192, y, 81, 18, 13, 'center'), quantity: box(275, y, 82, 18, 13, 'center'), unitPrice: box(359, y, 112, 18, 15, 'center'), total: box(473, y, 88, 18, 15, 'center'),
       })),
       total: box(451, 349, 105, 23, 15, 'center'),
+      // The rules this artwork prints, restated verbatim from what the generator used to hard-code,
+      // so they are put back exactly where they were after the cells are cleared.
+      grid: { verticals: [191, 274, 358, 472], top: 529, bottom: 377, horizontals: [509, 489, 469, 449, 427, 400, 377], left: 40, right: 562 },
     },
     discount: { sentence: box(43, 326, 285, 22, 9), price: box(331, 326, 232, 23, 15, 'center') },
     secondVisit: {
@@ -28,6 +31,7 @@ export const enPdfCoordinates: AksuPdfCoordinates = {
         treatment: box(45, y, 138, 18, 15), quality: box(184, y, 80, 18, 13, 'center'), quantity: box(266, y, 68, 18, 13, 'center'), unitPrice: box(336, y, 127, 18, 15, 'center'), total: box(465, y, 96, 18, 15, 'center'),
       })),
       total: box(452, 92, 105, 23, 15, 'center'),
+      grid: { verticals: [183, 265, 335, 464], top: 264, bottom: 113, horizontals: [243, 224, 203, 184, 163, 142, 113], left: 40, right: 562 },
     },
   },
 }

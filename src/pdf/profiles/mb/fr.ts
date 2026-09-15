@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { checkboxColumn, mbConditionRowOrder, mbRecommendedRowOrderFrench } from './checkbox'
 import { mbLatinCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
@@ -29,6 +30,10 @@ const firstVisitColumns = {
 const secondVisitColumns = {
   treatment: [22.4, 223.8], quality: [223.8, 302.6], quantity: [302.6, 395.2], unitPrice: [395.2, 470.4], total: [470.4, 559.8],
 } as const
+// Measured from this artwork's own gold outlines (scripts/measure_mb_checkboxes.py). The French
+// squares really are on an exact 30pt pitch, unlike the English/German ones.
+const frRows = (top: number): [number, number, number][] =>
+  Array.from({ length: 8 }, (_, index) => [top - index * 30, 13.2, 13.2])
 
 export const frMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
@@ -39,17 +44,10 @@ export const frMbPdfCoordinates: MbPdfCoordinates = {
     phone: box(82, 112, 126, 23, 16),
   },
   oralHealth: {
-    currentCondition: {
-      missingTeeth: { x: 50, y: 662.9 }, looseTeeth: { x: 50, y: 632.9 }, gumInfectionOrDisease: { x: 50, y: 602.9 },
-      crowdedOrCrookedTeeth: { x: 50, y: 572.9 }, toothDecayOrBrokenTeeth: { x: 50, y: 542.9 }, teethGrindingOrClenching: { x: 50, y: 512.9 },
-      biteOrJawProblems: { x: 50, y: 482.9 }, aestheticToothDefects: { x: 50, y: 452.9 },
-    },
-    recommendedTreatments: {
-      dentalExtractions: { x: 297.5, y: 329.4 },
-      dentalImplants: { x: 297.5, y: 299.4 }, dentalFillings: { x: 297.5, y: 299.4 }, zirconiaCrowns: { x: 297.5, y: 269.4 },
-      emaxVeneers: { x: 297.5, y: 239.4 }, boneGrafting: { x: 297.5, y: 209.4 }, sinusLift: { x: 297.5, y: 179.4 },
-      deepCleaning: { x: 297.5, y: 149.4 }, rootCanalTreatment: { x: 297.5, y: 119.4 },
-    },
+    currentCondition: checkboxColumn(mbConditionRowOrder, 50.0, frRows(662.9)),
+    // Verified by rendering fr.pdf page 2: row 1 is "Extraction partielle/totale" and there is
+    // no fillings row at all, so dentalFillings deliberately has no square in this locale.
+    recommendedTreatments: checkboxColumn(mbRecommendedRowOrderFrench, 297.5, frRows(329.4)),
   },
   treatmentPlan: {
     // The gold TOTAL pill (measured directly from the rendered artwork) spans x=307.1-564.8,

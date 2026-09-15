@@ -9,7 +9,7 @@ test('English PDF page remains aligned with A4 template', async ({ page }, testI
   await page.addStyleTag({ content: 'footer { display: none !important; } .sticky { position: static !important; }' })
   await page.getByLabel('Report date').fill('2026-09-12')
   await page.getByLabel('Patient name').fill('A very long patient name for layout verification Adrian Jacek')
-  await page.getByLabel('Phone').fill('+44 7985 747921')
+  await page.locator('[name="patient.phone"]').fill('+44 7985 747921')
   const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas').first()
   await expect(canvas).toBeVisible({ timeout: 20_000 })
   await expect(page.getByText('Generating preview…')).toBeHidden({ timeout: 20_000 })

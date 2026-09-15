@@ -1,18 +1,43 @@
 import fontkit from '@pdf-lib/fontkit'
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
 import i18n from '../../i18n'
 import { clinicRegistry } from '../../clinics/registry'
 import { finalTotalMinor, visitTotalMinor } from '../../domain/calculations'
 import { draftReportSchema, type AksuReportData } from '../../domain/report'
 import { formatLongDate, formatReportDate } from '../../lib/locale'
+import type { AksuTemplateDefinition } from '../profiles/aksu'
 import { coordinatesForTemplate } from '../profiles/resolve'
+import type { FieldBox } from '../profiles/shared/fieldBox'
 import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
-import { BLACK, WHITE, RED, clearBox, drawFitted, drawTableGrid, drawTreatmentRows, formatPdfMoney } from './shared'
+import { BLACK, WHITE, RED, VISIT_TOTAL_PADDING, clearBox, drawCenteredCell, drawFitted, drawTableGrid, drawTreatmentRows, formatPdfMoney } from './shared'
 
 const NAVY = rgb(0.07, 0.17, 0.32)
 const GOLD = rgb(0.79, 0.61, 0.18)
 const DARK = rgb(55 / 255, 51 / 255, 52 / 255)
+const AKSU_ARABIC_PAGE_SIZE: [number, number] = [594.75, 842.25]
+
+async function createAksuArabicRasterDocument(): Promise<PDFDocument> {
+  const pdf = await PDFDocument.create()
+  for (let pageNumber = 1; pageNumber <= 5; pageNumber += 1) {
+    const response = await fetch(`./templates/aksu/ar-pages/page-${pageNumber}.png`)
+    if (!response.ok) throw new Error(`Unable to load Aksu Arabic preview artwork page ${pageNumber}`)
+    const image = await pdf.embedPng(await response.arrayBuffer())
+    const page = pdf.addPage(AKSU_ARABIC_PAGE_SIZE)
+    page.drawImage(image, { x: 0, y: 0, width: AKSU_ARABIC_PAGE_SIZE[0], height: AKSU_ARABIC_PAGE_SIZE[1] })
+  }
+  return pdf
+}
+
+/**
+ * A visit total is a standalone pill, not a dense table cell: it is centred on the font's real
+ * ascender/descender metrics (spec §12) rather than on `(height - fontSize) / 2`, with the same
+ * generous padding MB's gold pill uses.
+ */
+async function drawVisitTotal(pdf: PDFDocument, page: PDFPage, text: string, total: FieldBox, font: PDFFont, definition: AksuTemplateDefinition, arabicFont?: PDFFont): Promise<void> {
+  if (definition.clearDynamicRegions) clearBox(page, total, WHITE)
+  await drawCenteredCell(pdf, page, text, total, font, BLACK, arabicFont, VISIT_TOTAL_PADDING)
+}
 
 export async function generateAksuReport(report: AksuReportData): Promise<GeneratedReport> {
   const validated = draftReportSchema.parse(report)
@@ -23,7 +48,7 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   const definition = resolved.definition
   const coordinates = coordinatesForTemplate('aksu', resolved.usedTemplate)
 
-  const pdf = await PDFDocument.load(bytes)
+  const pdf = resolved.usedTemplate === 'ar' ? await createAksuArabicRasterDocument() : await PDFDocument.load(bytes)
   pdf.registerFontkit(fontkit)
   // Embed the release-blocking Arabic typeface even though browser shaping is used for connected glyphs.
   const arabicFontBytes = await loadArabicFont()
@@ -54,8 +79,8 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   }
 
   await drawTreatmentRows(pdf, page2, validated.firstVisit.treatmentRows, coordinates.page2.firstVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont)
-  await drawFitted(pdf, page2, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.page2.firstVisit.total, bold, locale, BLACK, definition.clearDynamicRegions ? WHITE : undefined, arabicFont)
-  if (definition.clearDynamicRegions) {
+  await drawVisitTotal(pdf, page2, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.page2.firstVisit.total, bold, definition, arabicFont)
+  if (definition.clearDiscountRegion) {
     clearBox(page2, coordinates.page2.discount.sentence, GOLD)
     clearBox(page2, coordinates.page2.discount.price)
   }
@@ -69,10 +94,13 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
     await drawFitted(pdf, page2, t('document.secondVisitHeading', { interval: clinicRegistry.aksu.docOnly?.secondVisitInterval ?? '' }), coordinates.page2.secondVisit.heading, bold, locale, BLACK, WHITE, arabicFont)
   }
   await drawTreatmentRows(pdf, page2, validated.secondVisit.treatmentRows, coordinates.page2.secondVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont)
-  await drawFitted(pdf, page2, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.page2.secondVisit.total, bold, locale, BLACK, definition.clearDynamicRegions ? WHITE : undefined, arabicFont)
-  if (definition.redrawTableGrid) {
-    drawTableGrid(page2, [191, 274, 358, 472], 529, 377, [509, 489, 469, 449, 427, 400, 377])
-    drawTableGrid(page2, [183, 265, 335, 464], 264, 113, [243, 224, 203, 184, 163, 142, 113])
+  await drawVisitTotal(pdf, page2, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.page2.secondVisit.total, bold, definition, arabicFont)
+  // Clearing a pre-filled treatment column wipes the artwork's own rules with it, so any template
+  // that carries its measured grid gets those exact rules put back.
+  if (definition.clearDynamicRegions) {
+    for (const grid of [coordinates.page2.firstVisit.grid, coordinates.page2.secondVisit.grid]) {
+      if (grid) drawTableGrid(page2, grid)
+    }
   }
 
   pdf.setTitle(`Treatment Plan - ${validated.patient.name}`)

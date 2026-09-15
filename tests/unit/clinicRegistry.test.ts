@@ -12,8 +12,8 @@ describe('clinic registry', () => {
   it('gives MB Dental patient ID capability and no discount, six rows per visit', () => {
     expect(clinicRegistry['mb-dental'].capabilities).toEqual({ hasDiscount: false, hasPatientId: true, treatmentRowsPerVisit: 6 })
   })
-  it('scopes MB Dental to its four evidenced document locales', () => {
-    expect(clinicRegistry['mb-dental'].supportedDocumentLocales).toEqual(['en', 'fr', 'de', 'ar'])
+  it('scopes MB Dental to its five evidenced document locales', () => {
+    expect(clinicRegistry['mb-dental'].supportedDocumentLocales).toEqual(['en', 'fr', 'de', 'es', 'ar'])
   })
   it('defaults MB Dental pricing to EUR and Aksu to GBP', () => {
     expect(clinicRegistry['mb-dental'].defaultCurrency).toBe('EUR')

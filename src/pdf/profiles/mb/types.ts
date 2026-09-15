@@ -1,5 +1,8 @@
 import type { MbConditionKey, MbRecommendedTreatmentKey } from '../../../domain/report'
+import type { CheckboxBox } from './checkbox'
 import type { FieldBox, TreatmentRowBoxes } from '../shared/fieldBox'
+
+export type { CheckboxBox } from './checkbox'
 
 export interface MbPdfCoordinates {
   cover: {
@@ -10,8 +13,9 @@ export interface MbPdfCoordinates {
     phone: FieldBox
   }
   oralHealth: {
-    currentCondition: Record<MbConditionKey, { x: number; y: number }>
-    recommendedTreatments: Record<MbRecommendedTreatmentKey, { x: number; y: number }>
+    currentCondition: Record<MbConditionKey, CheckboxBox>
+    // Partial: a locale's artwork only prints the rows it prints. Keys with no square are skipped.
+    recommendedTreatments: Partial<Record<MbRecommendedTreatmentKey, CheckboxBox>>
   }
   treatmentPlan: {
     firstVisit: { rows: TreatmentRowBoxes[]; total: FieldBox }

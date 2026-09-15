@@ -1,4 +1,5 @@
 import { box } from '../shared/fieldBox'
+import { enConditionColumn, enRecommendedColumn } from './en'
 import { mbLatinCellSizes, mbTableRows } from './table'
 import type { MbPdfCoordinates } from './types'
 
@@ -41,6 +42,8 @@ const firstVisitColumns = {
 const secondVisitColumns = {
   treatment: [22.1, 224.1], quality: [224.1, 321.9], quantity: [321.9, 402.0], unitPrice: [402.0, 470.5], total: [470.5, 559.5],
 } as const
+// de.pdf and en.pdf are the same base artwork (identical measured squares, only the printed
+// labels differ), so the German page reuses the English measurements verbatim.
 
 export const deMbPdfCoordinates: MbPdfCoordinates = {
   cover: {
@@ -51,17 +54,8 @@ export const deMbPdfCoordinates: MbPdfCoordinates = {
     phone: box(157, 141.4, 133, 19, 13),
   },
   oralHealth: {
-    currentCondition: {
-      missingTeeth: { x: 50, y: 670.9 }, looseTeeth: { x: 50, y: 639.1 }, gumInfectionOrDisease: { x: 50, y: 610.4 },
-      crowdedOrCrookedTeeth: { x: 50, y: 583.7 }, toothDecayOrBrokenTeeth: { x: 50, y: 554.6 }, teethGrindingOrClenching: { x: 50, y: 523.7 },
-      biteOrJawProblems: { x: 50, y: 491.9 }, aestheticToothDefects: { x: 50, y: 462.6 },
-    },
-    recommendedTreatments: {
-      dentalExtractions: { x: 297.3, y: 337.2 },
-      dentalImplants: { x: 297.3, y: 337.2 }, dentalFillings: { x: 297.3, y: 305.6 }, zirconiaCrowns: { x: 297.3, y: 276.6 },
-      emaxVeneers: { x: 297.3, y: 247.2 }, boneGrafting: { x: 297.3, y: 218.1 }, sinusLift: { x: 297.3, y: 186.1 },
-      deepCleaning: { x: 297.3, y: 156.9 }, rootCanalTreatment: { x: 297.3, y: 127.6 },
-    },
+    currentCondition: enConditionColumn,
+    recommendedTreatments: enRecommendedColumn,
   },
   treatmentPlan: {
     // Same physical gold TOTAL pill as en.ts (identical base artwork): x=307.1-564.8,

@@ -9,7 +9,7 @@ test('creates, localizes, previews, downloads and resets a report', async ({ pag
   await selectClinic(page, 'aksu')
   await expect(page.getByRole('heading', { name: 'Treatment plan' })).toBeVisible()
   await page.getByLabel('Patient name').fill('Adrian Jacek')
-  await page.getByLabel('Phone').fill('+44 7985 747921')
+  await page.getByLabel('Phone', { exact: true }).fill('+44 7985 747921')
   await page.getByText('Gingival inflammation', { exact: true }).click()
   await expect(page.getByTestId('firstVisit-total')).toContainText('0')
   await page.getByLabel('Interface language').selectOption('ar')
@@ -50,7 +50,7 @@ test('preview renders once and remains stable while idle', async ({ page }, test
   await page.goto('/')
   await selectClinic(page, 'aksu')
   await page.getByLabel('Patient name').fill('Preview Patient')
-  await page.getByLabel('Phone').fill('+44 7000 000000')
+  await page.getByLabel('Phone', { exact: true }).fill('+44 7000 000000')
   const canvases = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
   const canvas = canvases.first()
   await expect.poll(async () => canvas.evaluate((element) => {
@@ -85,7 +85,7 @@ test('generates representative English and French reports', async ({ page }, tes
   await page.goto('/')
   await selectClinic(page, 'aksu')
   await page.getByLabel('Patient name').fill('Adrian Jacek')
-  await page.getByLabel('Phone').fill('+44 7985 747921')
+  await page.getByLabel('Phone', { exact: true }).fill('+44 7985 747921')
   let pending = page.waitForEvent('download')
   await expect(page.getByRole('button', { name: 'Download PDF' })).toBeEnabled()
   await page.getByRole('button', { name: 'Download PDF' }).click()
@@ -106,7 +106,7 @@ test('generates a private five-page Arabic report from the preview Blob', async 
   await page.getByLabel('Document language').selectOption('ar')
   await expect(page.getByLabel('Currency')).toHaveValue('EUR')
   await page.getByLabel('Patient name').fill('ليلى الجديدة')
-  await page.getByLabel('Phone').fill('+90 555 111 2233')
+  await page.getByLabel('Phone', { exact: true }).fill('+90 555 111 2233')
   for (const label of ['Existing dental implants', 'Existing dental restorations', 'Teeth are relatively aligned', 'Gingival inflammation', 'Dental caries', 'Malocclusion', 'Tooth wear', 'Missing teeth', 'Dental abscesses', 'Gingival recession', 'Dental crowding', 'Bone resorption']) {
     await page.getByText(label, { exact: true }).click()
   }
