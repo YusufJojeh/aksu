@@ -18,12 +18,14 @@ import type { MbPdfCoordinates } from './types'
 // Oral-health circle marks are calibrated against the real template artwork (checkbox squares
 // measured directly from the rendered PDF pixels).
 //
-// Treatment-table cells are NOT shared with en.ts: the French artwork's first table has its own
-// grid (dividers at x=229.8/308.6/401.2/476.4, row lines at y=622.3/595.0/568.0/541.0/513.5, header
-// bottom 649.0, bottom border 485.3 — measured at 4x, matching SERGIO ALMEIDO.pdf). The second
-// visit prints only an empty placeholder frame whose left edge sits 6pt further left (x=22.2, the
-// same shift as the other templates' second tables), so it reuses these columns shifted by 6pt
-// and the shared MB second-table row lines.
+// Treatment-table cells are NOT shared with en.ts for column x-positions: the French artwork's
+// first table has its own grid (dividers at x=229.8/308.6/401.2/476.4). The row lines, however,
+// are the same physical geometry as en/de/es (measured directly from public/templates/mb-dental/fr.pdf
+// via PyMuPDF after the corrupted asset was replaced with the clinic's clean French master artwork
+// — see git history for scripts/sanitize_latest_mb_template.py): header bottom 655.5, bottom border
+// 484.5. The second visit prints only an empty placeholder frame whose left edge sits 6pt further
+// left (x=22.2, the same shift as the other templates' second tables), so it reuses these columns
+// shifted by 6pt and the shared MB second-table row lines.
 const firstVisitColumns = {
   treatment: [28.4, 229.8], quality: [229.8, 308.6], quantity: [308.6, 401.2], unitPrice: [401.2, 476.4], total: [476.4, 565.8],
 } as const
@@ -53,7 +55,7 @@ export const frMbPdfCoordinates: MbPdfCoordinates = {
     // The gold TOTAL pill (measured directly from the rendered artwork) spans x=307.1-564.8,
     // y=432.5-479.3 (first visit) — same physical size as en.ts/de.ts's pill. Widened/enlarged to
     // match: the total should read as dramatically more prominent than ordinary table text.
-    firstVisit: { rows: mbTableRows(firstVisitColumns, [649.0, 622.3, 595.0, 568.0, 541.0, 513.5, 485.3], mbLatinCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
+    firstVisit: { rows: mbTableRows(firstVisitColumns, [655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5], mbLatinCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
     secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0], mbLatinCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
   },
 }
