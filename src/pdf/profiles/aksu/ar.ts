@@ -44,5 +44,8 @@ export const arPdfCoordinates: AksuPdfCoordinates = {
       rows: [233, 214, 194, 174, 154, 134, 114].map(arabicRow),
       total: box(37, 90, 241, 22, 12, 'center', 'rtl'),
     },
+    // The second table's gold bar has no baked-in label (unlike the first table's, which prints its
+    // own static "السعر بعد تخفيض"), so this box only ever carries the drawn price.
+    secondDiscount: { sentence: box(277, 64, 285, 28, 14, 'center', 'rtl'), price: box(37, 64, 238, 28, 13, 'center', 'rtl') },
   },
 }

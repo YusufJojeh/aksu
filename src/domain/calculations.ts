@@ -13,12 +13,22 @@ export function visitTotalMinor(rows: TreatmentRow[]): number {
 }
 
 // Discount is an Aksu-only capability (MB Dental's template has no discount concept) — see clinicRegistry capabilities.
-export function finalTotalMinor(report: AksuReportData): number {
-  const gross = visitTotalMinor(report.firstVisit.treatmentRows)
-  if (!report.firstVisit.discountEnabled) return gross
-  if (report.firstVisit.discountMode === 'manual_final_price') {
-    return Math.min(gross, toMinorUnits(report.firstVisit.discountedFinalPrice ?? 0))
+type VisitDiscount = Pick<AksuReportData['firstVisit'], 'discountEnabled' | 'discountMode' | 'discountedFinalPrice' | 'discountPercentage'>
+
+function visitFinalTotalMinor(rows: TreatmentRow[], discount: VisitDiscount): number {
+  const gross = visitTotalMinor(rows)
+  if (!discount.discountEnabled) return gross
+  if (discount.discountMode === 'manual_final_price') {
+    return Math.min(gross, toMinorUnits(discount.discountedFinalPrice ?? 0))
   }
-  const percentage = Math.min(100, Math.max(0, report.firstVisit.discountPercentage ?? 0))
+  const percentage = Math.min(100, Math.max(0, discount.discountPercentage ?? 0))
   return Math.round(gross * (1 - percentage / 100))
+}
+
+export function finalTotalMinor(report: AksuReportData): number {
+  return visitFinalTotalMinor(report.firstVisit.treatmentRows, report.firstVisit)
+}
+
+export function secondVisitFinalTotalMinor(report: AksuReportData): number {
+  return visitFinalTotalMinor(report.secondVisit.treatmentRows, report.secondVisit)
 }

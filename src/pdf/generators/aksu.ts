@@ -2,7 +2,7 @@ import fontkit from '@pdf-lib/fontkit'
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
 import i18n from '../../i18n'
 import { clinicRegistry } from '../../clinics/registry'
-import { finalTotalMinor, visitTotalMinor } from '../../domain/calculations'
+import { finalTotalMinor, secondVisitFinalTotalMinor, visitTotalMinor } from '../../domain/calculations'
 import { draftReportSchema, type AksuReportData } from '../../domain/report'
 import { formatLongDate, formatReportDate } from '../../lib/locale'
 import type { AksuTemplateDefinition } from '../profiles/aksu'
@@ -38,6 +38,23 @@ async function createAksuArabicRasterDocument(): Promise<PDFDocument> {
 async function drawVisitTotal(pdf: PDFDocument, page: PDFPage, text: string, total: FieldBox, font: PDFFont, definition: AksuTemplateDefinition, arabicFont?: PDFFont, unicodeFallback?: UnicodeFallback): Promise<void> {
   if (definition.clearDynamicRegions) clearBox(page, total, WHITE)
   await drawCenteredCell(pdf, page, text, total, font, BLACK, arabicFont, VISIT_TOTAL_PADDING, unicodeFallback)
+}
+
+interface VisitDiscountDraw {
+  discountEnabled: boolean
+  discountExpiryDate?: string
+}
+
+async function drawVisitDiscount(pdf: PDFDocument, page: PDFPage, visit: VisitDiscountDraw, finalPrice: string, box: { sentence: FieldBox; price: FieldBox }, definition: AksuTemplateDefinition, t: ReturnType<typeof i18n.getFixedT>, locale: AksuReportData['document']['locale'], bold: PDFFont, arabicFont?: PDFFont, unicodeFallbackBold?: UnicodeFallback): Promise<void> {
+  if (definition.clearDiscountRegion) {
+    clearBox(page, box.sentence, GOLD)
+    clearBox(page, box.price)
+  }
+  if (!visit.discountEnabled) return
+  if (definition.drawDiscountSentence) {
+    await drawFitted(pdf, page, t('document.discountExpires', { date: formatLongDate(visit.discountExpiryDate ?? '', locale) }), box.sentence, bold, locale, BLACK, undefined, arabicFont, unicodeFallbackBold)
+  }
+  await drawFitted(pdf, page, finalPrice, box.price, bold, locale, RED, undefined, arabicFont, unicodeFallbackBold)
 }
 
 export async function generateAksuReport(report: AksuReportData): Promise<GeneratedReport> {
@@ -124,21 +141,13 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
 
   await drawTreatmentRows(pdf, page2, validated.firstVisit.treatmentRows, coordinates.page2.firstVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont, unicodeFallback)
   await drawVisitTotal(pdf, page2, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.page2.firstVisit.total, bold, definition, arabicFont, unicodeFallbackBold)
-  if (definition.clearDiscountRegion) {
-    clearBox(page2, coordinates.page2.discount.sentence, GOLD)
-    clearBox(page2, coordinates.page2.discount.price)
-  }
-  if (validated.firstVisit.discountEnabled) {
-    if (definition.drawDiscountSentence) {
-      await drawFitted(pdf, page2, t('document.discountExpires', { date: formatLongDate(validated.firstVisit.discountExpiryDate ?? '', locale) }), coordinates.page2.discount.sentence, bold, locale, BLACK, undefined, arabicFont, unicodeFallbackBold)
-    }
-    await drawFitted(pdf, page2, formatPdfMoney(finalTotalMinor(validated), validated), coordinates.page2.discount.price, bold, locale, RED, undefined, arabicFont, unicodeFallbackBold)
-  }
+  await drawVisitDiscount(pdf, page2, validated.firstVisit, formatPdfMoney(finalTotalMinor(validated), validated), coordinates.page2.discount, definition, t, locale, bold, arabicFont, unicodeFallbackBold)
   if (definition.drawSecondVisitHeading) {
     await drawFitted(pdf, page2, t('document.secondVisitHeading', { interval: clinicRegistry.aksu.docOnly?.secondVisitInterval ?? '' }), coordinates.page2.secondVisit.heading, bold, locale, BLACK, WHITE, arabicFont, unicodeFallbackBold)
   }
   await drawTreatmentRows(pdf, page2, validated.secondVisit.treatmentRows, coordinates.page2.secondVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont, unicodeFallback)
   await drawVisitTotal(pdf, page2, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.page2.secondVisit.total, bold, definition, arabicFont, unicodeFallbackBold)
+  await drawVisitDiscount(pdf, page2, validated.secondVisit, formatPdfMoney(secondVisitFinalTotalMinor(validated), validated), coordinates.page2.secondDiscount, definition, t, locale, bold, arabicFont, unicodeFallbackBold)
   // Clearing a pre-filled treatment column wipes the artwork's own rules with it, so any template
   // that carries its measured grid gets those exact rules put back.
   if (definition.clearDynamicRegions) {
