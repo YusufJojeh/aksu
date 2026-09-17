@@ -66,6 +66,14 @@ export const treatmentRowSchema = z.object({
   duration: z.string().max(40).optional(),
 })
 
+const visitDiscountFields = {
+  discountEnabled: z.boolean(),
+  discountMode: z.enum(['manual_final_price', 'percentage']),
+  discountPercentage: moneyInput.pipe(z.number().min(0).max(100)).optional(),
+  discountedFinalPrice: moneyInput.pipe(z.number().min(0).max(10_000_000)).optional(),
+  discountExpiryDate: z.string().optional(),
+}
+
 const aksuReportObjectSchema = z.object({
   clinicId: z.literal('aksu'),
   patient: z.object({
@@ -79,15 +87,8 @@ const aksuReportObjectSchema = z.object({
     currency: z.enum(currencies),
   }),
   assessment: z.object(Object.fromEntries(assessmentKeys.map((key) => [key, z.boolean()])) as Record<AssessmentKey, z.ZodBoolean>),
-  firstVisit: z.object({
-    treatmentRows: z.array(treatmentRowSchema).max(7),
-    discountEnabled: z.boolean(),
-    discountMode: z.enum(['manual_final_price', 'percentage']),
-    discountPercentage: moneyInput.pipe(z.number().min(0).max(100)).optional(),
-    discountedFinalPrice: moneyInput.pipe(z.number().min(0).max(10_000_000)).optional(),
-    discountExpiryDate: z.string().optional(),
-  }),
-  secondVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7) }),
+  firstVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7), ...visitDiscountFields }),
+  secondVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7), ...visitDiscountFields }),
 })
 
 // MB's 5 supported document locales (evidence: only EN/FR/DE/ES/AR template PDFs exist) — a strict
@@ -121,16 +122,18 @@ const reportObjectSchema = z.discriminatedUnion('clinicId', [aksuReportObjectSch
 // Gates the Download action: every field a publishable document requires must be present.
 export const reportSchema = reportObjectSchema.superRefine((report, ctx) => {
   if (report.clinicId !== 'aksu') return
-  const visit = report.firstVisit
-  if (!visit.discountEnabled) return
-  if (report.document.locale !== 'ar' && !visit.discountExpiryDate) {
-    ctx.addIssue({ code: 'custom', path: ['firstVisit', 'discountExpiryDate'], message: 'validation.required' })
-  }
-  if (visit.discountMode === 'manual_final_price' && visit.discountedFinalPrice === undefined) {
-    ctx.addIssue({ code: 'custom', path: ['firstVisit', 'discountedFinalPrice'], message: 'validation.required' })
-  }
-  if (visit.discountMode === 'percentage' && visit.discountPercentage === undefined) {
-    ctx.addIssue({ code: 'custom', path: ['firstVisit', 'discountPercentage'], message: 'validation.required' })
+  for (const key of ['firstVisit', 'secondVisit'] as const) {
+    const visit = report[key]
+    if (!visit.discountEnabled) continue
+    if (report.document.locale !== 'ar' && !visit.discountExpiryDate) {
+      ctx.addIssue({ code: 'custom', path: [key, 'discountExpiryDate'], message: 'validation.required' })
+    }
+    if (visit.discountMode === 'manual_final_price' && visit.discountedFinalPrice === undefined) {
+      ctx.addIssue({ code: 'custom', path: [key, 'discountedFinalPrice'], message: 'validation.required' })
+    }
+    if (visit.discountMode === 'percentage' && visit.discountPercentage === undefined) {
+      ctx.addIssue({ code: 'custom', path: [key, 'discountPercentage'], message: 'validation.required' })
+    }
   }
 })
 
@@ -206,6 +209,11 @@ export function createDefaultAksuReport(): AksuReportData {
         row('sv-4', 'emaxCrown'), row('sv-5', 'rootCanalTreatment'), row('sv-6', 'rootCanalRetreatment'),
         row('sv-7', 'hotelVipTransfer'),
       ],
+      discountEnabled: false,
+      discountMode: 'manual_final_price',
+      discountedFinalPrice: 0,
+      discountPercentage: 0,
+      discountExpiryDate: '',
     },
   }
 }

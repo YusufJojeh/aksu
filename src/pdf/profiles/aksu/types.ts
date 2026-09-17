@@ -19,5 +19,6 @@ export interface AksuPdfCoordinates {
     firstVisit: { rows: TreatmentRowBoxes[]; total: FieldBox; grid?: AksuTableGrid }
     discount: { sentence: FieldBox; price: FieldBox }
     secondVisit: { heading: FieldBox; rows: TreatmentRowBoxes[]; total: FieldBox; grid?: AksuTableGrid }
+    secondDiscount: { sentence: FieldBox; price: FieldBox }
   }
 }

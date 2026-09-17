@@ -28,6 +28,7 @@ function flattenAksu(locale: AksuLocale): Record<string, FieldBox> {
     'page2.firstVisit.total': { ...coordinates.page2.firstVisit.total },
     'page2.discount.sentence': { ...coordinates.page2.discount.sentence }, 'page2.discount.price': { ...coordinates.page2.discount.price },
     'page2.secondVisit.heading': { ...coordinates.page2.secondVisit.heading }, 'page2.secondVisit.total': { ...coordinates.page2.secondVisit.total },
+    'page2.secondDiscount.sentence': { ...coordinates.page2.secondDiscount.sentence }, 'page2.secondDiscount.price': { ...coordinates.page2.secondDiscount.price },
   }
   for (const [key, point] of Object.entries(coordinates.page2.assessment)) fields[`page2.assessment.${key}`] = { x: point.x - 10, y: point.y - 10, width: 20, height: 20, fontSize: 10, minFontSize: 6, alignment: 'center' }
   for (const visit of ['firstVisit', 'secondVisit'] as const) coordinates.page2[visit].rows.forEach((row, index) => {

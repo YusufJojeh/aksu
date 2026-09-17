@@ -33,5 +33,6 @@ export const enPdfCoordinates: AksuPdfCoordinates = {
       total: box(452, 92, 105, 23, 15, 'center'),
       grid: { verticals: [183, 265, 335, 464], top: 264, bottom: 113, horizontals: [243, 224, 203, 184, 163, 142, 113], left: 40, right: 562 },
     },
+    secondDiscount: { sentence: box(43, 69, 285, 22, 9), price: box(331, 69, 232, 23, 15, 'center') },
   },
 }

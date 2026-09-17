@@ -58,5 +58,6 @@ export const frPdfCoordinates: AksuPdfCoordinates = {
       ...secondVisit,
       total: box(323.3, 94.2, 235.9, 23.4, 18, 'center'),
     },
+    secondDiscount: { sentence: box(43, 69.1, 275, 21.2, 9), price: box(324.7, 67.1, 234.5, 25.2, 18, 'center') },
   },
 }
