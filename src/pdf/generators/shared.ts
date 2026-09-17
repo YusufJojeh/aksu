@@ -6,6 +6,7 @@ import { formatDocumentMoneyMinor } from '../../lib/locale'
 import { drawBrowserShapedText } from '../arabicText'
 import type { FieldBox, TreatmentRowBoxes } from '../profiles/shared/fieldBox'
 import { fitTextToBox } from '../textFit'
+import type { UnicodeFallback } from '../unicodeFallback'
 
 export const WHITE = rgb(1, 1, 1)
 export const BLACK = rgb(0.05, 0.04, 0.04)
@@ -29,7 +30,7 @@ export function drawTableGrid(page: PDFPage, grid: { verticals: number[]; top: n
   for (const y of grid.horizontals) page.drawLine({ start: { x: grid.left, y }, end: { x: grid.right, y }, color, thickness: 0.55 })
 }
 
-export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, box: FieldBox, font: PDFFont, locale: Locale, color = BLACK, background?: ReturnType<typeof rgb>, searchFont?: PDFFont): Promise<void> {
+export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, box: FieldBox, font: PDFFont, locale: Locale, color = BLACK, background?: ReturnType<typeof rgb>, searchFont?: PDFFont, unicodeFallback?: UnicodeFallback): Promise<void> {
   if (background) clearBox(page, box, background)
   if (!text) return
   if (/[؀-ۿ]/.test(text)) {
@@ -38,8 +39,26 @@ export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, 
     if (searchFont) page.drawText(text, { x: box.x, y: box.y, size: 1, font: searchFont, opacity: 0 })
     return
   }
-  const fitted = fitTextToBox(text, font, box)
+  // A WinAnsi standard font (Times/Helvetica) throws for characters outside cp1252 — Cyrillic,
+  // Polish/Turkish extended letters, etc. Only reach for the multi-font fallback path when that
+  // would actually happen, so every locale already covered by WinAnsi renders exactly as before.
+  const measurer = unicodeFallback && cannotEncode(font, text) ? unicodeFallback : font
+  const fitted = fitTextToBox(text, measurer, box)
+  if (measurer === unicodeFallback) {
+    unicodeFallback.draw(page, fitted.text, alignX(box, fitted.width), box.y + Math.max(1, (box.height - fitted.fontSize) / 2), fitted.fontSize, color)
+    return
+  }
   page.drawText(fitted.text, { x: alignX(box, fitted.width), y: box.y + Math.max(1, (box.height - fitted.fontSize) / 2), size: fitted.fontSize, font, color })
+}
+
+/** True when `font.widthOfTextAtSize` would throw for this text (a WinAnsi encoding gap). */
+export function cannotEncode(font: Pick<PDFFont, 'widthOfTextAtSize'>, text: string): boolean {
+  try {
+    font.widthOfTextAtSize(text, 1)
+    return false
+  } catch {
+    return true
+  }
 }
 
 // Kept clear inside a table cell so values never touch its gridlines, yet small enough that
@@ -52,12 +71,21 @@ export const VISIT_TOTAL_PADDING = { x: 8, y: 3 }
 
 // Draws one value centered in a real table cell (box = the cell). Preferred size first; shrinks
 // toward minFontSize only when the value exceeds the usable width (or, for shaped Arabic, height).
-export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: string, cell: FieldBox, font: PDFFont, color = BLACK, searchFont?: PDFFont, padding = CELL_PADDING): Promise<void> {
+export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: string, cell: FieldBox, font: PDFFont, color = BLACK, searchFont?: PDFFont, padding = CELL_PADDING, unicodeFallback?: UnicodeFallback): Promise<void> {
   if (!text) return
   if (/[؀-ۿ]/.test(text)) {
     const direction = /[ء-ي]/.test(text) ? 'rtl' : 'ltr'
     await drawBrowserShapedText(pdf, page, text, { ...cell, alignment: 'center', direction }, color === WHITE ? '#ffffff' : '#171515', { centerInk: true, padding })
     if (searchFont) page.drawText(text, { x: cell.x, y: cell.y, size: 1, font: searchFont, opacity: 0 })
+    return
+  }
+  // Same WinAnsi encoding gap as drawFitted. Rather than replicate the two-line stacking logic
+  // below in two fonts, fall back to a simpler single-line shrink-to-fit for the (previously
+  // crashing) characters a standard font can't encode — still centered, never truncated silently.
+  if (unicodeFallback && cannotEncode(font, text)) {
+    const usable = { width: cell.width - 2 * padding.x, height: cell.height - 2 * padding.y }
+    const fitted = fitTextToBox(text, unicodeFallback, { ...cell, width: usable.width, fontSize: Math.min(cell.fontSize, usable.height) }, false)
+    unicodeFallback.draw(page, fitted.text, cell.x + (cell.width - fitted.width) / 2, cell.y + Math.max(1, (cell.height - fitted.fontSize) / 2), fitted.fontSize, color)
     return
   }
   const usableWidth = cell.width - 2 * padding.x
@@ -135,12 +163,12 @@ export function rowHasContent(row: TreatmentRow | undefined): row is TreatmentRo
   ))
 }
 
-export async function drawTreatmentRows(pdf: PDFDocument, page: PDFPage, rows: TreatmentRow[], boxes: TreatmentRowBoxes[], font: PDFFont, report: ReportData, options: { clearDynamicRegions: boolean; centerInCells?: boolean }, searchFont?: PDFFont): Promise<void> {
+export async function drawTreatmentRows(pdf: PDFDocument, page: PDFPage, rows: TreatmentRow[], boxes: TreatmentRowBoxes[], font: PDFFont, report: ReportData, options: { clearDynamicRegions: boolean; centerInCells?: boolean }, searchFont?: PDFFont, unicodeFallback?: UnicodeFallback): Promise<void> {
   const locale = report.document.locale
   const t = i18n.getFixedT(locale)
   const drawCell = (text: string, cell: FieldBox) => options.centerInCells
-    ? drawCenteredCell(pdf, page, text, cell, font, BLACK, searchFont)
-    : drawFitted(pdf, page, text, cell, font, locale, BLACK, undefined, searchFont)
+    ? drawCenteredCell(pdf, page, text, cell, font, BLACK, searchFont, CELL_PADDING, unicodeFallback)
+    : drawFitted(pdf, page, text, cell, font, locale, BLACK, undefined, searchFont, unicodeFallback)
   for (let index = 0; index < boxes.length; index += 1) {
     const box = boxes[index]
     const row = rows[index]

@@ -11,7 +11,6 @@ export function usePdfPreview(report: ReportData, delay = 250) {
   const [error, setError] = useState<Error>()
   const [usedFallback, setUsedFallback] = useState(false)
   const generation = useRef(0)
-  const pending = useRef(false)
   const reportSnapshot = JSON.stringify(report)
 
   const run = useCallback(async () => {
@@ -46,15 +45,13 @@ export function usePdfPreview(report: ReportData, delay = 250) {
     generation.current += 1
     setIsGenerating(true)
     setError(undefined)
-    // Leading + trailing: the first change in a burst regenerates immediately
-    // so the preview never feels like it's waiting on you; the trailing call
-    // after `delay` guarantees the final keystroke is reflected too.
-    if (!pending.current) void run()
-    pending.current = true
-    const timeout = window.setTimeout(() => {
-      pending.current = false
-      void run()
-    }, delay)
+    // Trailing-only: regenerate once, `delay` after the last change in a burst. A leading call was
+    // tried here before, but for a heavy document (e.g. a 5-page Arabic report, where every dynamic
+    // field is rendered through synchronous canvas shaping) it fired a full, main-thread-blocking
+    // regeneration on every single keystroke/field-fill in addition to the trailing one, which could
+    // starve the UI thread long enough to fail input-driven interactions. One deferred regeneration
+    // per burst is what "the preview updates shortly after you stop typing" actually requires.
+    const timeout = window.setTimeout(() => { void run() }, delay)
     return () => window.clearTimeout(timeout)
   }, [delay, run])
 

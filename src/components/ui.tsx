@@ -42,7 +42,9 @@ export function Checkbox({ label, className, ...props }: { label?: React.ReactNo
 }
 
 export function Field({ label, error, children, className }: { label: string; error?: string; children: React.ReactNode; className?: string }) {
-  return <label className={cn('grid gap-1.5 text-sm font-medium text-stone-700', className)}><span>{label}</span>{children}{error && <span className="text-xs font-medium text-red-700">{error}</span>}</label>
+  // Finalize failures (e.g. MB's required Patient ID) need to be impossible to miss: a red ring
+  // around the whole field, not just small text easily scrolled past.
+  return <label className={cn('grid gap-1.5 rounded-md text-sm font-medium text-stone-700', error && 'ring-2 ring-red-500 ring-offset-2', className)}><span>{label}</span>{children}{error && <span role="alert" className="text-xs font-medium text-red-700">{error}</span>}</label>
 }
 
 export function Section({ title, children }: { title: string; children: React.ReactNode }) {

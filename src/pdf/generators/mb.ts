@@ -10,7 +10,11 @@ import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
 import { fitTextToBox } from '../textFit'
 import type { FieldBox } from '../profiles/shared/fieldBox'
-import { alignX, BLACK, drawCenteredCell, drawFitted, drawTreatmentRows, formatPdfMoney, rowHasContent, VISIT_TOTAL_PADDING, WHITE } from './shared'
+import { buildUnicodeFallback, embedUnicodeFallbackFonts, loadUnicodeFallbackFontBytes } from '../unicodeFallback'
+import { alignX, BLACK, cannotEncode, clearBox, drawCenteredCell, drawFitted, drawTreatmentRows, formatPdfMoney, rowHasContent, VISIT_TOTAL_PADDING, WHITE } from './shared'
+
+// Sampled uniform (no photo bleed) across the German cover's title block — see the fix note below.
+const MB_DE_TITLE_BACKGROUND = rgb(255 / 255, 242 / 255, 231 / 255)
 
 // Real MB Dental reports produced by the clinic mark a selection with a solid filled square that
 // sits inside the printed checkbox, not with a vector tick — verified in two independent populated
@@ -37,6 +41,9 @@ function drawSelectionMark(page: PDFPage, box: CheckboxBox, color: typeof SELECT
 }
 
 function drawFrenchPatientName(page: PDFPage, text: string, box: FieldBox, font: PDFFont): boolean {
+  // Defer to drawFitted's Unicode-fallback path for a name the primary WinAnsi font can't encode
+  // (e.g. a Cyrillic or Polish name typed into a French-locale report) rather than throwing here.
+  if (cannotEncode(font, text)) return false
   const words = text.trim().split(/\s+/)
   if (words.length < 2) return false
   let split = 1
@@ -58,7 +65,11 @@ function drawFrenchPatientName(page: PDFPage, text: string, box: FieldBox, font:
 
 function formatMbCoverDate(value: string, locale: MbReportData['document']['locale']): string {
   const formatted = formatReportDate(value, locale)
-  return locale === 'fr' ? formatted.replaceAll('/', '- ') : formatted
+  // French MB reports print the date with hyphens instead of slashes (e.g. "17-09-2026"), not
+  // "17/09/2026". This used to insert a space after each hyphen ("17- 09- 2026" — the P2 QA
+  // finding); `formatReportDate` already delivers "DD/MM/YYYY" for `fr`, so a plain '-' swap is
+  // all that's needed here.
+  return locale === 'fr' ? formatted.replaceAll('/', '-') : formatted
 }
 
 function formatMbAge(age: number, locale: MbReportData['document']['locale']): string {
@@ -80,19 +91,38 @@ export async function generateMbReport(report: MbReportData): Promise<GeneratedR
   const arabicFontBytes = await loadArabicFont()
   const arabicFont = arabicFontBytes ? await pdf.embedFont(arabicFontBytes, { subset: true }) : undefined
   const regular = await pdf.embedFont(StandardFonts.TimesRoman)
+  // Unicode fallback (Cyrillic, Polish/Turkish extended Latin, ...) for text a WinAnsi standard
+  // font cannot encode — see unicodeFallback.ts.
+  const fallbackEntries = await embedUnicodeFallbackFonts(pdf, await loadUnicodeFallbackFontBytes())
+  const unicodeFallback = buildUnicodeFallback(regular, fallbackEntries)
   const [cover, oralHealth, treatmentPlan] = pdf.getPages()
   if (!cover || !oralHealth || !treatmentPlan) throw new Error('The MB Dental template must contain at least three pages')
   const locale = validated.document.locale
   // Real filled Arabic MB reports print Latin digits/prices in a sans face, both in the table and the totals.
   const numberFont = locale === 'ar' ? await pdf.embedFont(StandardFonts.Helvetica) : regular
+  const numberFallback = locale === 'ar' ? buildUnicodeFallback(numberFont, fallbackEntries) : unicodeFallback
+
+  // The supplied German artwork's own baked-in cover title breaks the word itself across three
+  // lines ("ZAHNÄRZT" / "LICHER" / "BERICHT") — confirmed by extracting the page's text objects
+  // directly (pdfjs: three TimesNewRomanPSMT runs at 34pt, all centered on x≈139.3, spanning raw
+  // PDF y 500.07-606.81). It prints as real text objects over a flat cream background
+  // (rgb 255,242,231 — sampled uniform across the whole block, no photo underneath), not a raster
+  // image, so — same pattern as the Aksu French cover-title fix — it can be patched by clearing
+  // that exact region and redrawing the corrected title with the Unicode-fallback-aware, dynamically
+  // sized two-line layout `drawCenteredCell` already uses elsewhere for overflow text.
+  if (resolved.usedTemplate === 'de') {
+    const titleBlock: FieldBox = { x: 4.3, y: 500.07, width: 270, height: 106.74, fontSize: 34, minFontSize: 20, alignment: 'center' }
+    clearBox(cover, titleBlock, MB_DE_TITLE_BACKGROUND)
+    await drawCenteredCell(pdf, cover, 'ZAHNÄRZTLICHER BERICHT', titleBlock, regular, BLACK, undefined, { x: 5, y: 2 }, unicodeFallback)
+  }
 
   if (locale !== 'fr' || !drawFrenchPatientName(cover, validated.patient.name, coordinates.cover.patientName, regular)) {
-    await drawFitted(pdf, cover, validated.patient.name, coordinates.cover.patientName, regular, locale, BLACK, undefined, arabicFont)
+    await drawFitted(pdf, cover, validated.patient.name, coordinates.cover.patientName, regular, locale, BLACK, undefined, arabicFont, unicodeFallback)
   }
-  await drawFitted(pdf, cover, formatMbCoverDate(validated.patient.reportDate, locale), coordinates.cover.reportDate, regular, locale, BLACK, undefined, arabicFont)
-  await drawFitted(pdf, cover, formatMbAge(validated.patient.age, locale), coordinates.cover.age, regular, locale, BLACK, undefined, arabicFont)
-  await drawFitted(pdf, cover, validated.patient.patientId, coordinates.cover.patientId, regular, locale, BLACK, undefined, arabicFont)
-  await drawFitted(pdf, cover, validated.patient.phone, coordinates.cover.phone, regular, locale, BLACK, undefined, arabicFont)
+  await drawFitted(pdf, cover, formatMbCoverDate(validated.patient.reportDate, locale), coordinates.cover.reportDate, regular, locale, BLACK, undefined, arabicFont, unicodeFallback)
+  await drawFitted(pdf, cover, formatMbAge(validated.patient.age, locale), coordinates.cover.age, regular, locale, BLACK, undefined, arabicFont, unicodeFallback)
+  await drawFitted(pdf, cover, validated.patient.patientId, coordinates.cover.patientId, regular, locale, BLACK, undefined, arabicFont, unicodeFallback)
+  await drawFitted(pdf, cover, validated.patient.phone, coordinates.cover.phone, regular, locale, BLACK, undefined, arabicFont, unicodeFallback)
 
   for (const key of mbConditionKeys) {
     if (!validated.oralHealth.currentCondition[key]) continue
@@ -109,13 +139,13 @@ export async function generateMbReport(report: MbReportData): Promise<GeneratedR
   // The MB template's table cells are blank in the source artwork — nothing to clear before drawing.
   // Row boxes are the real cells (profiles/mb/table.ts), so every value is centered inside its cell.
   const tableOptions = { clearDynamicRegions: false, centerInCells: true }
-  await drawTreatmentRows(pdf, treatmentPlan, validated.firstVisit.treatmentRows, coordinates.treatmentPlan.firstVisit.rows, numberFont, validated, tableOptions, arabicFont)
+  await drawTreatmentRows(pdf, treatmentPlan, validated.firstVisit.treatmentRows, coordinates.treatmentPlan.firstVisit.rows, numberFont, validated, tableOptions, arabicFont, numberFallback)
   if (validated.firstVisit.treatmentRows.some(rowHasContent)) {
-    await drawCenteredCell(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.treatmentPlan.firstVisit.total, numberFont, WHITE, arabicFont, VISIT_TOTAL_PADDING)
+    await drawCenteredCell(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.treatmentPlan.firstVisit.total, numberFont, WHITE, arabicFont, VISIT_TOTAL_PADDING, numberFallback)
   }
-  await drawTreatmentRows(pdf, treatmentPlan, validated.secondVisit.treatmentRows, coordinates.treatmentPlan.secondVisit.rows, numberFont, validated, tableOptions, arabicFont)
+  await drawTreatmentRows(pdf, treatmentPlan, validated.secondVisit.treatmentRows, coordinates.treatmentPlan.secondVisit.rows, numberFont, validated, tableOptions, arabicFont, numberFallback)
   if (validated.secondVisit.treatmentRows.some(rowHasContent)) {
-    await drawCenteredCell(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.treatmentPlan.secondVisit.total, numberFont, WHITE, arabicFont, VISIT_TOTAL_PADDING)
+    await drawCenteredCell(pdf, treatmentPlan, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.treatmentPlan.secondVisit.total, numberFont, WHITE, arabicFont, VISIT_TOTAL_PADDING, numberFallback)
   }
 
   pdf.setTitle(`Dental Report - ${validated.patient.name}`)

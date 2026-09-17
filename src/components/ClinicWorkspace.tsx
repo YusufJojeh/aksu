@@ -42,8 +42,32 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
   const preview = usePdfPreview(report)
   const clinic = clinicRegistry[clinicId]
 
+  // Finds the first invalid field's react-hook-form path (e.g. "patient.patientId") so a failed
+  // Finalize can point the user straight at it instead of leaving a validation error buried in the
+  // form with no visible feedback (the P1 "Patient ID rejected silently" QA finding).
+  const firstErrorFieldName = (errors: object, prefix = ''): string | undefined => {
+    for (const [key, value] of Object.entries(errors)) {
+      if (!value || typeof value !== 'object') continue
+      const path = prefix ? `${prefix}.${key}` : key
+      if ('message' in value && 'type' in value) return path
+      const nested = firstErrorFieldName(value as object, path)
+      if (nested) return nested
+    }
+    return undefined
+  }
+
   const download = async () => {
-    if (!await form.trigger()) return
+    if (!await form.trigger()) {
+      const fieldName = firstErrorFieldName(form.formState.errors)
+      if (fieldName) {
+        setMobilePanel('edit')
+        form.setFocus(fieldName as never)
+        window.requestAnimationFrame(() => {
+          document.querySelector<HTMLElement>(`[name="${fieldName}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        })
+      }
+      throw new Error(t('validation.fixHighlighted'))
+    }
     setFinalizeError(undefined)
     const validated = reportSchema.parse(form.getValues())
     const snapshot = JSON.stringify(validated)
