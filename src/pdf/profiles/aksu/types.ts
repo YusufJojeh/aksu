@@ -19,9 +19,5 @@ export interface AksuPdfCoordinates {
     firstVisit: { rows: TreatmentRowBoxes[]; total: FieldBox; grid?: AksuTableGrid }
     discount: { sentence: FieldBox; price: FieldBox }
     secondVisit: { heading: FieldBox; rows: TreatmentRowBoxes[]; total: FieldBox; grid?: AksuTableGrid }
-    // Every template prints the same blank gold gradient bar under the second table's Total row as
-    // under the first (measured directly off each artwork's page 2), so the second visit gets the
-    // identical discount-box treatment as the first.
-    secondDiscount: { sentence: FieldBox; price: FieldBox }
   }
 }
