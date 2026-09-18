@@ -21,9 +21,9 @@ const AKSU_ARABIC_PAGE_SIZE: [number, number] = [594.75, 842.25]
 async function createAksuArabicRasterDocument(): Promise<PDFDocument> {
   const pdf = await PDFDocument.create()
   for (let pageNumber = 1; pageNumber <= 5; pageNumber += 1) {
-    const response = await fetch(`./templates/aksu/ar-pages/page-${pageNumber}.png`)
+    const response = await fetch(`./templates/aksu/ar-pages/page-${pageNumber}.jpg`)
     if (!response.ok) throw new Error(`Unable to load Aksu Arabic preview artwork page ${pageNumber}`)
-    const image = await pdf.embedPng(await response.arrayBuffer())
+    const image = await pdf.embedJpg(await response.arrayBuffer())
     const page = pdf.addPage(AKSU_ARABIC_PAGE_SIZE)
     page.drawImage(image, { x: 0, y: 0, width: AKSU_ARABIC_PAGE_SIZE[0], height: AKSU_ARABIC_PAGE_SIZE[1] })
   }
