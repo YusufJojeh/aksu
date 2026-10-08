@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { EmployeeProfile } from '../../src/auth/types'
 import type { ArchivedReport, CommunicationChannel, ReportEvent } from '../../src/lib/operations'
-import { buildTeamAnalytics } from '../../src/lib/teamAnalytics'
+import { buildEmployeeDetail, buildTeamAnalytics } from '../../src/lib/teamAnalytics'
 
 // Wednesday 2026-10-14 15:00 local time.
 const NOW = new Date(2026, 9, 14, 15, 0)
@@ -9,7 +9,7 @@ const daysAgo = (days: number, hour = 10) => new Date(2026, 9, 14 - days, hour).
 
 const employee = (id: string, overrides: Partial<EmployeeProfile> = {}): EmployeeProfile => ({
   id, full_name: id.toUpperCase(), email: `${id}@clinic.test`, role: 'SALES', status: 'active',
-  requested_phone_e164: '+905550000000', created_at: daysAgo(200), updated_at: daysAgo(200), ...overrides,
+  requested_phone_e164: `+90555-${id}`, created_at: daysAgo(200), updated_at: daysAgo(200), ...overrides,
 })
 
 let seq = 0
@@ -172,5 +172,52 @@ describe('buildTeamAnalytics', () => {
     })
     expect(result.byClinic).toEqual([{ key: 'mb-dental', count: 2 }, { key: 'aksu', count: 1 }])
     expect(result.byLocale).toEqual([{ key: 'en', count: 2 }, { key: 'ar', count: 1 }])
+  })
+  it('treats profiles sharing a phone as one person and lists the extras as duplicates, not idle staff', () => {
+    const result = build({
+      employees: [
+        employee('main', { full_name: "Baha'a Dental Assistant", requested_phone_e164: '+90111' }),
+        employee('typo1', { full_name: "Baha'a Denntal Assistant", requested_phone_e164: '+90111' }),
+        employee('typo2', { full_name: "Baha'a Detal assistant", requested_phone_e164: '+90111', created_at: daysAgo(300) }),
+        employee('solo', { requested_phone_e164: '+90222' }),
+      ],
+      reports: [report('main', 1), report('main', 40), report('typo1', 30), report('solo', 20)],
+    })
+    const byId = new Map(result.employees.map((row) => [row.id, row]))
+    expect(byId.get('main')!.duplicateOf).toBeNull()
+    expect(byId.get('typo1')!.duplicateOf).toEqual({ id: 'main', name: "Baha'a Dental Assistant" })
+    expect(byId.get('typo2')!.duplicateOf).toEqual({ id: 'main', name: "Baha'a Dental Assistant" })
+    expect(result.attention.duplicates.map((row) => row.id).sort()).toEqual(['typo1', 'typo2'])
+    expect(result.attention.idle.map((row) => row.id)).toEqual(['solo'])
+    expect(result.summary).toMatchObject({ idleEmployees: 1, duplicateProfiles: 2 })
+  })
+
+  it('orders idle staff with the longest silence first', () => {
+    const result = build({
+      employees: [employee('recent'), employee('old'), employee('never')],
+      reports: [report('recent', 8), report('old', 40)],
+    })
+    expect(result.attention.idle.map((row) => row.id)).toEqual(['never', 'old', 'recent'])
+  })
+})
+
+describe('buildEmployeeDetail', () => {
+  it('lists the employee reports newest first, groups customers by phone and counts edited copies', () => {
+    const first = report('a', 10, { patient_name: 'Old Name', patient_phone: '+90 555 111 22 33' })
+    const reports = [
+      first,
+      report('a', 2, { patient_name: 'New Name', patient_phone: '+905551112233', parent_report_id: first.id }),
+      report('a', 1, { patient_name: 'Other', patient_phone: '+44 7000 000000' }),
+      report('b', 0),
+    ]
+    const detail = buildEmployeeDetail({ reports, employeeId: 'a', rangeDays: 7, now: NOW })
+    expect(detail.reports.map((row) => row.patient_name)).toEqual(['Other', 'New Name', 'Old Name'])
+    expect(detail.editedCount).toBe(1)
+    expect(detail.customers).toEqual([
+      { key: '905551112233', name: 'New Name', phone: '+905551112233', reports: 2, lastAt: reports[1]!.finalized_at },
+      { key: '447000000000', name: 'Other', phone: '+44 7000 000000', reports: 1, lastAt: reports[2]!.finalized_at },
+    ])
+    expect(detail.trend).toHaveLength(7)
+    expect(detail.trend.reduce((sum, day) => sum + day.count, 0)).toBe(2)
   })
 })

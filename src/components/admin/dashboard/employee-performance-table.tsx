@@ -30,11 +30,12 @@ const flagStyles = {
   top: "border-transparent bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300",
   above: "border-transparent bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
   below: "border-transparent bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-300",
+  duplicate: "border-transparent bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-300",
 } as const
 
 function FlagBadge({ employee }: { employee: EmployeePerformance }) {
   const { t } = useTranslation()
-  const flag = employee.idle ? "idle" : employee.isNew ? "new" : employee.tier === "top" || employee.tier === "above" || employee.tier === "below" ? employee.tier : null
+  const flag = employee.duplicateOf ? "duplicate" : employee.idle ? "idle" : employee.isNew ? "new" : employee.tier === "top" || employee.tier === "above" || employee.tier === "below" ? employee.tier : null
   if (!flag) return null
   return <Badge variant="outline" className={flagStyles[flag]}>{flag === "top" && <TrophyIcon className="size-3" aria-hidden />}{t(`admin.dashboard.flag.${flag}`)}</Badge>
 }
@@ -53,7 +54,7 @@ function Avatar({ employee }: { employee: EmployeePerformance }) {
   )
 }
 
-function useRowParts(employee: EmployeePerformance, maxReports: number) {
+function useRowParts(employee: EmployeePerformance, maxReports: number, onSelect: (id: string) => void) {
   const { t } = useTranslation()
   const format = useDashboardFormat()
   const values = currencyEntries(employee.valueByCurrency)
@@ -63,7 +64,7 @@ function useRowParts(employee: EmployeePerformance, maxReports: number) {
       <div className="flex min-w-0 items-center gap-3">
         <Avatar employee={employee} />
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <span className="truncate font-medium">{employee.name}</span>
+          <button type="button" onClick={() => onSelect(employee.id)} aria-label={t("admin.dashboard.employee.open", { name: employee.name })} className="truncate rounded-sm text-start font-medium underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{employee.name}</button>
           <FlagBadge employee={employee} />
           {employee.status !== "active" && <Badge variant="outline">{t(`admin.status.${employee.status}`)}</Badge>}
         </div>
@@ -90,8 +91,8 @@ function useRowParts(employee: EmployeePerformance, maxReports: number) {
   }
 }
 
-function EmployeeRow({ employee, maxReports }: { employee: EmployeePerformance; maxReports: number }) {
-  const parts = useRowParts(employee, maxReports)
+function EmployeeRow({ employee, maxReports, onSelect }: { employee: EmployeePerformance; maxReports: number; onSelect: (id: string) => void }) {
+  const parts = useRowParts(employee, maxReports, onSelect)
   const format = useDashboardFormat()
   return (
     <TableRow className={employee.idle ? "bg-rose-50/60 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/30" : undefined}>
@@ -107,9 +108,9 @@ function EmployeeRow({ employee, maxReports }: { employee: EmployeePerformance; 
   )
 }
 
-function EmployeeCard({ employee, maxReports }: { employee: EmployeePerformance; maxReports: number }) {
+function EmployeeCard({ employee, maxReports, onSelect }: { employee: EmployeePerformance; maxReports: number; onSelect: (id: string) => void }) {
   const { t } = useTranslation()
-  const parts = useRowParts(employee, maxReports)
+  const parts = useRowParts(employee, maxReports, onSelect)
   const format = useDashboardFormat()
   return (
     <li className={`rounded-lg border border-s-4 p-3 ${employee.idle ? "bg-rose-50/60 dark:bg-rose-950/20" : ""}`} style={{ borderInlineStartColor: employeeColor(employee.id) }}>
@@ -127,7 +128,7 @@ function EmployeeCard({ employee, maxReports }: { employee: EmployeePerformance;
   )
 }
 
-export function EmployeePerformanceTable({ employees }: { employees: EmployeePerformance[] }) {
+export function EmployeePerformanceTable({ employees, onSelect }: { employees: EmployeePerformance[]; onSelect: (id: string) => void }) {
   const { t } = useTranslation()
   const maxReports = Math.max(0, ...employees.map((employee) => employee.reports))
   return (
@@ -155,10 +156,10 @@ export function EmployeePerformanceTable({ employees }: { employees: EmployeePer
                     <TableHead className="pe-4 text-start">{t("admin.dashboard.table.colTrend", { weeks: SPARKLINE_WEEKS })}</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>{employees.map((employee) => <EmployeeRow key={employee.id} employee={employee} maxReports={maxReports} />)}</TableBody>
+                <TableBody>{employees.map((employee) => <EmployeeRow key={employee.id} employee={employee} maxReports={maxReports} onSelect={onSelect} />)}</TableBody>
               </Table>
             </div>
-            <ul className="grid gap-3 px-4 md:hidden">{employees.map((employee) => <EmployeeCard key={employee.id} employee={employee} maxReports={maxReports} />)}</ul>
+            <ul className="grid gap-3 px-4 md:hidden">{employees.map((employee) => <EmployeeCard key={employee.id} employee={employee} maxReports={maxReports} onSelect={onSelect} />)}</ul>
           </>
         )}
       </CardContent>

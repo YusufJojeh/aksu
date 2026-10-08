@@ -62,7 +62,7 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             <SiteHeader title={t(VIEW_TITLE_KEYS[view])} locale={locale} onLocaleChange={applyLocale} />
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="@container/main flex min-w-0 flex-1 flex-col gap-2">
-                {view === 'dashboard' && <TeamDashboard />}
+                {view === 'dashboard' && <TeamDashboard onAssignChannels={() => setView('channels')} />}
                 {view === 'employees' && <EmployeesAdmin />}
                 {view === 'channels' && <ChannelsAdmin />}
                 {view === 'reports' && <ReportsAdmin />}

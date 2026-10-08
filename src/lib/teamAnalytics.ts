@@ -32,6 +32,9 @@ export interface EmployeePerformance {
   daysSinceActivity: number | null
   weekly: number[]
   phone?: string
+  requestedPhone: string
+  /** Set when another profile with the same phone is the primary identity for that person. */
+  duplicateOf: { id: string; name: string } | null
 }
 
 /** Plain-language findings the admin should read first; rendered as sentences by the UI. */
@@ -56,6 +59,7 @@ export interface TeamAnalytics {
     changePct: number | null
     avgPerActive: number
     idleEmployees: number
+    duplicateProfiles: number
     valueByCurrency: Record<string, number>
   }
   trend: { date: string; current: number; previous: number }[]
@@ -65,7 +69,9 @@ export interface TeamAnalytics {
   /** heatmap[weekday][block], weekday 0 = Monday, block = hour / HEATMAP_BLOCK_HOURS. */
   heatmap: number[][]
   attention: {
+    /** Idle real people; duplicate profiles are listed separately so they don't drown the list. */
     idle: EmployeePerformance[]
+    duplicates: EmployeePerformance[]
     pending: EmployeeProfile[]
     unassignedChannels: CommunicationChannel[]
   }
@@ -154,6 +160,23 @@ export function buildTeamAnalytics(input: {
   const phoneByEmployee = new Map<string, string>()
   for (const channel of channels) if (channel.current_assignment) phoneByEmployee.set(channel.current_assignment.employee_id, channel.phone_e164)
 
+  // One phone = one person. Among working profiles sharing a phone, the one with the most reports
+  // (then the oldest) is the real identity; the others are duplicates from name typos.
+  const allTimeReports = new Map<string, number>()
+  for (const report of reports) allTimeReports.set(report.created_by_employee_id, (allTimeReports.get(report.created_by_employee_id) ?? 0) + 1)
+  const primaryByPhone = new Map<string, EmployeeProfile>()
+  for (const employee of employees) {
+    const phone = employee.requested_phone_e164?.trim()
+    if (!phone || (employee.status !== 'active' && employee.status !== 'suspended')) continue
+    const current = primaryByPhone.get(phone)
+    const score = (profile: EmployeeProfile) => allTimeReports.get(profile.id) ?? 0
+    if (!current || score(employee) > score(current) || (score(employee) === score(current) && time(employee.created_at) < time(current.created_at))) primaryByPhone.set(phone, employee)
+  }
+  const duplicateOf = (employee: EmployeeProfile) => {
+    const primary = primaryByPhone.get(employee.requested_phone_e164?.trim() ?? '')
+    return primary && primary.id !== employee.id && (employee.status === 'active' || employee.status === 'suspended') ? { id: primary.id, name: primary.full_name } : null
+  }
+
   const sparkStart = addDays(today, -(SPARKLINE_WEEKS * 7 - 1))
   const activeEmployees = employees.filter((employee) => employee.status === 'active')
   const avgPerActive = activeEmployees.length ? current.length / activeEmployees.length : 0
@@ -196,6 +219,8 @@ export function buildTeamAnalytics(input: {
       daysSinceActivity,
       weekly,
       phone: phoneByEmployee.get(employee.id),
+      requestedPhone: employee.requested_phone_e164,
+      duplicateOf: duplicateOf(employee),
     }
   })
     // Former / pending staff only matter here if they produced something in the period.
@@ -213,7 +238,10 @@ export function buildTeamAnalytics(input: {
     heatmap[(date.getDay() + 6) % 7]![Math.floor(date.getHours() / HEATMAP_BLOCK_HOURS)]! += 1
   }
 
-  const idleRows = rows.filter((row) => row.idle)
+  const duplicateRows = rows.filter((row) => row.duplicateOf)
+  // Longest-quiet first: those are the ones to follow up (or offboard) before anyone else.
+  const idleRows = rows.filter((row) => row.idle && !row.duplicateOf)
+    .sort((a, b) => (b.daysSinceActivity ?? Infinity) - (a.daysSinceActivity ?? Infinity))
   const pending = employees.filter((employee) => employee.status === 'pending')
 
   const insights: TeamInsight[] = []
@@ -238,6 +266,7 @@ export function buildTeamAnalytics(input: {
       changePct: changePct(current.length, previous.length),
       avgPerActive,
       idleEmployees: idleRows.length,
+      duplicateProfiles: duplicateRows.length,
       valueByCurrency,
     },
     trend,
@@ -247,8 +276,62 @@ export function buildTeamAnalytics(input: {
     heatmap,
     attention: {
       idle: idleRows,
+      duplicates: duplicateRows,
       pending,
       unassignedChannels: channels.filter((channel) => channel.status === 'active' && !channel.current_assignment),
     },
+  }
+}
+
+export interface EmployeeCustomer {
+  key: string
+  name: string
+  phone: string
+  reports: number
+  lastAt: string
+}
+
+export interface EmployeeDetail {
+  /** Every report by this employee, newest first; `parent_report_id` marks an edited copy. */
+  reports: ArchivedReport[]
+  customers: EmployeeCustomer[]
+  editedCount: number
+  trend: { date: string; count: number }[]
+}
+
+/** Drill-down for one employee. Customers are the distinct patients across all of their reports. */
+export function buildEmployeeDetail(input: { reports: ArchivedReport[]; employeeId: string; rangeDays: RangeDays; now?: Date }): EmployeeDetail {
+  const today = startOfDay(input.now ?? new Date())
+  const own = input.reports
+    .filter((report) => report.created_by_employee_id === input.employeeId)
+    .sort((a, b) => new Date(b.finalized_at).getTime() - new Date(a.finalized_at).getTime())
+
+  const customers = new Map<string, EmployeeCustomer>()
+  for (const report of own) {
+    const digits = report.patient_phone.replace(/\D/g, '')
+    const key = digits.length >= 6 ? digits : report.patient_name.trim().toLocaleLowerCase()
+    const existing = customers.get(key)
+    // Reports are newest first, so the first one seen carries the current name and the last visit.
+    if (existing) existing.reports += 1
+    else customers.set(key, { key, name: report.patient_name.trim(), phone: report.patient_phone, reports: 1, lastAt: report.finalized_at })
+  }
+
+  const periodStart = addDays(today, -(input.rangeDays - 1))
+  const byDay = new Map<string, number>()
+  for (const report of own) {
+    if (new Date(report.finalized_at).getTime() < periodStart.getTime()) continue
+    const key = toDayKey(new Date(report.finalized_at))
+    byDay.set(key, (byDay.get(key) ?? 0) + 1)
+  }
+  const trend = Array.from({ length: input.rangeDays }, (_, index) => {
+    const date = toDayKey(addDays(periodStart, index))
+    return { date, count: byDay.get(date) ?? 0 }
+  })
+
+  return {
+    reports: own,
+    customers: [...customers.values()].sort((a, b) => b.reports - a.reports || b.lastAt.localeCompare(a.lastAt)),
+    editedCount: own.filter((report) => report.parent_report_id).length,
+    trend,
   }
 }

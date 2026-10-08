@@ -60,11 +60,15 @@ async function ensureSalesProfile(service: ServiceClient, fullName: string, phon
   // an unauthenticated caller must not be able to flip a pending/suspended/former profile to
   // active or overwrite its name/phone, since name + work phone are guessable/public and doing
   // so would let anyone impersonate or hijack another employee's account.
-  const match = (data as ProfileRow[] | null)?.find((profile) => canonicalName(profile.full_name) === canonicalName(fullName))
-  if (match) {
-    if (match.status !== 'active') throw new Error('This sales profile is not active.')
-    return match
-  }
+  //
+  // The phone is the identity: a differently spelled name with a known phone is the same person,
+  // so it must reuse that profile rather than create a duplicate. Prefer an exact-name active match,
+  // then the oldest active profile on that phone.
+  const profiles = (data as ProfileRow[] | null) ?? []
+  const active = profiles.filter((profile) => profile.status === 'active')
+  const match = active.find((profile) => canonicalName(profile.full_name) === canonicalName(fullName)) ?? active[0]
+  if (match) return match
+  if (profiles.length > 0) throw new Error('This sales profile is not active.')
 
   const id = randomUUID()
   const email = `public-sales-${id}@pdfbuilder.local`
