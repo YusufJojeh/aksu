@@ -1,4 +1,4 @@
-import type { Currency, Locale } from '../domain/report'
+import type { Currency, Locale } from '../domain/report.js'
 
 export const clinicIds = ['aksu', 'mb-dental'] as const
 export type ClinicId = (typeof clinicIds)[number]

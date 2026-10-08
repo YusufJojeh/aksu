@@ -1,4 +1,4 @@
-import type { AksuReportData, TreatmentRow } from './report'
+import type { AksuReportData, TreatmentRow } from './report.js'
 
 export const toMinorUnits = (value: number): number => Math.round((value + Number.EPSILON) * 100)
 export const fromMinorUnits = (value: number): number => value / 100

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { ClinicId } from '../clinics/types'
+import type { ClinicId } from '../clinics/types.js'
 
 export const locales = ['en', 'ar', 'fr', 'tr', 'de', 'es', 'ru', 'pl', 'it'] as const
 export const currencies = ['GBP', 'EUR', 'USD', 'TRY'] as const
