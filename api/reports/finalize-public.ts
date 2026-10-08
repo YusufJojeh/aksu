@@ -30,6 +30,13 @@ function requireEnv(name: string): string {
   return value
 }
 
+function createServiceClient() {
+  return createClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
+}
+
+// Derived from a real call: the bare `ReturnType<typeof createClient>` resolves the schema generics to `never`.
+type ServiceClient = ReturnType<typeof createServiceClient>
+
 function canonicalName(value: string): string {
   return value.trim().replace(/\s+/g, ' ').toLocaleLowerCase()
 }
@@ -39,7 +46,7 @@ function decodePdfBase64(value: string): Uint8Array {
   return new Uint8Array(Buffer.from(normalized, 'base64'))
 }
 
-async function ensureSalesProfile(service: ReturnType<typeof createClient>, fullName: string, phone: string): Promise<ProfileRow> {
+async function ensureSalesProfile(service: ServiceClient, fullName: string, phone: string): Promise<ProfileRow> {
   const { data, error } = await service
     .from('profiles')
     .select('id,full_name,email,role,status,requested_phone_e164')
@@ -79,7 +86,7 @@ async function ensureSalesProfile(service: ReturnType<typeof createClient>, full
   return profile as ProfileRow
 }
 
-async function findOrAssignChannel(service: ReturnType<typeof createClient>, profileId: string): Promise<{ channelId: string | null; phone: string | null }> {
+async function findOrAssignChannel(service: ServiceClient, profileId: string): Promise<{ channelId: string | null; phone: string | null }> {
   const { data: assignments } = await service
     .from('channel_assignments')
     .select('channel_id')
@@ -136,7 +143,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     const bytes = decodePdfBase64(pdfBase64)
     await assertArchivedPdf(bytes)
 
-    const service = createClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
+    const service = createServiceClient()
     const profile = await ensureSalesProfile(service, salesName, salesPhone)
     const id = randomUUID()
     const storageKey = `${profile.id}/${id}.pdf`
