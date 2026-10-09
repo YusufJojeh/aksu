@@ -11,6 +11,8 @@ interface AuthContextValue {
   session?: Session
   profile?: EmployeeProfile
   login(identifier: string, password: string): Promise<void>
+  /** Sales staff sign in with their phone number alone (no password). */
+  loginWithPhone(phone: string): Promise<void>
   register(input: { fullName: string; email: string; password: string; workPhone: string }): Promise<void>
   logout(): Promise<void>
   refreshProfile(): Promise<void>
@@ -76,6 +78,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
       if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? 'Invalid phone number or password.')
+      const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
+      if (error) throw error
+      await loadProfile(data.session)
+    },
+    async loginWithPhone(rawPhone) {
+      const phone = normalizePhone(rawPhone)
+      if (!phone) throw new Error('Enter an international phone number, for example +905551112233.')
+      const response = await fetch('/api/auth/employee-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      })
+      const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
+      if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? 'Sign-in failed. Please try again.')
       const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
       if (error) throw error
       await loadProfile(data.session)

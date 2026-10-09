@@ -1,4 +1,4 @@
-import { FilePlus2, Files, LogOut, Shield, UserRound } from 'lucide-react'
+import { FilePlus2, Files, LogIn, LogOut, Shield, UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/AuthProvider'
@@ -34,6 +34,14 @@ export function SalesApp() {
     setSalesPhone(auth.profile.requested_phone_e164)
   }, [auth.profile])
   const signedIn = Boolean(auth.profile)
+  const [signingIn, setSigningIn] = useState(false)
+  const [signInError, setSignInError] = useState<string>()
+  const signIn = async () => {
+    setSigningIn(true); setSignInError(undefined)
+    try { await auth.loginWithPhone(salesPhone); setView('reports') }
+    catch (caught) { setSignInError(caught instanceof Error ? caught.message : 'Sign-in failed.') }
+    finally { setSigningIn(false) }
+  }
   return <div className="min-h-screen bg-parchment">
     <nav aria-label="Sales workspace" className="sticky top-0 z-40 flex flex-wrap items-center gap-2 border-b border-stone-300 bg-white px-4 py-2">
       <Button variant={view === 'create' ? 'primary' : 'outline'} onClick={() => setView('create')}><FilePlus2 size={16} />Create Report</Button>
@@ -44,7 +52,9 @@ export function SalesApp() {
         <Input aria-label="Sales phone" placeholder="+905551112233" value={salesPhone} onChange={(event) => setSalesPhone(event.target.value)} disabled={signedIn} />
       </div>
       {auth.profile?.role === 'ADMIN' && <Button onClick={() => { window.location.href = '/admin' }}><Shield size={16} />Admin</Button>}
+      {!signedIn && <Button variant="primary" disabled={signingIn || !salesPhone.trim()} aria-busy={signingIn} onClick={() => void signIn()}><LogIn size={16} />Sign in with phone</Button>}
       {signedIn ? <Button size="icon" aria-label="Sign out" onClick={() => void auth.logout()}><LogOut size={16} /></Button> : <Button onClick={() => { window.location.href = '/admin' }}>Admin login</Button>}
+      {signInError && <p role="alert" className="basis-full text-end text-sm text-red-700">{signInError}</p>}
     </nav>
     {view === 'create' && (!clinicId ? <ClinicSelect onSelect={setClinicId} /> : <ClinicWorkspace
       key={clinicId} clinicId={clinicId} profile={auth.profile} salesIdentity={{ fullName: salesName, phone: salesPhone }} initialReport={duplicate?.payload} parentReportId={duplicate?.parentReportId} interfaceLocale={interfaceLocale}
