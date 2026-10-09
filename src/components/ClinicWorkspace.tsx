@@ -15,6 +15,7 @@ import { normalizePhone } from '../lib/phone'
 import { usePdfPreview } from '../hooks/usePdfPreview'
 import { generateReport } from '../pdf/generateReport'
 import { AksuReportForm } from './AksuReportForm'
+import { MbDocumentPanel } from './documents/MbDocumentPanel'
 import { MbReportForm } from './MbReportForm'
 import { PdfPreview } from './PdfPreview'
 import { Button, ConfirmDialog, Select, Tabs, TabsList, TabsTrigger } from './ui'
@@ -35,6 +36,8 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
   const [finalized, setFinalized] = useState<{ report: ArchivedReport; snapshot: string }>()
   const [finalizeError, setFinalizeError] = useState<string>()
   const [isDownloading, setIsDownloading] = useState(false)
+  // MB sales staff also issue the clinic's warranty certificate and invitation letter from here.
+  const [documentKind, setDocumentKind] = useState<'plan' | 'warranty' | 'invitation'>('plan')
   const defaults = useMemo(() => initialReport?.clinicId === clinicId ? initialReport : createDefaultReport(clinicId), [clinicId, initialReport])
   const form = useForm<ReportData>({ defaultValues: defaults, resolver: zodResolver(reportSchema) as Resolver<ReportData>, mode: 'onBlur' })
   const { isDirty } = form.formState
@@ -128,6 +131,12 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
       </div>
     </header>
     <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs font-medium text-amber-950"><ShieldCheck className="me-2 inline" size={15} />{t('app.privacy')}</div>
+    {clinicId === 'mb-dental' && <nav aria-label={t('documents.switchLabel')} className="border-b border-stone-300 bg-white px-4 py-2 sm:px-7">
+      <Tabs value={documentKind} onValueChange={(value) => setDocumentKind(value as typeof documentKind)} className="mx-auto max-w-[1800px]">
+        <TabsList className="!inline-grid w-full grid-cols-3 sm:w-auto">{(['plan', 'warranty', 'invitation'] as const).map((kind) => <TabsTrigger key={kind} value={kind} className="whitespace-nowrap px-2 text-xs sm:px-4 sm:text-sm">{t(`documents.${kind}`)}</TabsTrigger>)}</TabsList>
+      </Tabs>
+    </nav>}
+    {documentKind !== 'plan' ? <MbDocumentPanel kind={documentKind} patientName={report.patient.name ?? ''} /> : <>
     {preview.usedFallback && report.document.locale !== 'en' && <div role="status" className="border-b border-blue-200 bg-blue-50 px-4 py-2 text-center text-xs font-medium text-blue-950">{t('app.templateFallback')}</div>}
     <Tabs value={mobilePanel} onValueChange={setMobilePanel} className="mx-auto max-w-md px-4 pt-4 lg:hidden"><TabsList><TabsTrigger value="edit">{t('actions.showEditor')}</TabsTrigger><TabsTrigger value="preview">{t('actions.showPreview')}</TabsTrigger></TabsList></Tabs>
     <main className="mx-auto grid max-w-[1800px] lg:h-[calc(100vh-137px)] lg:grid-cols-[minmax(520px,45%)_1fr]">
@@ -142,6 +151,7 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
         <div className="flex items-center gap-2">{finalizeError && <span role="alert" className="max-w-sm text-xs text-red-700">{finalizeError}</span>}<Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={isDownloading || preview.isGenerating || !preview.blob} aria-busy={isDownloading} onClick={() => void handleDownload()}><Download size={16} />{finalized?.snapshot === JSON.stringify(report) ? t('actions.download') : `Finalize & ${t('actions.download')}`}</Button></div>
       </div>
     </footer>
+    </>}
     <ConfirmDialog open={dialog === 'reset'} onOpenChange={(open) => !open && setDialog(undefined)} title={t('dialog.resetTitle')} body={t('dialog.resetBody')} confirmLabel={t('actions.confirm')} cancelLabel={t('actions.cancel')} onConfirm={reset} />
     <ConfirmDialog open={dialog === 'clear'} onOpenChange={(open) => !open && setDialog(undefined)} title={t('dialog.clearTitle')} body={t('dialog.clearBody')} confirmLabel={t('actions.confirm')} cancelLabel={t('actions.cancel')} onConfirm={clearPatient} />
     <ConfirmDialog open={dialog === 'switchClinic'} onOpenChange={(open) => !open && setDialog(undefined)} title={t('dialog.switchClinicTitle')} body={t('dialog.switchClinicBody')} confirmLabel={t('actions.confirm')} cancelLabel={t('actions.cancel')} onConfirm={onSwitchClinic} />
