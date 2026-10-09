@@ -14,11 +14,15 @@ function today(): string {
 }
 
 // Clinic contact lines repeat on every letter, so they are remembered per device (not patient data).
+// Taken from the clinic's own treatment-plan artwork (public/templates/mb-dental/*.pdf). No clinic
+// email is printed anywhere in that artwork, so the email starts empty until staff enter one.
+const CLINIC_CONTACT: Contact = { phone: '+90 555 066 94 75', email: '', website: 'mbdentalturkey.com' }
+
 function loadContact(): Contact {
   try {
     const stored = JSON.parse(localStorage.getItem(CONTACT_KEY) ?? 'null') as Partial<Contact> | null
-    return { phone: stored?.phone ?? '', email: stored?.email ?? '', website: stored?.website ?? '' }
-  } catch { return { phone: '', email: '', website: '' } }
+    return { phone: stored?.phone || CLINIC_CONTACT.phone, email: stored?.email || CLINIC_CONTACT.email, website: stored?.website || CLINIC_CONTACT.website }
+  } catch { return { ...CLINIC_CONTACT } }
 }
 
 function saveContact(contact: Contact) {
