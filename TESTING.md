@@ -2,7 +2,9 @@
 
 ## Automated gates
 
+- `npm run format:check`: Prettier (`printWidth` 120); `npm run format` rewrites.
 - `npm run lint`: ESLint with zero warnings.
+- `npm run db:types:check`: fails when `src/lib/database.types.ts` drifts from the live schema. Needs Docker running and `POSTGRES_URL` (or `DATABASE_URL`) in the environment or `.env.local`; regenerate with `npm run db:types` after every migration.
 - `npm test`: arithmetic, validation, clinic isolation, locale routing, filename, RTL/text fitting, phone normalization, and security-migration invariants.
 - `npm run build`: TypeScript project build and production Vite bundle.
 - `npm run test:e2e`: Chromium desktop and Pixel 7 workflows for clinic selection, entry, live preview, five-page downloads, reset, switching isolation, locale routing, and stale-data absence.
@@ -14,7 +16,9 @@ Playwright enables development-only `VITE_E2E_AUTH_BYPASS=1` on its local test s
 
 ```bash
 npm install
+npm run format:check
 npm run lint
+npm run db:types:check
 npm test
 npm run build
 npm run test:e2e

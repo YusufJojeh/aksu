@@ -21,6 +21,8 @@ Copy `.env.example` to `.env.local` and supply a Supabase project URL and public
 - `src/domain/`: the discriminated Aksu/MB report model, validation, and minor-unit totals.
 - `src/pdf/`: clinic-specific coordinate profiles and browser-side PDF generation.
 - `src/lib/api/*.ts`: data access by domain (reports, employees, channels, customers, documents) over shared helpers in `shared.ts`; `src/lib/operations.ts` re-exports them.
+- `src/lib/database.types.ts`: generated from the live schema (`npm run db:types`); both Supabase clients are typed with it, and `src/lib/rows.ts` (`fromRow`/`toJson`) narrows rows to domain types so a renamed column fails to compile.
+- `src/lib/appError.ts` + `src/i18n/errorText.ts`: the data layer and endpoints raise coded errors (`{ error, code }`); screens translate the code from the `errors.*` locale section and fall back to their own message for anything uncoded.
 - `api/_lib/http.ts`: shared serverless helpers (request types, env, stateless Supabase client, POST/body guards, active-user and admin checks).
 - `src/components/sales/`: create, report history, and profile workflows.
 - `src/components/admin/`: analytics, employees, communication numbers, and report archive.
