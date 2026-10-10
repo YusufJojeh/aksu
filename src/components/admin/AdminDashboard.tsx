@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppSidebar } from './dashboard/app-sidebar'
 import { SiteHeader } from './dashboard/site-header'
@@ -35,14 +35,14 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     return (locales as readonly string[]).includes(saved ?? '') ? (saved as Locale) : 'en'
   })
 
-  const applyLocale = (next: Locale) => {
-    setLocale(next)
-    void i18n.changeLanguage(next)
-    document.documentElement.lang = next
-    document.documentElement.dir = isRtl(next) ? 'rtl' : 'ltr'
-    try { localStorage.setItem(ADMIN_LANG_KEY, next) } catch { /* private browsing / storage disabled */ }
-  }
-  if (i18n.language !== locale) applyLocale(locale)
+  // Side effects run after render (before paint), not during it, so React can render purely.
+  useLayoutEffect(() => {
+    if (i18n.language !== locale) void i18n.changeLanguage(locale)
+    document.documentElement.lang = locale
+    document.documentElement.dir = isRtl(locale) ? 'rtl' : 'ltr'
+    try { localStorage.setItem(ADMIN_LANG_KEY, locale) } catch { /* private browsing / storage disabled */ }
+  }, [i18n, locale])
+  const applyLocale = (next: Locale) => setLocale(next)
 
   const user = { name: auth.profile?.full_name ?? 'Admin', email: auth.profile?.email ?? '' }
 

@@ -8,16 +8,16 @@ import { currencyEntries, useDashboardFormat } from "./format"
 
 // Literal class strings so Tailwind keeps them; one hue per metric, reused nowhere else on the card row.
 const tones = {
-  violet: { card: "from-violet-500/10 border-t-violet-500", tile: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" },
-  blue: { card: "from-blue-500/10 border-t-blue-500", tile: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300" },
-  emerald: { card: "from-emerald-500/10 border-t-emerald-500", tile: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-  rose: { card: "from-rose-500/10 border-t-rose-500", tile: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300" },
-  teal: { card: "from-teal-500/10 border-t-teal-500", tile: "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300" },
+  violet: { card: "border-t-violet-500", tile: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" },
+  blue: { card: "border-t-blue-500", tile: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300" },
+  emerald: { card: "border-t-emerald-500", tile: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
+  rose: { card: "border-t-rose-500", tile: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300" },
+  teal: { card: "border-t-teal-500", tile: "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300" },
 } as const
 
 function KpiCard({ tone, icon: Icon, label, value, footer }: { tone: keyof typeof tones; icon: LucideIcon; label: string; value: ReactNode; footer: ReactNode }) {
   return (
-    <Card className={`border-t-4 bg-gradient-to-b to-card shadow-xs ${tones[tone].card}`}>
+    <Card className={`border-t-4 bg-card shadow-xs ${tones[tone].card}`}>
       <CardHeader>
         <CardDescription className="flex items-center gap-2.5 font-medium text-foreground/80">
           <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${tones[tone].tile}`}><Icon className="size-[18px]" aria-hidden /></span>

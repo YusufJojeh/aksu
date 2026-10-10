@@ -32,7 +32,8 @@ export function AppSidebar({
   onProfile: () => void
   onSalesWorkspace: () => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const dir = i18n.dir()
   const { isMobile, setOpenMobile } = useSidebar()
   const closeOnMobile = () => { if (isMobile) setOpenMobile(false) }
 
@@ -46,13 +47,16 @@ export function AppSidebar({
   ]
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" side={dir === "rtl" ? "right" : "left"} dir={dir} {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="data-[slot=sidebar-menu-button]:p-1.5! pointer-events-none">
-              <StethoscopeIcon className="size-5!" />
-              <span className="text-base font-semibold">{t("admin.nav.brand")}</span>
+            {/* The brand is not interactive, so it renders as a div rather than a disabled button. */}
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5! hover:bg-transparent active:bg-transparent">
+              <div>
+                <StethoscopeIcon className="size-5!" aria-hidden />
+                <span className="text-base font-semibold">{t("admin.nav.brand")}</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

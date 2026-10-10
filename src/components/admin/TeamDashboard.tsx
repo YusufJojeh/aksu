@@ -27,7 +27,7 @@ const TABS = [
 ] as const
 type DashboardTab = (typeof TABS)[number]['value']
 
-const tabTrigger = 'inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm'
+const tabTrigger = 'inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-150 max-md:min-h-10 [@media(hover:hover)]:hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm'
 
 interface DashboardData {
   reports: ArchivedReport[]
@@ -89,7 +89,7 @@ export function TeamDashboard({ onAssignChannels }: { onAssignChannels: () => vo
     <div className="flex flex-col gap-4 px-4 py-4 md:py-6 lg:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25" aria-hidden>
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl border bg-muted text-foreground" aria-hidden>
             <UsersIcon className="size-5" />
           </span>
           <div>
@@ -104,11 +104,11 @@ export function TeamDashboard({ onAssignChannels }: { onAssignChannels: () => vo
         <div className="flex items-center gap-2">
           <ToggleGroup type="single" value={String(range)} onValueChange={changeRange} variant="outline" aria-label={t('admin.dashboard.range.label')}>
             {rangeOptions.map((days) => (
-              <ToggleGroupItem key={days} value={String(days)} className="px-3">{t(`admin.dashboard.range.d${days}`)}</ToggleGroupItem>
+              <ToggleGroupItem key={days} value={String(days)} className="px-3 max-md:h-10">{t(`admin.dashboard.range.d${days}`)}</ToggleGroupItem>
             ))}
           </ToggleGroup>
-          <Button variant="outline" size="icon" onClick={load} disabled={loading} aria-label={t('admin.dashboard.refresh')}>
-            <RefreshCwIcon className={loading ? 'animate-spin' : undefined} />
+          <Button variant="outline" size="icon" className="max-md:size-11" onClick={load} disabled={loading} aria-label={t('admin.dashboard.refresh')} title={t('admin.dashboard.refresh')}>
+            <RefreshCwIcon className={loading ? 'animate-spin motion-reduce:animate-none' : undefined} />
           </Button>
         </div>
       </div>
@@ -116,7 +116,7 @@ export function TeamDashboard({ onAssignChannels }: { onAssignChannels: () => vo
       {error && (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
           {t('admin.dashboard.loadError')}
-          <Button variant="outline" size="sm" onClick={load}>{t('admin.dashboard.retry')}</Button>
+          <Button variant="outline" size="sm" className="max-md:h-10 max-md:px-3" onClick={load}>{t('admin.dashboard.retry')}</Button>
         </div>
       )}
 

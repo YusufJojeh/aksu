@@ -19,7 +19,7 @@ export function ClinicSelect({ onSelect }: { onSelect: (clinicId: ClinicId) => v
             key={clinicId}
             type="button"
             onClick={() => onSelect(clinicId)}
-            className="rounded-xl border border-stone-300 bg-white p-6 text-start shadow-sm transition-[transform,border-color,box-shadow] duration-200 ease-out-strong hover:border-gold hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] [@media(hover:hover)]:hover:-translate-y-0.5"
+            className="rounded-xl border border-stone-300 bg-white p-6 text-start shadow-sm transition-[transform,border-color,box-shadow] duration-200 ease-out-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100 [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:border-gold [@media(hover:hover)]:hover:shadow-md motion-reduce:[@media(hover:hover)]:hover:translate-y-0"
           >
             <h2 className="text-lg font-bold">{clinic.displayName}</h2>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-stone-500">{t('clinicSelect.selectClinic')}</p>

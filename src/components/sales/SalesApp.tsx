@@ -38,7 +38,7 @@ export function SalesApp() {
   const [signInError, setSignInError] = useState<string>()
   const signIn = async () => {
     setSigningIn(true); setSignInError(undefined)
-    try { await auth.loginWithPhone(salesPhone); setView('reports') }
+    try { await auth.loginWithPhone(salesPhone); if (!clinicId) setView('reports') }
     catch (caught) { setSignInError(caught instanceof Error ? caught.message : t('sales.errors.signInFailed')) }
     finally { setSigningIn(false) }
   }
@@ -52,8 +52,9 @@ export function SalesApp() {
           {signedIn && <Button variant={view === 'profile' ? 'primary' : 'outline'} aria-current={view === 'profile' ? 'page' : undefined} onClick={() => setView('profile')}><UserRound size={16} />{t('sales.nav.profile')}</Button>}
         </div>
         <div className="order-last grid w-full grid-cols-2 gap-2 sm:order-none sm:ms-auto sm:flex sm:w-auto sm:items-center">
-          <Input aria-label={t('sales.identity.nameLabel')} placeholder={t('sales.identity.namePlaceholder')} autoComplete="name" value={salesName} onChange={(event) => setSalesName(event.target.value)} disabled={signedIn} className="sm:w-40 lg:w-48" />
-          <Input aria-label={t('sales.identity.phoneLabel')} placeholder="+905551112233" type="tel" inputMode="tel" autoComplete="tel" value={salesPhone} onChange={(event) => setSalesPhone(event.target.value)} disabled={signedIn} className="sm:w-40 lg:w-44" />
+          <label className="grid gap-1 text-xs font-semibold text-stone-700 sm:flex sm:items-center sm:gap-2"><span className="sm:sr-only">{t('sales.identity.nameLabel')}</span><Input id="sales-identity-name" placeholder={t('sales.identity.namePlaceholder')} autoComplete="name" value={salesName} onChange={(event) => setSalesName(event.target.value)} disabled={signedIn} className="sm:w-40 lg:w-48" /></label>
+          <label className="grid gap-1 text-xs font-semibold text-stone-700 sm:flex sm:items-center sm:gap-2"><span className="sm:sr-only">{t('sales.identity.phoneLabel')}</span><Input id="sales-identity-phone" placeholder={t('sales.identity.phonePlaceholder')} type="tel" inputMode="tel" autoComplete="tel" value={salesPhone} onChange={(event) => setSalesPhone(event.target.value)} disabled={signedIn} className="sm:w-40 lg:w-44" /></label>
+          {!signedIn && <p className="col-span-2 text-xs text-stone-600 sm:sr-only">{t('sales.identity.hint')}</p>}
           {!signedIn && <Button variant="primary" className="col-span-2 whitespace-nowrap" disabled={signingIn || !salesPhone.trim()} aria-busy={signingIn} onClick={() => void signIn()}><LogIn size={16} />{t('sales.nav.signIn')}</Button>}
         </div>
         <div className="ms-auto flex items-center gap-2 sm:ms-0">
@@ -63,11 +64,13 @@ export function SalesApp() {
         {signInError && <p role="alert" className="order-last basis-full text-end text-sm text-red-700">{signInError}</p>}
       </div>
     </nav>
-    {view === 'create' && (!clinicId ? <ClinicSelect onSelect={setClinicId} /> : <ClinicWorkspace
+    {view === 'create' && !clinicId && <ClinicSelect onSelect={setClinicId} />}
+    {/* Stays mounted while viewing reports or profile so unsaved edits survive the round trip. */}
+    {clinicId && <div className={view === 'create' ? 'flex flex-1 flex-col lg:min-h-0' : 'hidden'}><ClinicWorkspace
       key={clinicId} clinicId={clinicId} profile={auth.profile} salesIdentity={{ fullName: salesName, phone: salesPhone }} initialReport={duplicate?.payload} parentReportId={duplicate?.parentReportId} interfaceLocale={interfaceLocale}
       onInterfaceLocaleChange={(locale) => { setInterfaceLocale(locale); void i18n.changeLanguage(locale); document.documentElement.lang=locale; document.documentElement.dir=isRtl(locale)?'rtl':'ltr' }} onSwitchClinic={() => setClinicId(undefined)}
-    />)}
-    {signedIn && view === 'reports' && <MyReports />}
+    /></div>}
+    {signedIn && view === 'reports' && <MyReports onCreate={() => setView('create')} />}
     {signedIn && view === 'profile' && <SalesProfile />}
   </div>
 }

@@ -1,7 +1,8 @@
-import { FileWarning, LoaderCircle } from 'lucide-react'
+import { FileWarning, LoaderCircle, RotateCcw } from 'lucide-react'
 import * as pdfjs from 'pdfjs-dist'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from './ui'
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
 
@@ -11,9 +12,18 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.m
 const WIDTH_GRID = 4
 const quantizeWidth = (width: number) => Math.floor(width / WIDTH_GRID) * WIDTH_GRID
 
-export function PdfPreview({ url, loading, error }: { url?: string; loading: boolean; error?: Error }) {
+export function PdfPreview({ url, loading, error, onRetry }: { url?: string; loading: boolean; error?: Error; onRetry?: () => void }) {
   const { t } = useTranslation()
   const pagesContainer = useRef<HTMLDivElement>(null)
+  // Page labels follow the interface language without re-parsing and re-rendering the whole PDF:
+  // the render effect reads the latest labeller from a ref, and a language change relabels in place.
+  const pageLabel = useCallback((current: number, total: number) => `${t('sections.pdfPreview')}, ${t('status.page', { current, total })}`, [t])
+  const pageLabelRef = useRef(pageLabel)
+  useLayoutEffect(() => {
+    pageLabelRef.current = pageLabel
+    const canvases = pagesContainer.current?.querySelectorAll('canvas') ?? []
+    canvases.forEach((canvas, index) => canvas.setAttribute('aria-label', pageLabel(index + 1, canvases.length)))
+  }, [pageLabel])
 
   useEffect(() => {
     if (!url || !pagesContainer.current) return
@@ -53,7 +63,8 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
           canvas.style.width = `${viewport.width / window.devicePixelRatio}px`
           canvas.style.height = `${viewport.height / window.devicePixelRatio}px`
           canvas.className = 'mx-auto bg-white shadow-paper'
-          canvas.setAttribute('aria-label', `${t('sections.pdfPreview')} ${pageNumber}`)
+          canvas.setAttribute('role', 'img')
+          canvas.setAttribute('aria-label', pageLabelRef.current(pageNumber, documentProxy.numPages))
           const context = canvas.getContext('2d')
           if (!context) return
           pagesContainer.current.append(canvas)
@@ -88,19 +99,27 @@ export function PdfPreview({ url, loading, error }: { url?: string; loading: boo
       renderTasks.forEach((task) => task.cancel())
       void loadingTask.destroy()
     }
-  }, [t, url])
+  }, [url])
 
-  if (error) return <div className="grid min-h-[420px] place-items-center p-8 text-center text-red-800"><div><FileWarning className="mx-auto mb-3" /><p className="font-semibold">{t('status.error')}</p><p className="mt-1 max-w-md text-xs opacity-80">{error.message}</p></div></div>
+  if (error) return <div role="alert" className="grid min-h-[420px] place-items-center p-8 text-center text-red-800"><div className="grid justify-items-center gap-2">
+    <FileWarning className="mb-1" />
+    <p className="font-semibold">{t('status.error')}</p>
+    <p className="max-w-md text-sm text-stone-700">{t('status.errorHint')}</p>
+    {onRetry && <Button className="mt-2" onClick={onRetry}><RotateCcw size={16} />{t('actions.retry')}</Button>}
+    {/* The technical message stays available for support, below the plain-language guidance. */}
+    <p className="mt-1 max-w-md break-words text-xs text-stone-500">{error.message}</p>
+  </div></div>
 
   return <div className="relative flex min-h-[420px] flex-col items-center">
-    <div className="sticky top-0 z-10 flex w-full items-center justify-center gap-3 border-b border-stone-300/70 bg-stone-200/95 p-2 backdrop-blur">
+    <div className="sticky top-0 z-10 flex w-full items-center justify-center gap-3 border-b border-stone-300/70 bg-stone-200 p-2">
       <span className="flex min-w-28 items-center justify-center gap-1.5 text-center text-xs font-semibold text-stone-600">{t('sections.pdfPreview')}{loading && url && <LoaderCircle aria-hidden size={12} className="animate-spin text-gold" />}</span>
+      <span role="status" className="sr-only">{!loading && url ? t('status.ready') : ''}</span>
     </div>
     {/* The gutter is reserved so the scrollbar appearing partway through the first render cannot
         narrow the container and make the remaining pages render at a slightly different scale. */}
     <div className="w-full overflow-auto p-4 text-center [scrollbar-gutter:stable]">
-      <div ref={pagesContainer} className="mx-auto flex w-fit flex-col gap-5" aria-label={t('sections.pdfPreview')} />
+      <div ref={pagesContainer} className="mx-auto flex w-fit flex-col gap-5" />
     </div>
-    {loading && !url && <div className="absolute inset-0 z-20 grid place-items-center bg-stone-100/65 backdrop-blur-[1px]"><div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink shadow-lg"><LoaderCircle className="me-2 inline animate-spin" size={17} />{t('status.generating')}</div></div>}
+    {loading && !url && <div role="status" className="absolute inset-0 z-20 grid place-items-center bg-stone-100/70"><div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink shadow-lg"><LoaderCircle className="me-2 inline animate-spin" size={17} />{t('status.generating')}</div></div>}
   </div>
 }

@@ -24,7 +24,7 @@ test('creates, localizes, previews, downloads and resets a report', async ({ pag
   expect(completedDownload.suggestedFilename()).toMatch(/Doctor-Aksu-Treatment-Plan_محمد_يوسف_.*_AR\.pdf/)
   await completedDownload.saveAs(testInfo.outputPath('arabic-treatment-plan.pdf'))
   await page.getByRole('button', { name: 'إعادة ضبط النموذج' }).click()
-  await page.getByRole('button', { name: 'تأكيد' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'إعادة ضبط النموذج' }).click()
   await expect(page.getByLabel('اسم المريض')).toHaveValue('')
 })
 

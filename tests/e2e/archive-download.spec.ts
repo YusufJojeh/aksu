@@ -52,7 +52,7 @@ test('admin re-downloads exact originals and rejects missing or blank archives',
   const downloads: string[] = []
   page.on('download', (download) => downloads.push(download.suggestedFilename()))
   for (const kind of ['original', 'original', 'missing', 'blank', 'original']) {
-    let button = page.getByRole('button', { name: `Download ${kind}`, exact: true })
+    let button = page.getByRole('button', { name: `Download ${kind} patient`, exact: true })
     if (testInfo.project.name === 'mobile') {
       const details = page.locator('details').filter({ hasText: `${kind} patient` })
       if (await details.getAttribute('open') === null) await details.locator('summary').click()

@@ -55,7 +55,7 @@ function Group({ tone, icon: Icon, title, items, headerAction }: { tone: keyof t
         ))}
       </ul>
       {items.length > PREVIEW && (
-        <Button variant="ghost" size="sm" className="mt-1 self-start" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
+        <Button variant="ghost" size="sm" className="mt-1 self-start max-md:h-10 max-md:px-3" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
           {expanded ? t("admin.dashboard.attention.showLess") : t("admin.dashboard.attention.showAll", { count: format.number(items.length) })}
         </Button>
       )}
@@ -105,30 +105,30 @@ export function AttentionPanel({ attention, onChanged, onViewEmployee, onAssignC
       ? t("admin.dashboard.attention.idleNever", { name: employee.name })
       : t("admin.dashboard.attention.idle", { name: employee.name, ago: format.daysAgo(employee.daysSinceActivity) }),
     actions: <>
-      <Button variant="ghost" size="sm" onClick={() => onViewEmployee(employee.id)}>{t("admin.dashboard.attention.view")}</Button>
-      <Button variant="ghost" size="sm" onClick={() => snooze(employee.id)}>{t("admin.dashboard.attention.snooze")}</Button>
-      <Button variant="outline" size="sm" disabled={disabled} onClick={() => setConfirm({ kind: "deactivate", ids: [employee.id], name: employee.name })}>{t("admin.dashboard.attention.deactivate")}</Button>
+      <Button variant="ghost" size="sm" className="max-md:h-10 max-md:px-3" onClick={() => onViewEmployee(employee.id)}>{t("admin.dashboard.attention.view")}</Button>
+      <Button variant="ghost" size="sm" className="max-md:h-10 max-md:px-3" onClick={() => snooze(employee.id)}>{t("admin.dashboard.attention.snooze")}</Button>
+      <Button variant="outline" size="sm" className="max-md:h-10 max-md:px-3" disabled={disabled} onClick={() => setConfirm({ kind: "deactivate", ids: [employee.id], name: employee.name })}>{t("admin.dashboard.attention.deactivate")}</Button>
     </>,
   }))
   const pendingItems: Item[] = attention.pending.map((employee) => ({
     id: employee.id,
     text: t("admin.dashboard.attention.pending", { name: employee.full_name }),
     actions: <>
-      <Button size="sm" disabled={disabled} aria-busy={busy === employee.id} onClick={() => void run(employee.id, () => updateEmployee(employee.id, { status: "active" }))}>{t("admin.dashboard.attention.approve")}</Button>
-      <Button variant="outline" size="sm" disabled={disabled} onClick={() => setConfirm({ kind: "reject", ids: [employee.id], name: employee.full_name })}>{t("admin.dashboard.attention.reject")}</Button>
+      <Button size="sm" className="max-md:h-10 max-md:px-3" disabled={disabled} aria-busy={busy === employee.id} onClick={() => void run(employee.id, () => updateEmployee(employee.id, { status: "active" }))}>{t("admin.dashboard.attention.approve")}</Button>
+      <Button variant="outline" size="sm" className="max-md:h-10 max-md:px-3" disabled={disabled} onClick={() => setConfirm({ kind: "reject", ids: [employee.id], name: employee.full_name })}>{t("admin.dashboard.attention.reject")}</Button>
     </>,
   }))
   const channelItems: Item[] = attention.unassignedChannels.map((channel) => ({
     id: channel.id,
     text: t("admin.dashboard.attention.channel", { label: channel.label || channel.phone_e164 }),
-    actions: <Button variant="outline" size="sm" onClick={onAssignChannels}>{t("admin.dashboard.attention.assign")}</Button>,
+    actions: <Button variant="outline" size="sm" className="max-md:h-10 max-md:px-3" onClick={onAssignChannels}>{t("admin.dashboard.attention.assign")}</Button>,
   }))
   const duplicateItems: Item[] = attention.duplicates.map((employee) => ({
     id: employee.id,
     text: `${employee.name} · ${t("admin.dashboard.attention.duplicateOf", { name: employee.duplicateOf?.name ?? "" })}`,
     actions: <>
-      <Button variant="ghost" size="sm" onClick={() => onViewEmployee(employee.id)}>{t("admin.dashboard.attention.view")}</Button>
-      <Button variant="outline" size="sm" disabled={disabled} onClick={() => setConfirm({ kind: "deactivate", ids: [employee.id], name: employee.name })}>{t("admin.dashboard.attention.deactivate")}</Button>
+      <Button variant="ghost" size="sm" className="max-md:h-10 max-md:px-3" onClick={() => onViewEmployee(employee.id)}>{t("admin.dashboard.attention.view")}</Button>
+      <Button variant="outline" size="sm" className="max-md:h-10 max-md:px-3" disabled={disabled} onClick={() => setConfirm({ kind: "deactivate", ids: [employee.id], name: employee.name })}>{t("admin.dashboard.attention.deactivate")}</Button>
     </>,
   }))
 
@@ -139,14 +139,14 @@ export function AttentionPanel({ attention, onChanged, onViewEmployee, onAssignC
       : { title: t("admin.dashboard.attention.confirmTitle"), body: t("admin.dashboard.attention.confirmBody", { name: confirm.name }) })
 
   return (
-    <section aria-labelledby="attention-title" className="rounded-xl border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4 dark:border-amber-900 dark:from-amber-950/40 dark:to-orange-950/30">
+    <section aria-labelledby="attention-title" className="rounded-xl border border-amber-300 bg-amber-50 p-3 sm:p-4 dark:border-amber-900 dark:bg-amber-950/30">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="attention-title" className="flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
           {total ? <BellRingIcon className="size-4" aria-hidden /> : <CheckCircle2Icon className="size-4" aria-hidden />}
           {total ? t("admin.dashboard.attention.title", { total: format.number(total) }) : t("admin.dashboard.attention.allClear")}
         </h2>
         {snoozedCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={unsnoozeAll}>{t("admin.dashboard.attention.showSnoozed", { count: format.number(snoozedCount) })}</Button>
+          <Button variant="ghost" size="sm" className="max-md:h-10 max-md:px-3" onClick={unsnoozeAll}>{t("admin.dashboard.attention.showSnoozed", { count: format.number(snoozedCount) })}</Button>
         )}
       </div>
       {failed && <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-300">{t("admin.dashboard.attention.actionFailed")}</p>}
@@ -159,7 +159,7 @@ export function AttentionPanel({ attention, onChanged, onViewEmployee, onAssignC
             title={t("admin.dashboard.attention.groupDuplicates")}
             items={duplicateItems}
             headerAction={duplicateItems.length > 1 && (
-              <Button variant="outline" size="sm" disabled={disabled} aria-busy={busy === "all"} onClick={() => setConfirm({ kind: "deactivateAll", ids: attention.duplicates.map((employee) => employee.id) })}>
+              <Button variant="outline" size="sm" className="max-md:h-10 max-md:px-3" disabled={disabled} aria-busy={busy === "all"} onClick={() => setConfirm({ kind: "deactivateAll", ids: attention.duplicates.map((employee) => employee.id) })}>
                 {t("admin.dashboard.attention.deactivateAll", { count: format.number(duplicateItems.length) })}
               </Button>
             )}

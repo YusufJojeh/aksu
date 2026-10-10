@@ -34,8 +34,8 @@ export function Checkbox({ label, className, ...props }: { label?: React.ReactNo
   return <label className={cn('inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm', className)}>
     <span className="relative inline-flex size-5 shrink-0">
       <input type="checkbox" className="peer absolute inset-0 z-10 size-full cursor-pointer opacity-0" {...props} />
-      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2" />
-      <Check aria-hidden size={13} strokeWidth={3} className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition peer-checked:opacity-100" />
+      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition-[background-color,border-color] duration-150 peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2" />
+      <Check aria-hidden size={13} strokeWidth={3} className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition-opacity duration-150 peer-checked:opacity-100" />
     </span>
     {label}
   </label>
@@ -53,7 +53,7 @@ export function Section({ title, children }: { title: string; children: React.Re
 
 export const Tabs = TabsPrimitive.Root
 export const TabsList = ({ className, ...props }: TabsPrimitive.TabsListProps) => <TabsPrimitive.List className={cn('grid grid-cols-2 rounded-lg bg-stone-200 p-1', className)} {...props} />
-export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => <TabsPrimitive.Trigger className={cn('rounded-md px-3 py-2 text-sm font-semibold text-stone-600 transition-[color,background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold [@media(hover:hover)]:hover:text-ink data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm', className)} {...props} />
+export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => <TabsPrimitive.Trigger className={cn('min-h-10 rounded-md px-3 py-2 text-sm font-semibold text-stone-600 transition-[color,background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold [@media(hover:hover)]:hover:text-ink data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm', className)} {...props} />
 
 export function Accordion({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn('divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-white', className)}>{children}</div>
@@ -63,7 +63,7 @@ export function AccordionItem({ summary, children, className, defaultOpen }: { s
   return <details className={cn('group', className)} open={defaultOpen}>
     <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-ink marker:content-none [&::-webkit-details-marker]:hidden">
       <span className="min-w-0 flex-1">{summary}</span>
-      <ChevronDown aria-hidden size={16} className="shrink-0 text-stone-400 transition-transform duration-200 group-open:rotate-180" />
+      <ChevronDown aria-hidden size={16} className="shrink-0 text-stone-400 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" />
     </summary>
     <div className="grid gap-3 border-t border-stone-100 px-4 py-4">{children}</div>
   </details>
@@ -76,8 +76,8 @@ export function AccordionField({ label, children, className }: { label: string; 
 export function ConfirmDialog({ open, onOpenChange, title, body, confirmLabel, cancelLabel, onConfirm }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; body: string; confirmLabel: string; cancelLabel: string; onConfirm: () => void }) {
   return <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm" />
-      <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-2xl focus:outline-none">
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/45" />
+      <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-stone-200 bg-white p-6 shadow-md focus:outline-none">
         <DialogPrimitive.Title className="text-lg font-bold text-ink">{title}</DialogPrimitive.Title>
         <DialogPrimitive.Description className="mt-2 text-sm leading-6 text-stone-600">{body}</DialogPrimitive.Description>
         <div className="mt-6 flex justify-end gap-2">

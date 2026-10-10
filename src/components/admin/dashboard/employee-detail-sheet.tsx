@@ -15,7 +15,7 @@ import { currencyEntries, employeeColor, tint, useDashboardFormat } from "./form
 
 type ReportFilter = "all" | "original" | "edited"
 
-const tabClass = "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+const tabClass = "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-150 max-md:min-h-10 [@media(hover:hover)]:hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
 
 function Kpi({ icon: Icon, label, value, color }: { icon: LucideIcon; label: string; value: React.ReactNode; color: string }) {
   return (
@@ -64,7 +64,7 @@ export function EmployeeDetailSheet({ employee, profile, reports, rangeDays, onO
       >
         {employee && detail && (
           <>
-            <SheetHeader className="border-b pe-12 rtl:pe-4 rtl:ps-12" style={{ backgroundImage: `linear-gradient(to bottom, ${tint(color, 12)}, transparent)` }}>
+            <SheetHeader className="border-b pe-12" style={{ backgroundColor: tint(color, 6) }}>
               <div className="flex items-center gap-3">
                 <span aria-hidden className="grid size-12 shrink-0 place-items-center rounded-full text-base font-bold" style={{ color, backgroundColor: tint(color, 18), boxShadow: `inset 0 0 0 2px ${tint(color, 50)}` }}>
                   {employee.name.trim().slice(0, 1).toUpperCase() || "?"}

@@ -9,7 +9,7 @@ test('switching clinics after edits asks for confirmation and remounts with a cl
 
   await page.getByRole('button', { name: 'Switch clinic' }).click()
   await expect(page.getByRole('heading', { name: 'Switch clinic?' })).toBeVisible()
-  await page.getByRole('button', { name: 'Confirm' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Switch clinic' }).click()
 
   await expect(page.getByRole('heading', { name: 'Select a clinic' })).toBeVisible()
 

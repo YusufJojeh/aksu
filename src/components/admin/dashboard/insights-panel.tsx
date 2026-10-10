@@ -40,8 +40,8 @@ export function InsightsPanel({ insights }: { insights: TeamInsight[] }) {
   }
 
   return (
-    <section aria-labelledby="insights-title" className="rounded-xl bg-gradient-to-br from-blue-50 via-violet-50 to-emerald-50 p-4 ring-1 ring-blue-100 dark:from-blue-950/40 dark:via-violet-950/30 dark:to-emerald-950/30 dark:ring-blue-900/50">
-      <h2 id="insights-title" className="flex items-center gap-2 text-sm font-semibold text-blue-900 dark:text-blue-200">
+    <section aria-labelledby="insights-title" className="rounded-xl bg-card p-4 ring-1 ring-border">
+      <h2 id="insights-title" className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <SparklesIcon className="size-4" aria-hidden />
         {t("admin.dashboard.insights.title")}
       </h2>
