@@ -3,6 +3,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { generateMbDocument, mbDocumentFilename, suggestCertificateNo, unsupportedFields, type InvitationData, type MbDocumentData, type MbDocumentKind, type WarrantyData } from '../../pdf/documents/mbDocuments'
 import { PdfPreview } from '../PdfPreview'
+import type { EmployeeProfile } from '../../auth/types'
+import { isE2EAuthBypass } from '../../auth/AuthProvider'
+import { saveBlob } from '../../lib/download'
+import { archiveDocument } from '../../lib/operations'
 import { Button, Field, Input, Tabs, TabsList, TabsTrigger } from '../ui'
 
 const CONTACT_KEY = 'mb_document_contact'
@@ -79,7 +83,7 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   </fieldset>
 }
 
-export function MbDocumentPanel({ kind, patientName }: { kind: MbDocumentKind; patientName: string }) {
+export function MbDocumentPanel({ kind, patientName, profile }: { kind: MbDocumentKind; patientName: string; profile?: EmployeeProfile }) {
   const { t } = useTranslation()
   const [mobilePanel, setMobilePanel] = useState('edit')
   const [warranty, setWarranty] = useState<WarrantyData>(() => ({ patientName, treatmentDate: today(), certificateNo: suggestCertificateNo(), treatmentPerformed: '', issueDate: today() }))
@@ -91,6 +95,10 @@ export function MbDocumentPanel({ kind, patientName }: { kind: MbDocumentKind; p
   const invalid = new Set(unsupportedFields(document))
   const latinOnly = t('documents.latinOnly')
   const [downloadError, setDownloadError] = useState<string>()
+  const [archiving, setArchiving] = useState(false)
+  // Re-downloading unchanged content must not archive a second copy.
+  const archivedSnapshot = useRef<string | undefined>(undefined)
+  const canArchive = Boolean(profile) && !isE2EAuthBypass()
 
   // The patient name is shared, so switching between the two documents never means retyping it.
   const setPatientName = (value: string) => {
@@ -106,15 +114,23 @@ export function MbDocumentPanel({ kind, patientName }: { kind: MbDocumentKind; p
   }
   const field = (key: string) => ({ name: key, label: t(`documents.fields.${key}`), invalid: invalid.has(key) ? latinOnly : undefined })
 
-  const download = () => {
+  const download = async () => {
     setDownloadError(undefined)
     if (invalid.size) { setDownloadError(latinOnly); return }
     if (!preview.blob) return
-    const url = URL.createObjectURL(preview.blob)
-    const anchor = window.document.createElement('a')
-    anchor.href = url; anchor.download = mbDocumentFilename(document)
-    window.document.body.appendChild(anchor); anchor.click(); anchor.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+    const snapshot = JSON.stringify(document)
+    if (canArchive && profile && archivedSnapshot.current !== snapshot) {
+      setArchiving(true)
+      try {
+        await archiveDocument(document, new Uint8Array(await preview.blob.arrayBuffer()), profile)
+        archivedSnapshot.current = snapshot
+      } catch (caught) {
+        // Never hand out an unarchived copy to a signed-in employee: the archive is the record.
+        setDownloadError(caught instanceof Error ? caught.message : t('documents.archiveFailed'))
+        return
+      } finally { setArchiving(false) }
+    }
+    saveBlob(preview.blob, mbDocumentFilename(document))
   }
 
   return <>
@@ -162,10 +178,10 @@ export function MbDocumentPanel({ kind, patientName }: { kind: MbDocumentKind; p
     </main>
     <footer className="sticky bottom-0 z-30 border-t border-stone-300 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgb(0_0_0/8%)] backdrop-blur sm:px-7">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-2">
-        <p className="flex items-center gap-2 text-xs text-stone-500"><Info size={14} />{t('documents.notArchived')}</p>
+        <p className="flex items-center gap-2 text-xs text-stone-500"><Info size={14} />{canArchive ? t('documents.archived') : t('documents.notArchived')}</p>
         <div className="flex items-center gap-2">
           {downloadError && <span role="alert" className="max-w-sm text-xs text-red-700">{downloadError}</span>}
-          <Button variant="primary" disabled={preview.isGenerating || !preview.blob} aria-busy={preview.isGenerating} onClick={download}><Download size={16} />{t('documents.download')}</Button>
+          <Button variant="primary" disabled={preview.isGenerating || archiving || !preview.blob} aria-busy={preview.isGenerating || archiving} onClick={() => void download()}><Download size={16} />{t('documents.download')}</Button>
         </div>
       </div>
     </footer>

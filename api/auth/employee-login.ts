@@ -37,12 +37,13 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     if (lookupError) throw lookupError
 
     const candidates = (profiles ?? []) as LoginCandidate[]
-    const counts = new Map<string, number>()
-    for (const profile of candidates) {
+    // Candidates share one phone (name-typo duplicates), so this is a handful of cheap head-counts; run them together.
+    const countResults = await Promise.all(candidates.map(async (profile) => {
       const { count, error } = await service.from('reports').select('id', { count: 'exact', head: true }).eq('created_by_employee_id', profile.id)
       if (error) throw error
-      counts.set(profile.id, count ?? 0)
-    }
+      return [profile.id, count ?? 0] as const
+    }))
+    const counts = new Map<string, number>(countResults)
     const profile = pickEmployeeProfile(candidates, counts)
     if (!profile) { res.status(401).json({ error: NOT_FOUND }); return }
 
@@ -54,7 +55,8 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     if (error || !data.session) throw error ?? new Error('Could not create session.')
 
     res.status(200).json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token })
-  } catch {
+  } catch (error) {
+    console.error('employee-login failed', error)
     res.status(500).json({ error: 'Sign-in failed. Please try again.' })
   }
 }

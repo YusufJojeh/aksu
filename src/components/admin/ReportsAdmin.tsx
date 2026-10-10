@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { downloadArchivedReport, listChannels, listEmployees, listReports, type ArchivedReport, type CommunicationChannel } from '../../lib/operations'
 import type { EmployeeProfile } from '../../auth/types'
 import { archivedReportFilename } from '../../lib/filename'
+import { saveBlob } from '../../lib/download'
 import { locales } from '../../domain/report'
 import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
 
@@ -22,12 +23,7 @@ export function ReportsAdmin() {
   const save = async (report: ArchivedReport) => {
     setError(undefined); setDownloading(report.id)
     try {
-      const blob = await downloadArchivedReport(report)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a'); a.href = url
-      a.download = archivedReportFilename(report)
-      document.body.appendChild(a); a.click(); a.remove()
-      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      saveBlob(await downloadArchivedReport(report), archivedReportFilename(report))
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : t('admin.reports.downloadFailed'))
     } finally { setDownloading(undefined) }

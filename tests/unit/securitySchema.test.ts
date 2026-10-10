@@ -60,4 +60,15 @@ describe('production authorization migration', () => {
     expect(migration).toContain("new.status = 'inactive'")
     expect(migration).toContain("event_type) values(created.id, actor.id, 'duplicated')")
   })
+
+  it('stops non-admins from claiming a phone number another profile already uses', () => {
+    expect(migrations).toContain('this phone number is already used by another profile')
+  })
+
+  it('keeps archived warranty and invitation documents owner-scoped and immutable', () => {
+    expect(migrations).toContain('alter table public.employee_documents enable row level security')
+    expect(migrations).toContain('created_by_employee_id = auth.uid()')
+    expect(migrations).toContain('employee_documents_immutable')
+    expect(migrations).toContain('grant select, insert on public.employee_documents')
+  })
 })

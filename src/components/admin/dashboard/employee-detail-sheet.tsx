@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { EmployeeProfile } from "../../../auth/types"
 import { archivedReportFilename } from "../../../lib/filename"
+import { saveBlob } from "../../../lib/download"
 import { downloadArchivedReport, type ArchivedReport } from "../../../lib/operations"
 import { buildEmployeeDetail, type EmployeePerformance, type RangeDays } from "../../../lib/teamAnalytics"
 import { currencyEntries, employeeColor, tint, useDashboardFormat } from "./format"
@@ -44,12 +45,7 @@ export function EmployeeDetailSheet({ employee, profile, reports, rangeDays, onO
     setDownloading(report.id)
     setDownloadFailed(false)
     try {
-      const url = URL.createObjectURL(await downloadArchivedReport(report))
-      const anchor = document.createElement("a")
-      anchor.href = url
-      anchor.download = archivedReportFilename(report)
-      document.body.appendChild(anchor); anchor.click(); anchor.remove()
-      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+      saveBlob(await downloadArchivedReport(report), archivedReportFilename(report))
     } catch { setDownloadFailed(true) } finally { setDownloading(undefined) }
   }
 

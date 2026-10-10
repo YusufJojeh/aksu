@@ -10,6 +10,7 @@ import type { ClinicId } from '../clinics/types'
 import { createDefaultReport, locales, reportSchema, type Locale, type ReportData } from '../domain/report'
 import { isRtl } from '../lib/locale'
 import { reportFilename } from '../lib/filename'
+import { saveBlob } from '../lib/download'
 import { downloadArchivedReport, finalizePublicReport, finalizeReport, type ArchivedReport, type SalesIdentity } from '../lib/operations'
 import { normalizePhone } from '../lib/phone'
 import { usePdfPreview } from '../hooks/usePdfPreview'
@@ -84,26 +85,21 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
       const generated = await generateReport(validated)
       const publicName = salesIdentity?.fullName.trim() ?? ''
       const publicPhone = normalizePhone(salesIdentity?.phone ?? '')
-      if (!profile && (publicName.length < 2 || !publicPhone)) throw new Error('Enter your sales name and phone number in international format before downloading.')
+      if (!profile && (publicName.length < 2 || !publicPhone)) throw new Error(t('sales.errors.identityRequired'))
       const archived = profile
         ? await finalizeReport(validated, generated.bytes, profile, parentReportId)
         : await finalizePublicReport(validated, generated.bytes, { fullName: publicName, phone: publicPhone! }, parentReportId)
       setFinalized({ report: archived, snapshot })
       blob = profile ? await downloadArchivedReport(archived) : new Blob([Uint8Array.from(generated.bytes)], { type: 'application/pdf' })
     }
-    const url = URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = reportFilename(clinicId, report.patient.name, report.patient.reportDate, report.document.locale)
-    document.body.appendChild(anchor); anchor.click(); anchor.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000)
+    saveBlob(blob, reportFilename(clinicId, report.patient.name, report.patient.reportDate, report.document.locale))
   }
 
   const handleDownload = async () => {
     if (isDownloading) return
     setIsDownloading(true); setFinalizeError(undefined)
     try { await download() }
-    catch (caught) { setFinalizeError(caught instanceof Error ? caught.message : 'Finalization failed.') }
+    catch (caught) { setFinalizeError(caught instanceof Error ? caught.message : t('sales.errors.finalizeFailed')) }
     finally { setIsDownloading(false) }
   }
 
@@ -136,7 +132,7 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
         <TabsList className="!inline-grid w-full grid-cols-3 sm:w-auto">{(['plan', 'warranty', 'invitation'] as const).map((kind) => <TabsTrigger key={kind} value={kind} className="whitespace-nowrap px-2 text-xs sm:px-4 sm:text-sm">{t(`documents.${kind}`)}</TabsTrigger>)}</TabsList>
       </Tabs>
     </nav>}
-    {documentKind !== 'plan' ? <MbDocumentPanel kind={documentKind} patientName={report.patient.name ?? ''} /> : <>
+    {documentKind !== 'plan' ? <MbDocumentPanel kind={documentKind} profile={profile} patientName={report.patient.name ?? ''} /> : <>
     {preview.usedFallback && report.document.locale !== 'en' && <div role="status" className="border-b border-blue-200 bg-blue-50 px-4 py-2 text-center text-xs font-medium text-blue-950">{t('app.templateFallback')}</div>}
     <Tabs value={mobilePanel} onValueChange={setMobilePanel} className="mx-auto max-w-md px-4 pt-4 lg:hidden"><TabsList><TabsTrigger value="edit">{t('actions.showEditor')}</TabsTrigger><TabsTrigger value="preview">{t('actions.showPreview')}</TabsTrigger></TabsList></Tabs>
     <main className="mx-auto grid max-w-[1800px] lg:h-[calc(100vh-137px)] lg:grid-cols-[minmax(520px,45%)_1fr]">
@@ -148,7 +144,7 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
     <footer className="sticky bottom-0 z-30 border-t border-stone-300 bg-white/95 px-4 py-3 shadow-[0_-8px_25px_rgb(0_0_0/8%)] backdrop-blur sm:px-7">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-2">
         <div className="flex gap-2"><Button variant="outline" onClick={() => setDialog('reset')}><RotateCcw size={16} />{t('actions.reset')}</Button><Button variant="outline" onClick={() => setDialog('clear')}><Trash2 size={16} /><span className="hidden sm:inline">{t('actions.clear')}</span></Button></div>
-        <div className="flex items-center gap-2">{finalizeError && <span role="alert" className="max-w-sm text-xs text-red-700">{finalizeError}</span>}<Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={isDownloading || preview.isGenerating || !preview.blob} aria-busy={isDownloading} onClick={() => void handleDownload()}><Download size={16} />{finalized?.snapshot === JSON.stringify(report) ? t('actions.download') : `Finalize & ${t('actions.download')}`}</Button></div>
+        <div className="flex items-center gap-2">{finalizeError && <span role="alert" className="max-w-sm text-xs text-red-700">{finalizeError}</span>}<Button variant="outline" onClick={() => { void preview.regenerate(); setMobilePanel('preview') }}><FileText size={16} />{t('actions.preview')}</Button><Button variant="primary" disabled={isDownloading || preview.isGenerating || !preview.blob} aria-busy={isDownloading} onClick={() => void handleDownload()}><Download size={16} />{finalized?.snapshot === JSON.stringify(report) ? t('actions.download') : t('sales.finalizeAndDownload', { action: t('actions.download') })}</Button></div>
       </div>
     </footer>
     </>}

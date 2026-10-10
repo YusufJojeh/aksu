@@ -24,6 +24,16 @@ interface ProfileRow {
   requested_phone_e164: string
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+// Matches the 15 MB bucket limit; base64 inflates bytes by 4/3.
+const MAX_PDF_BYTES = 15 * 1024 * 1024
+const MAX_PDF_BASE64_CHARS = Math.ceil(MAX_PDF_BYTES / 3) * 4 + 64
+
+/** Errors whose message is safe to show to the (unauthenticated) caller. Everything else is logged and hidden. */
+class PublicError extends Error {
+  constructor(message: string, readonly status: number) { super(message) }
+}
+
 function requireEnv(name: string): string {
   const value = process.env[name]
   if (!value) throw new Error(`${name} is not set`)
@@ -68,7 +78,7 @@ async function ensureSalesProfile(service: ServiceClient, fullName: string, phon
   const active = profiles.filter((profile) => profile.status === 'active')
   const match = active.find((profile) => canonicalName(profile.full_name) === canonicalName(fullName)) ?? active[0]
   if (match) return match
-  if (profiles.length > 0) throw new Error('This sales profile is not active.')
+  if (profiles.length > 0) throw new PublicError('This sales profile is not active.', 403)
 
   const id = randomUUID()
   const email = `public-sales-${id}@pdfbuilder.local`
@@ -138,14 +148,17 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     const salesPhone = normalizePhone(typeof body.salesPhone === 'string' ? body.salesPhone : '')
     const pdfBase64 = typeof body.pdfBase64 === 'string' ? body.pdfBase64 : ''
     const parentReportId = typeof body.parentReportId === 'string' && body.parentReportId ? body.parentReportId : null
-    if (!parsed.success || salesName.length < 2 || !salesPhone || !pdfBase64) {
+    if (!parsed.success || salesName.length < 2 || salesName.length > 120 || !salesPhone || !pdfBase64) {
       res.status(400).json({ error: 'Enter a valid sales name, sales phone, and report.' })
       return
     }
+    if (pdfBase64.length > MAX_PDF_BASE64_CHARS) { res.status(413).json({ error: 'The PDF is too large.' }); return }
+    if (parentReportId && !UUID_RE.test(parentReportId)) { res.status(400).json({ error: 'Invalid parent report.' }); return }
 
     const report: ReportData = parsed.data
     const bytes = decodePdfBase64(pdfBase64)
-    await assertArchivedPdf(bytes)
+    if (bytes.length > MAX_PDF_BYTES) { res.status(413).json({ error: 'The PDF is too large.' }); return }
+    try { await assertArchivedPdf(bytes) } catch { throw new PublicError('The report PDF is incomplete or damaged.', 422) }
 
     const service = createServiceClient()
     const profile = await ensureSalesProfile(service, salesName, salesPhone)
@@ -162,9 +175,11 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
         .upsert({ storage_key: storageKey, pdf_sha256: sha256, verified_at: new Date().toISOString() })
       if (checksum.error) throw checksum.error
 
+      // A report can only be an edit of one of the same employee's own reports.
       const parent = parentReportId
-        ? await service.from('reports').select('id').eq('id', parentReportId).maybeSingle()
+        ? await service.from('reports').select('id').eq('id', parentReportId).eq('created_by_employee_id', profile.id).maybeSingle()
         : { data: null }
+      if (parentReportId && !parent.data) throw new PublicError('The report being edited could not be found.', 400)
       const channel = await findOrAssignChannel(service, profile.id)
       const patientIdentifier = report.clinicId === 'mb-dental' ? report.patient.patientId : ''
       const patientPhone = normalizePhone(report.patient.phone) ?? report.patient.phone.trim()
@@ -205,6 +220,8 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       throw error
     }
   } catch (error) {
-    res.status(400).json({ error: error instanceof Error ? error.message : 'Could not finalize report.' })
+    if (error instanceof PublicError) { res.status(error.status).json({ error: error.message }); return }
+    console.error('finalize-public failed', error)
+    res.status(500).json({ error: 'Could not finalize report. Please try again.' })
   }
 }

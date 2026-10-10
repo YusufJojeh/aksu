@@ -1,49 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
-
-interface ServerlessRequest {
-  method?: string
-  headers: Record<string, string | string[] | undefined>
-  body?: unknown
-}
-
-interface ServerlessResponse {
-  status(code: number): ServerlessResponse
-  json(body: unknown): void
-}
+import { bodyObject, requireAdmin, requireEnv, type ServerlessRequest, type ServerlessResponse } from '../_lib/admin.js'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-function requireEnv(name: string): string {
-  const value = process.env[name]
-  if (!value) throw new Error(`${name} is not set`)
-  return value
-}
-
 export default async function handler(req: ServerlessRequest, res: ServerlessResponse): Promise<void> {
   if (req.method !== 'POST') { res.status(405).json({ error: 'method_not_allowed' }); return }
+  const admin = await requireAdmin(req, res)
+  if (!admin) return
 
-  const authHeader = req.headers.authorization
-  const authorization = Array.isArray(authHeader) ? authHeader[0] : authHeader
-  const token = authorization?.replace(/^Bearer /, '')
-  if (!token) { res.status(401).json({ error: 'unauthorized' }); return }
-
-  const url = requireEnv('SUPABASE_URL')
-  const anon = createClient(url, requireEnv('SUPABASE_ANON_KEY'), {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  })
-
-  const { data: authData, error: authError } = await anon.auth.getUser(token)
-  if (authError || !authData.user) { res.status(401).json({ error: 'unauthorized' }); return }
-
-  const { data: profile } = await anon.from('profiles').select('role,status').eq('id', authData.user.id).single()
-  if (profile?.role !== 'ADMIN' || profile.status !== 'active') { res.status(403).json({ error: 'admin_required' }); return }
-
-  const body = (typeof req.body === 'object' && req.body !== null ? req.body : {}) as Record<string, unknown>
-  const employeeId = typeof body.employeeId === 'string' ? body.employeeId : ''
+  const employeeId = typeof bodyObject(req).employeeId === 'string' ? bodyObject(req).employeeId as string : ''
   if (!UUID_RE.test(employeeId)) { res.status(400).json({ error: 'invalid_body' }); return }
-  if (employeeId === authData.user.id) { res.status(400).json({ error: 'cannot_delete_self' }); return }
+  if (employeeId === admin.userId) { res.status(400).json({ error: 'cannot_delete_self' }); return }
 
-  const service = createClient(url, requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
+  const service = createClient(admin.url, requireEnv('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false, autoRefreshToken: false } })
+
+  // One admin must not be able to remove another admin's account through this endpoint.
+  const target = await service.from('profiles').select('role').eq('id', employeeId).maybeSingle()
+  if (target.error) { console.error('delete-employee lookup failed', target.error); res.status(500).json({ error: 'delete_failed' }); return }
+  if (!target.data) { res.status(404).json({ error: 'not_found' }); return }
+  if (target.data.role === 'ADMIN') { res.status(403).json({ error: 'cannot_delete_admin' }); return }
 
   // profiles rows are referenced with `on delete restrict` from reports, report_events, and
   // channel_assignments, so this delete only succeeds when the employee has left no history at
@@ -52,12 +27,13 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
   const deleted = await service.from('profiles').delete().eq('id', employeeId).select('id')
   if (deleted.error) {
     if (deleted.error.code === '23503') { res.status(409).json({ error: 'employee_has_history' }); return }
+    console.error('delete-employee failed', deleted.error)
     res.status(500).json({ error: 'delete_failed' }); return
   }
   if (!deleted.data || deleted.data.length === 0) { res.status(404).json({ error: 'not_found' }); return }
 
   const authDelete = await service.auth.admin.deleteUser(employeeId)
-  if (authDelete.error) { res.status(500).json({ error: 'profile_deleted_auth_delete_failed' }); return }
+  if (authDelete.error) { console.error('delete-employee auth delete failed', authDelete.error); res.status(500).json({ error: 'profile_deleted_auth_delete_failed' }); return }
 
   res.status(200).json({ ok: true })
 }
