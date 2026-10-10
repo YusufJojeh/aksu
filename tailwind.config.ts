@@ -68,7 +68,10 @@ export default {
         xl: 'calc(var(--radius) + 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'Noto Sans Arabic', 'ui-sans-serif', 'system-ui'],
+        sans: ['Geist Variable', 'Noto Sans Arabic', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      transitionTimingFunction: {
+        'out-strong': 'cubic-bezier(0.23, 1, 0.32, 1)',
       },
       boxShadow: {
         paper: '0 18px 55px rgb(22 18 18 / 20%)',

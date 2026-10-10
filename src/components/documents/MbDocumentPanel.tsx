@@ -135,7 +135,7 @@ export function MbDocumentPanel({ kind, patientName, profile }: { kind: MbDocume
 
   return <>
     <Tabs value={mobilePanel} onValueChange={setMobilePanel} className="mx-auto max-w-md px-4 pt-4 lg:hidden"><TabsList><TabsTrigger value="edit">{t('actions.showEditor')}</TabsTrigger><TabsTrigger value="preview">{t('actions.showPreview')}</TabsTrigger></TabsList></Tabs>
-    <main className="mx-auto grid max-w-[1800px] lg:h-[calc(100vh-190px)] lg:grid-cols-[minmax(520px,45%)_1fr]">
+    <main className="mx-auto grid w-full max-w-[1800px] flex-1 lg:min-h-0 lg:grid-cols-[minmax(520px,45%)_1fr] lg:grid-rows-[minmax(0,1fr)]">
       <section className={`${mobilePanel === 'preview' ? 'hidden' : 'block'} overflow-y-auto border-e border-stone-300 bg-white lg:block`} aria-label={t('actions.showEditor')}>
         <form className="space-y-5 p-4 sm:p-7" onSubmit={(event) => event.preventDefault()}>
           <div>

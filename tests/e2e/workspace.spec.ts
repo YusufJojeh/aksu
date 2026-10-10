@@ -114,7 +114,7 @@ test('generates a private five-page Arabic report from the preview Blob', async 
   await page.locator('[name="firstVisit.treatmentRows.0.quality"]').fill('مادة ألمانية')
   await page.locator('[name="firstVisit.treatmentRows.0.quantity"]').fill('2')
   await page.locator('[name="firstVisit.treatmentRows.0.unitPrice"]').fill('310')
-  await page.getByLabel('Apply discount').check()
+  await page.getByLabel('Apply discount').first().check()
   await expect(page.locator('[name="firstVisit.discountExpiryDate"]')).toHaveCount(0)
   await page.locator('[name="firstVisit.discountedFinalPrice"]').fill('590')
   await page.locator('[name="secondVisit.treatmentRows.0.customTreatment"]').fill('تاج زيركونيوم')

@@ -46,5 +46,5 @@ test('MB Dental has no discount section', async ({ page }) => {
   await page.goto('/')
   await selectClinic(page, 'mb-dental')
   await expect(page.getByRole('heading', { name: 'Discount' })).toHaveCount(0)
-  await expect(page.getByLabel('Apply discount')).toHaveCount(0)
+  await expect(page.getByLabel('Apply discount').first()).toHaveCount(0)
 })

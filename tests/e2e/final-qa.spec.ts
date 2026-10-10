@@ -49,7 +49,7 @@ async function fillProductionReport(page: import('@playwright/test').Page) {
     if (index !== 6) await page.locator(`[name="firstVisit.treatmentRows.${index}.unitPrice"]`).fill(String(expected[index]![1]))
   }
   await expect(page.getByTestId('firstVisit-total')).toContainText('4,094')
-  await page.getByLabel('Apply discount').check()
+  await page.getByLabel('Apply discount').first().check()
   await page.locator('[name="firstVisit.discountedFinalPrice"]').fill('3774')
   await page.locator('[name="firstVisit.discountExpiryDate"]').fill('2026-09-10')
   await page.locator('[name="firstVisit.treatmentRows.6.quality"]').fill('4 Stars')
@@ -92,9 +92,9 @@ test('final production report QA', async ({ page }, testInfo) => {
   }
   await page.locator('[name="document.currency"]').selectOption('GBP')
 
-  await page.getByLabel('Apply discount').uncheck()
+  await page.getByLabel('Apply discount').first().uncheck()
   await expect(page.locator('[name="firstVisit.discountedFinalPrice"]')).toHaveCount(0)
-  await page.getByLabel('Apply discount').check()
+  await page.getByLabel('Apply discount').first().check()
   await page.locator('[name="firstVisit.discountMode"]').selectOption('percentage')
   await page.locator('[name="firstVisit.discountPercentage"]').fill('20')
   await expect(page.locator('section').filter({ hasText: 'Discount' }).getByText('£3,275.20')).toBeVisible()

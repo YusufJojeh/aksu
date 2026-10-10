@@ -19,11 +19,11 @@ const buttonSizes = {
 } as const
 
 export function Button({ className, type = 'button', variant = 'outline', size = 'default', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof buttonVariants; size?: keyof typeof buttonSizes }) {
-  return <button type={type} className={cn('inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:pointer-events-none disabled:opacity-50', buttonVariants[variant], buttonSizes[size], className)} {...props} />
+  return <button type={type} className={cn('inline-flex select-none items-center justify-center gap-2 rounded-md text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:pointer-events-none disabled:opacity-50', buttonVariants[variant], buttonSizes[size], className)} {...props} />
 }
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={cn('h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none transition placeholder:text-stone-400 focus:border-gold focus:ring-2 focus:ring-gold/20', className)} {...props} />
+  return <input className={cn('h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-stone-500 disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-600 focus:border-gold focus:ring-2 focus:ring-gold/20', className)} {...props} />
 }
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
@@ -53,7 +53,7 @@ export function Section({ title, children }: { title: string; children: React.Re
 
 export const Tabs = TabsPrimitive.Root
 export const TabsList = ({ className, ...props }: TabsPrimitive.TabsListProps) => <TabsPrimitive.List className={cn('grid grid-cols-2 rounded-lg bg-stone-200 p-1', className)} {...props} />
-export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => <TabsPrimitive.Trigger className={cn('rounded-md px-3 py-2 text-sm font-semibold text-stone-600 data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm', className)} {...props} />
+export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => <TabsPrimitive.Trigger className={cn('rounded-md px-3 py-2 text-sm font-semibold text-stone-600 transition-[color,background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold [@media(hover:hover)]:hover:text-ink data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm', className)} {...props} />
 
 export function Accordion({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn('divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-white', className)}>{children}</div>

@@ -5,7 +5,7 @@ import { clinicIds, type ClinicId } from '../clinics/types'
 
 export function ClinicSelect({ onSelect }: { onSelect: (clinicId: ClinicId) => void }) {
   const { t } = useTranslation()
-  return <div className="grid min-h-screen place-items-center bg-parchment p-6 text-ink">
+  return <div className="grid flex-1 place-items-center bg-parchment p-6 text-ink">
     <div className="w-full max-w-2xl">
       <div className="mb-8 text-center">
         <span className="mx-auto mb-3 grid size-12 place-items-center rounded-full border border-gold/70 text-gold"><FileText size={22} /></span>
@@ -19,7 +19,7 @@ export function ClinicSelect({ onSelect }: { onSelect: (clinicId: ClinicId) => v
             key={clinicId}
             type="button"
             onClick={() => onSelect(clinicId)}
-            className="rounded-xl border border-stone-300 bg-white p-6 text-start shadow-sm transition hover:-translate-y-0.5 hover:border-gold hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="rounded-xl border border-stone-300 bg-white p-6 text-start shadow-sm transition-[transform,border-color,box-shadow] duration-200 ease-out-strong hover:border-gold hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold active:scale-[0.98] [@media(hover:hover)]:hover:-translate-y-0.5"
           >
             <h2 className="text-lg font-bold">{clinic.displayName}</h2>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-stone-500">{t('clinicSelect.selectClinic')}</p>

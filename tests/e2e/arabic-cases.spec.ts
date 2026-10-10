@@ -62,13 +62,13 @@ test('Arabic case E - included service', async ({ page }, testInfo) => {
 
 test('Arabic case F - discount enabled', async ({ page }, testInfo) => {
   await prepare(page); await fillRow(page, 'firstVisit', 0, 'زراعة أسنان', 'مادة ألمانية', 2, 310)
-  await page.getByLabel('Apply discount').check(); await page.locator('[name="firstVisit.discountedFinalPrice"]').fill('590')
+  await page.getByLabel('Apply discount').first().check(); await page.locator('[name="firstVisit.discountedFinalPrice"]').fill('590')
   await savePdf(page, testInfo.outputPath('case-f-discount.pdf'))
 })
 
 test('Arabic case G - discount disabled', async ({ page }, testInfo) => {
   await prepare(page); await fillRow(page, 'firstVisit', 0, 'تاج إيماكس', 'درجة أولى', 3, 155)
-  await expect(page.getByLabel('Apply discount')).not.toBeChecked()
+  await expect(page.getByLabel('Apply discount').first()).not.toBeChecked()
   await savePdf(page, testInfo.outputPath('case-g-no-discount.pdf'))
 })
 

@@ -116,7 +116,7 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
     else onSwitchClinic()
   }
 
-  return <div className="min-h-screen bg-parchment text-ink" dir={isRtl(interfaceLocale) ? 'rtl' : 'ltr'}>
+  return <div className="flex flex-1 flex-col bg-parchment text-ink lg:min-h-0" dir={isRtl(interfaceLocale) ? 'rtl' : 'ltr'}>
     <header className="border-b border-stone-300 bg-ink text-white">
       <div className="mx-auto flex max-w-[1800px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-7">
         <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-full border border-gold/70 text-gold"><FileText size={20} /></span><div><h1 className="text-lg font-bold tracking-tight">{t('app.title')}</h1><p className="text-xs text-stone-300">{clinic.displayName}</p></div></div>
@@ -129,13 +129,13 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
     <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs font-medium text-amber-950"><ShieldCheck className="me-2 inline" size={15} />{t('app.privacy')}</div>
     {clinicId === 'mb-dental' && <nav aria-label={t('documents.switchLabel')} className="border-b border-stone-300 bg-white px-4 py-2 sm:px-7">
       <Tabs value={documentKind} onValueChange={(value) => setDocumentKind(value as typeof documentKind)} className="mx-auto max-w-[1800px]">
-        <TabsList className="!inline-grid w-full grid-cols-3 sm:w-auto">{(['plan', 'warranty', 'invitation'] as const).map((kind) => <TabsTrigger key={kind} value={kind} className="whitespace-nowrap px-2 text-xs sm:px-4 sm:text-sm">{t(`documents.${kind}`)}</TabsTrigger>)}</TabsList>
+        <TabsList className="!inline-grid w-full grid-cols-3 sm:w-auto">{(['plan', 'warranty', 'invitation'] as const).map((kind) => <TabsTrigger key={kind} value={kind} className="px-1.5 text-xs leading-tight sm:whitespace-nowrap sm:px-4 sm:text-sm">{t(`documents.${kind}`)}</TabsTrigger>)}</TabsList>
       </Tabs>
     </nav>}
     {documentKind !== 'plan' ? <MbDocumentPanel kind={documentKind} profile={profile} patientName={report.patient.name ?? ''} /> : <>
     {preview.usedFallback && report.document.locale !== 'en' && <div role="status" className="border-b border-blue-200 bg-blue-50 px-4 py-2 text-center text-xs font-medium text-blue-950">{t('app.templateFallback')}</div>}
     <Tabs value={mobilePanel} onValueChange={setMobilePanel} className="mx-auto max-w-md px-4 pt-4 lg:hidden"><TabsList><TabsTrigger value="edit">{t('actions.showEditor')}</TabsTrigger><TabsTrigger value="preview">{t('actions.showPreview')}</TabsTrigger></TabsList></Tabs>
-    <main className="mx-auto grid max-w-[1800px] lg:h-[calc(100vh-137px)] lg:grid-cols-[minmax(520px,45%)_1fr]">
+    <main className="mx-auto grid w-full max-w-[1800px] flex-1 lg:min-h-0 lg:grid-cols-[minmax(520px,45%)_1fr] lg:grid-rows-[minmax(0,1fr)]">
       <FormProvider {...form}>
         <section className={`${mobilePanel === 'preview' ? 'hidden' : 'block'} overflow-y-auto border-e border-stone-300 bg-white lg:block`} aria-label={t('actions.showEditor')}><form onSubmit={(event) => event.preventDefault()}>{clinicId === 'aksu' ? <AksuReportForm /> : <MbReportForm />}</form></section>
         <section className={`${mobilePanel === 'edit' ? 'hidden' : 'block'} paper-texture min-w-0 overflow-y-auto bg-stone-200 lg:block`} aria-label={t('sections.pdfPreview')}><PdfPreview url={preview.url} loading={preview.isGenerating} error={preview.error} /></section>

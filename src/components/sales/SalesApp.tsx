@@ -42,19 +42,26 @@ export function SalesApp() {
     catch (caught) { setSignInError(caught instanceof Error ? caught.message : t('sales.errors.signInFailed')) }
     finally { setSigningIn(false) }
   }
-  return <div className="min-h-screen bg-parchment">
-    <nav aria-label={t('sales.nav.label')} className="sticky top-0 z-40 flex flex-wrap items-center gap-2 border-b border-stone-300 bg-white px-4 py-2">
-      <Button variant={view === 'create' ? 'primary' : 'outline'} onClick={() => setView('create')}><FilePlus2 size={16} />{t('sales.nav.create')}</Button>
-      {signedIn && <Button variant={view === 'reports' ? 'primary' : 'outline'} onClick={() => setView('reports')}><Files size={16} />{t('sales.nav.reports')}</Button>}
-      {signedIn && <Button variant={view === 'profile' ? 'primary' : 'outline'} onClick={() => setView('profile')}><UserRound size={16} />{t('sales.nav.profile')}</Button>}
-      <div className="ms-auto grid min-w-[220px] grid-cols-1 gap-2 sm:grid-cols-2">
-        <Input aria-label={t('sales.identity.nameLabel')} placeholder={t('sales.identity.namePlaceholder')} value={salesName} onChange={(event) => setSalesName(event.target.value)} disabled={signedIn} />
-        <Input aria-label={t('sales.identity.phoneLabel')} placeholder="+905551112233" value={salesPhone} onChange={(event) => setSalesPhone(event.target.value)} disabled={signedIn} />
+  const inWorkspace = view === 'create' && Boolean(clinicId)
+  return <div className={`flex min-h-dvh flex-col bg-parchment ${inWorkspace ? 'lg:h-dvh' : ''}`}>
+    <nav aria-label={t('sales.nav.label')} className="z-40 shrink-0 border-b border-stone-300 bg-white px-4 py-2 sm:sticky sm:top-0 sm:px-7">
+      <div className="mx-auto flex max-w-[1800px] flex-wrap items-center gap-2">
+        <div className="flex flex-wrap gap-2">
+          <Button variant={view === 'create' ? 'primary' : 'outline'} aria-current={view === 'create' ? 'page' : undefined} onClick={() => setView('create')}><FilePlus2 size={16} />{t('sales.nav.create')}</Button>
+          {signedIn && <Button variant={view === 'reports' ? 'primary' : 'outline'} aria-current={view === 'reports' ? 'page' : undefined} onClick={() => setView('reports')}><Files size={16} />{t('sales.nav.reports')}</Button>}
+          {signedIn && <Button variant={view === 'profile' ? 'primary' : 'outline'} aria-current={view === 'profile' ? 'page' : undefined} onClick={() => setView('profile')}><UserRound size={16} />{t('sales.nav.profile')}</Button>}
+        </div>
+        <div className="order-last grid w-full grid-cols-2 gap-2 sm:order-none sm:ms-auto sm:flex sm:w-auto sm:items-center">
+          <Input aria-label={t('sales.identity.nameLabel')} placeholder={t('sales.identity.namePlaceholder')} autoComplete="name" value={salesName} onChange={(event) => setSalesName(event.target.value)} disabled={signedIn} className="sm:w-40 lg:w-48" />
+          <Input aria-label={t('sales.identity.phoneLabel')} placeholder="+905551112233" type="tel" inputMode="tel" autoComplete="tel" value={salesPhone} onChange={(event) => setSalesPhone(event.target.value)} disabled={signedIn} className="sm:w-40 lg:w-44" />
+          {!signedIn && <Button variant="primary" className="col-span-2 whitespace-nowrap" disabled={signingIn || !salesPhone.trim()} aria-busy={signingIn} onClick={() => void signIn()}><LogIn size={16} />{t('sales.nav.signIn')}</Button>}
+        </div>
+        <div className="ms-auto flex items-center gap-2 sm:ms-0">
+          {auth.profile?.role === 'ADMIN' && <Button onClick={() => { window.location.href = '/admin' }}><Shield size={16} />{t('sales.nav.admin')}</Button>}
+          {signedIn ? <Button size="icon" aria-label={t('sales.nav.signOut')} title={t('sales.nav.signOut')} onClick={() => void auth.logout()}><LogOut size={16} /></Button> : <Button className="whitespace-nowrap" onClick={() => { window.location.href = '/admin' }}>{t('sales.nav.adminLogin')}</Button>}
+        </div>
+        {signInError && <p role="alert" className="order-last basis-full text-end text-sm text-red-700">{signInError}</p>}
       </div>
-      {auth.profile?.role === 'ADMIN' && <Button onClick={() => { window.location.href = '/admin' }}><Shield size={16} />{t('sales.nav.admin')}</Button>}
-      {!signedIn && <Button variant="primary" disabled={signingIn || !salesPhone.trim()} aria-busy={signingIn} onClick={() => void signIn()}><LogIn size={16} />{t('sales.nav.signIn')}</Button>}
-      {signedIn ? <Button size="icon" aria-label={t('sales.nav.signOut')} onClick={() => void auth.logout()}><LogOut size={16} /></Button> : <Button onClick={() => { window.location.href = '/admin' }}>{t('sales.nav.adminLogin')}</Button>}
-      {signInError && <p role="alert" className="basis-full text-end text-sm text-red-700">{signInError}</p>}
     </nav>
     {view === 'create' && (!clinicId ? <ClinicSelect onSelect={setClinicId} /> : <ClinicWorkspace
       key={clinicId} clinicId={clinicId} profile={auth.profile} salesIdentity={{ fullName: salesName, phone: salesPhone }} initialReport={duplicate?.payload} parentReportId={duplicate?.parentReportId} interfaceLocale={interfaceLocale}
