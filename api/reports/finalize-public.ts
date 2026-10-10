@@ -1,19 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
 import { createHash, randomUUID } from 'node:crypto'
 import { reportSchema, type ReportData } from '../../src/domain/report.js'
 import { visitTotalMinor } from '../../src/domain/calculations.js'
 import { assertArchivedPdf } from '../../src/lib/pdfIntegrity.js'
 import { normalizePhone } from '../../src/lib/phone.js'
-
-interface ServerlessRequest {
-  method?: string
-  body?: unknown
-}
-
-interface ServerlessResponse {
-  status(code: number): ServerlessResponse
-  json(body: unknown): void
-}
+import { bodyObject, requireEnv, requirePost, serverClient, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
 
 interface ProfileRow {
   id: string
@@ -34,14 +24,8 @@ class PublicError extends Error {
   constructor(message: string, readonly status: number) { super(message) }
 }
 
-function requireEnv(name: string): string {
-  const value = process.env[name]
-  if (!value) throw new Error(`${name} is not set`)
-  return value
-}
-
 function createServiceClient() {
-  return createClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
+  return serverClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
 }
 
 // Derived from a real call: the bare `ReturnType<typeof createClient>` resolves the schema generics to `never`.
@@ -139,10 +123,10 @@ async function findOrAssignChannel(service: ServiceClient, profileId: string): P
 }
 
 export default async function handler(req: ServerlessRequest, res: ServerlessResponse): Promise<void> {
-  if (req.method !== 'POST') { res.status(405).json({ error: 'method_not_allowed' }); return }
+  if (!requirePost(req, res)) return
 
   try {
-    const body = (typeof req.body === 'object' && req.body !== null ? req.body : {}) as Record<string, unknown>
+    const body = bodyObject(req)
     const parsed = reportSchema.safeParse(body.report)
     const salesName = typeof body.salesName === 'string' ? body.salesName.trim() : ''
     const salesPhone = normalizePhone(typeof body.salesPhone === 'string' ? body.salesPhone : '')

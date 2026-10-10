@@ -20,7 +20,8 @@ Copy `.env.example` to `.env.local` and supply a Supabase project URL and public
 - `src/clinics/registry.ts`: clinic capabilities, locales, currencies, and template metadata.
 - `src/domain/`: the discriminated Aksu/MB report model, validation, and minor-unit totals.
 - `src/pdf/`: clinic-specific coordinate profiles and browser-side PDF generation.
-- `src/lib/operations.ts`: private archive upload, finalization RPCs, downloads, and admin operations.
+- `src/lib/api/*.ts`: data access by domain (reports, employees, channels, customers, documents) over shared helpers in `shared.ts`; `src/lib/operations.ts` re-exports them.
+- `api/_lib/http.ts`: shared serverless helpers (request types, env, stateless Supabase client, POST/body guards, active-user and admin checks).
 - `src/components/sales/`: create, report history, and profile workflows.
 - `src/components/admin/`: analytics, employees, communication numbers, and report archive.
 - `supabase/migrations/`: schema, immutable-history triggers, RPC validation, and RLS.

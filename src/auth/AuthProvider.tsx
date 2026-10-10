@@ -34,6 +34,20 @@ function e2eProfile(): EmployeeProfile | undefined {
   }
 }
 
+/** Calls one of our phone sign-in endpoints and installs the session tokens it returns. */
+async function exchangeForSession(path: string, body: Record<string, unknown>, fallbackError: string): Promise<Session | null> {
+  const response = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
+  if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? fallbackError)
+  const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
+  if (error) throw error
+  return data.session
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const bypass = e2eProfile()
   const [session, setSession] = useState<Session>()
@@ -71,30 +85,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       const phone = normalizePhone(trimmed)
       if (!phone) throw new Error('Enter your email or an international phone number, for example +905551112233.')
-      const response = await fetch('/api/auth/login-phone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
-      })
-      const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
-      if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? 'Invalid phone number or password.')
-      const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
-      if (error) throw error
-      await loadProfile(data.session)
+      await loadProfile(await exchangeForSession('/api/auth/login-phone', { phone, password }, 'Invalid phone number or password.'))
     },
     async loginWithPhone(rawPhone) {
       const phone = normalizePhone(rawPhone)
       if (!phone) throw new Error('Enter an international phone number, for example +905551112233.')
-      const response = await fetch('/api/auth/employee-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      })
-      const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
-      if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? 'Sign-in failed. Please try again.')
-      const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
-      if (error) throw error
-      await loadProfile(data.session)
+      await loadProfile(await exchangeForSession('/api/auth/employee-login', { phone }, 'Sign-in failed. Please try again.'))
     },
     async register({ fullName, email, password, workPhone }) {
       const phone = normalizePhone(workPhone)

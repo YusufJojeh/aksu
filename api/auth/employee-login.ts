@@ -1,35 +1,22 @@
-import { createClient } from '@supabase/supabase-js'
+import { bodyObject, requirePost, serverClient, supabaseEnv, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
 import { pickEmployeeProfile, type LoginCandidate } from '../../src/lib/employeeLogin.js'
 import { normalizePhone } from '../../src/lib/phone.js'
-
-interface ServerlessRequest {
-  method?: string
-  body?: unknown
-}
-
-interface ServerlessResponse {
-  status(code: number): ServerlessResponse
-  json(payload: unknown): void
-}
 
 const NOT_FOUND = 'No active employee account uses this phone number.'
 
 // Phone-only sign-in for sales staff, by product decision: whoever has the number can open that
 // employee's reports. Admin accounts are excluded (see pickEmployeeProfile) and keep password login.
 export default async function handler(req: ServerlessRequest, res: ServerlessResponse) {
-  if (req.method !== 'POST') { res.status(405).json({ error: 'method_not_allowed' }); return }
-  const body = (typeof req.body === 'object' && req.body !== null ? req.body : {}) as { phone?: unknown }
+  if (!requirePost(req, res)) return
+  const body = bodyObject(req)
   const phone = typeof body.phone === 'string' ? normalizePhone(body.phone) : undefined
   if (!phone) { res.status(400).json({ error: 'Enter an international phone number, for example +905551112233.' }); return }
 
-  const url = process.env.SUPABASE_URL
-  const anonKey = process.env.SUPABASE_ANON_KEY
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !anonKey || !serviceKey) { res.status(500).json({ error: 'auth_not_configured' }); return }
+  const env = supabaseEnv()
+  if (!env) { res.status(500).json({ error: 'auth_not_configured' }); return }
 
   try {
-    const options = { auth: { persistSession: false, autoRefreshToken: false } }
-    const service = createClient(url, serviceKey, options)
+    const service = serverClient(env.url, env.serviceKey)
     const { data: profiles, error: lookupError } = await service
       .from('profiles')
       .select('id,email,role,status,created_at')
@@ -50,7 +37,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     // generateLink only mints a one-time token (no email is sent); exchanging it yields a normal session.
     const { data: link, error: linkError } = await service.auth.admin.generateLink({ type: 'magiclink', email: profile.email })
     if (linkError || !link.properties?.hashed_token) throw linkError ?? new Error('Could not create sign-in token.')
-    const auth = createClient(url, anonKey, options)
+    const auth = serverClient(env.url, env.anonKey)
     const { data, error } = await auth.auth.verifyOtp({ token_hash: link.properties.hashed_token, type: 'magiclink' })
     if (error || !data.session) throw error ?? new Error('Could not create session.')
 

@@ -1,11 +1,10 @@
-import { createClient } from '@supabase/supabase-js'
-import { bodyObject, requireAdmin, requireEnv, type ServerlessRequest, type ServerlessResponse } from '../_lib/admin.js'
+import { bodyObject, requireAdmin, requireEnv, requirePost, serverClient, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_RE = /^\+[1-9][0-9]{6,14}$/
 
 export default async function handler(req: ServerlessRequest, res: ServerlessResponse): Promise<void> {
-  if (req.method !== 'POST') { res.status(405).json({ error: 'method_not_allowed' }); return }
+  if (!requirePost(req, res)) return
   const admin = await requireAdmin(req, res)
   if (!admin) return
 
@@ -16,7 +15,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
   const valid = email.length <= 254 && EMAIL_RE.test(email) && fullName.length >= 2 && fullName.length <= 120 && PHONE_RE.test(workPhoneE164)
   if (!valid) { res.status(400).json({ error: 'invalid_body' }); return }
 
-  const service = createClient(admin.url, requireEnv('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false, autoRefreshToken: false } })
+  const service = serverClient(admin.url, requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
   const { data, error } = await service.auth.admin.inviteUserByEmail(email.toLowerCase(), {
     data: { full_name: fullName, work_phone_e164: workPhoneE164 },
   })
