@@ -11,6 +11,7 @@
     "test": "vitest run --maxWorkers=1",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:auth": "playwright test -c playwright.archive.config.ts",
     "test:visual": "playwright test tests/e2e/visual.spec.ts tests/e2e/mb-reference-visual.spec.ts",
     "db:types": "node scripts/gen-db-types.mjs",
     "db:types:check": "node scripts/gen-db-types.mjs --check",

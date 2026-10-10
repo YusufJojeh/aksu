@@ -1,32 +1,35 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FileText } from 'lucide-react'
-import { Button, Field, Input, Tabs, TabsList, TabsTrigger } from '../components/ui'
+import { FileText, Languages } from 'lucide-react'
+import { Button, Field, Input, Select } from '../components/ui'
+import { locales, type Locale } from '../domain/report'
 import { useAuth } from './AuthProvider'
 import { errorText } from '../i18n/errorText'
 
-export function AuthScreen() {
+// Each language is listed in its own script so the picker is usable before you can read the current one.
+const endonym = (locale: Locale): string => {
+  try {
+    return new Intl.DisplayNames([locale], { type: 'language' }).of(locale) ?? locale
+  } catch {
+    return locale
+  }
+}
+
+// Administrator sign-in, by email and password only. There is no self-registration: admins invite employees, and
+// sales staff sign in with their phone number alone on the workspace (/).
+export function AuthScreen({ locale, onLocaleChange }: { locale: Locale; onLocaleChange: (locale: Locale) => void }) {
   const auth = useAuth()
   const { t } = useTranslation()
-  const [mode, setMode] = useState<'login' | 'register'>('login')
-  const [fullName, setFullName] = useState('')
-  const [identifier, setIdentifier] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [phone, setPhone] = useState('')
   const [error, setError] = useState<string>()
-  const [notice, setNotice] = useState<string>()
   const [busy, setBusy] = useState(false)
 
   const submit = async () => {
     setBusy(true)
     setError(undefined)
-    setNotice(undefined)
     try {
-      if (mode === 'login') await auth.login(identifier, password)
-      else {
-        await auth.register({ fullName, email: identifier, password, workPhone: phone })
-        setNotice('Registration received. Confirm your email if requested, then wait for admin approval.')
-      }
+      await auth.loginAdmin(email, password)
     } catch (caught) {
       setError(errorText(caught, t, 'errors.sign_in_failed'))
     } finally {
@@ -43,75 +46,55 @@ export function AuthScreen() {
           void submit()
         }}
       >
+        <label className="mb-2 flex items-center justify-end gap-2 text-xs font-semibold text-stone-600">
+          <Languages size={16} aria-hidden />
+          <span className="sr-only">{t('fields.interfaceLanguage')}</span>
+          <Select
+            className="h-9 !w-auto"
+            value={locale}
+            onChange={(event) => onLocaleChange(event.target.value as Locale)}
+          >
+            {locales.map((code) => (
+              <option key={code} value={code} lang={code}>
+                {endonym(code)}
+              </option>
+            ))}
+          </Select>
+        </label>
         <div className="mb-6 text-center">
           <span className="mx-auto mb-3 grid size-12 place-items-center rounded-full border border-gold/70 text-gold">
             <FileText />
           </span>
-          <h1 className="text-2xl font-bold">Dental Operations</h1>
+          <h1 className="text-2xl font-bold">{t('adminAuth.title')}</h1>
         </div>
-        <Tabs value={mode} onValueChange={(value) => setMode(value as typeof mode)}>
-          <TabsList className="mb-5">
-            <TabsTrigger value="login">Sign in</TabsTrigger>
-            <TabsTrigger value="register">Register</TabsTrigger>
-          </TabsList>
-        </Tabs>
         <div className="grid gap-4">
-          {mode === 'register' && (
-            <Field label="Full name">
-              <Input
-                required
-                minLength={2}
-                autoComplete="name"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-              />
-            </Field>
-          )}
-          <Field label={mode === 'login' ? 'Email or phone number' : 'Email'}>
+          <Field label={t('adminAuth.email')}>
             <Input
               required
-              type={mode === 'login' ? 'text' : 'email'}
-              placeholder={mode === 'login' ? 'email@example.com or +905551112233' : undefined}
-              autoComplete={mode === 'login' ? 'username' : 'email'}
-              value={identifier}
-              onChange={(event) => setIdentifier(event.target.value)}
+              type="email"
+              dir="ltr"
+              autoComplete="username"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </Field>
-          <Field label="Password">
+          <Field label={t('adminAuth.password')}>
             <Input
               required
-              minLength={10}
               type="password"
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              autoComplete="current-password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
             />
           </Field>
-          {mode === 'register' && (
-            <Field label="Work / WhatsApp number (E.164)">
-              <Input
-                required
-                type="tel"
-                placeholder="+905551112233"
-                autoComplete="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-              />
-            </Field>
-          )}
         </div>
         {error && (
           <p role="alert" className="mt-4 text-sm text-red-700">
             {error}
           </p>
         )}
-        {notice && (
-          <p role="status" className="mt-4 text-sm text-green-800">
-            {notice}
-          </p>
-        )}
         <Button type="submit" variant="primary" className="mt-5 w-full" disabled={busy}>
-          {busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create sales account'}
+          {busy ? t('adminAuth.wait') : t('adminAuth.signIn')}
         </Button>
       </form>
     </main>

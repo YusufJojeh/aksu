@@ -12,10 +12,10 @@ interface AuthContextValue {
   configured: boolean
   session?: Session
   profile?: EmployeeProfile
-  login(identifier: string, password: string): Promise<void>
+  /** Administrators sign in with email and password; the endpoint refuses every non-admin profile. */
+  loginAdmin(email: string, password: string): Promise<void>
   /** Sales staff sign in with their phone number alone (no password). */
   loginWithPhone(phone: string): Promise<void>
-  register(input: { fullName: string; email: string; password: string; workPhone: string }): Promise<void>
   logout(): Promise<void>
   refreshProfile(): Promise<void>
   updateProfile(input: {
@@ -113,29 +113,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       configured: Boolean(bypass) || isSupabaseConfigured,
       session,
       profile,
-      async login(identifier, password) {
-        const trimmed = identifier.trim()
-        if (trimmed.includes('@')) {
-          const { data, error } = await requireSupabase().auth.signInWithPassword({
-            email: trimmed.toLowerCase(),
-            password,
-          })
-          if (error) throw error
-          await loadProfile(data.session)
-          return
-        }
-        const phone = normalizePhone(trimmed)
-        if (!phone)
-          throw new AppError(
-            'invalid_login_identifier',
-            'Enter your email or an international phone number, for example +905551112233.',
-          )
+      async loginAdmin(rawEmail, password) {
+        const email = rawEmail.trim().toLowerCase()
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+          throw new AppError('invalid_email', 'Enter a valid email address.')
         await loadProfile(
           await exchangeForSession(
-            '/api/auth/login-phone',
-            { phone, password },
+            '/api/auth/admin-login',
+            { email, password },
             'invalid_credentials',
-            'Invalid phone number or password.',
+            'Invalid email or password.',
           ),
         )
       },
@@ -151,20 +138,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             'Sign-in failed. Please try again.',
           ),
         )
-      },
-      async register({ fullName, email, password, workPhone }) {
-        const phone = normalizePhone(workPhone)
-        if (!phone)
-          throw new AppError(
-            'invalid_phone',
-            'Enter an international phone number in E.164 format, for example +905551112233.',
-          )
-        const { error } = await requireSupabase().auth.signUp({
-          email: email.trim().toLowerCase(),
-          password,
-          options: { data: { full_name: fullName.trim(), work_phone_e164: phone } },
-        })
-        if (error) throw error
       },
       async logout() {
         if (bypass) return

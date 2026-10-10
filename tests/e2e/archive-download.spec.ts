@@ -73,10 +73,19 @@ test('admin re-downloads exact originals and rejects missing or blank archives',
     }
     return route.fulfill({ json: [] })
   })
+  let adminLogins = 0
+  await page.route('**/api/auth/admin-login', async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ email: user.email, password: 'test-password-only' })
+    adminLogins++
+    return route.fulfill({ json: { access_token: token, refresh_token: 'test-refresh' } })
+  })
   await page.goto('/admin')
+  await expect(page.getByRole('tab')).toHaveCount(0)
   await page.getByLabel('Email', { exact: true }).fill(user.email)
   await page.getByLabel('Password', { exact: true }).fill('test-password-only')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Toggle Sidebar' })).toBeVisible()
+  expect(adminLogins).toBe(1)
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle Sidebar' }).click()
   await page.getByRole('button', { name: 'Reports', exact: true }).click()
   if (testInfo.project.name === 'mobile') {
@@ -188,20 +197,24 @@ test('a user finalizes a generated template and re-downloads the saved bytes', a
       return route.fulfill({ json: null })
     }
     if (url.pathname.endsWith('/reports'))
-      return route.fulfill({ json: url.searchParams.has('id') ? archived : [archived] })
+      return route.fulfill({ json: url.searchParams.has('id') ? archived : archived ? [archived] : [] })
     return route.fulfill({ json: [] })
   })
+  // Sales staff sign in with their phone number alone (no password, no registration).
+  await page.route('**/api/auth/employee-login', async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ phone: '+905551112233' })
+    return route.fulfill({ json: { access_token: token, refresh_token: 'test-refresh' } })
+  })
   await page.goto('/')
-  await page.getByLabel('Email', { exact: true }).fill(user.email)
-  await page.getByLabel('Password', { exact: true }).fill('test-password-only')
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  await page.getByLabel('Sales phone', { exact: true }).fill('+905551112233')
+  await page.getByRole('button', { name: 'Sign in with phone', exact: true }).click()
+  await page.getByRole('button', { name: 'Create Report', exact: true }).click()
   await page.getByRole('button', { name: /^Dr. Emir Aksu/ }).click()
   await page.getByLabel('Patient name', { exact: true }).fill('Saved Original')
   await page.getByLabel('Phone', { exact: true }).fill('+905551112233')
   for (let attempt = 0; attempt < 3; attempt++) {
     if (attempt === 2) {
       await page.getByRole('button', { name: 'My Reports', exact: true }).click()
-      if (testInfo.project.name === 'mobile') await page.locator('summary').click()
     }
     const downloadPromise = page.waitForEvent('download')
     await page
@@ -219,4 +232,22 @@ test('a user finalizes a generated template and re-downloads the saved bytes', a
   }
   expect(finalizations).toBe(1)
   expect(logged).toBe(3)
+})
+
+test('admin sign-in follows the chosen language and remembers it', async ({ page }, testInfo) => {
+  test.skip(
+    !testInfo.config.configFile?.endsWith('playwright.archive.config.ts'),
+    'Requires isolated mocked authentication server',
+  )
+  await page.route('https://archive-tests.supabase.co/**', (route) => route.fulfill({ json: [] }))
+  await page.goto('/admin')
+  await page.getByRole('combobox').selectOption('ar')
+  await expect(page.getByRole('heading', { name: 'عمليات طب الأسنان' })).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+  await page.getByRole('combobox').selectOption('fr')
+  await expect(page.getByLabel('E-mail', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Se connecter', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Opérations dentaires' })).toBeVisible()
+  await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
 })

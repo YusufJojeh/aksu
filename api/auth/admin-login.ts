@@ -6,16 +6,19 @@ import {
   type ServerlessRequest,
   type ServerlessResponse,
 } from '../_lib/http.js'
-import { normalizePhone } from '../../src/lib/phone.js'
 
-const AUTH_FAILED = 'Invalid phone number or password.'
+const AUTH_FAILED = 'Invalid email or password.'
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+// Email + password is the administrator door only. Sales staff sign in with their phone number alone through
+// employee-login, and there is no self-registration, so a non-admin email fails exactly like a wrong password and
+// never gets a session from here.
 export default async function handler(req: ServerlessRequest, res: ServerlessResponse) {
   if (!requirePost(req, res)) return
   const body = bodyObject(req)
-  const phone = typeof body.phone === 'string' ? normalizePhone(body.phone) : undefined
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const password = typeof body.password === 'string' && body.password.length <= 1024 ? body.password : ''
-  if (!phone || password.length < 1) {
+  if (!EMAIL_RE.test(email) || email.length > 320 || password.length < 1) {
     res.status(400).json({ error: AUTH_FAILED, code: 'invalid_credentials' })
     return
   }
@@ -29,16 +32,16 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
   const service = serverClient(env.url, env.serviceKey)
   const { data: profiles, error: lookupError } = await service
     .from('profiles')
-    .select('email')
-    .eq('requested_phone_e164', phone)
+    .select('email,role')
+    .eq('email', email)
     .limit(2)
 
   if (lookupError) {
-    console.error('login-phone lookup failed', lookupError)
-    res.status(500).json({ error: 'phone_lookup_failed' })
+    console.error('admin-login lookup failed', lookupError)
+    res.status(500).json({ error: 'sign_in_failed' })
     return
   }
-  if (!profiles || profiles.length !== 1) {
+  if (!profiles || profiles.length !== 1 || profiles[0]!.role !== 'ADMIN') {
     res.status(401).json({ error: AUTH_FAILED, code: 'invalid_credentials' })
     return
   }

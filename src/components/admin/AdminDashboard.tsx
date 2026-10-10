@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AppSidebar } from './dashboard/app-sidebar'
 import { SiteHeader } from './dashboard/site-header'
@@ -6,16 +6,13 @@ import type { AdminView } from './dashboard/types'
 import { SidebarInset, SidebarProvider } from '../ui/sidebar'
 import { TooltipProvider } from '../ui/tooltip'
 import { useAuth } from '../../auth/AuthProvider'
-import { locales, type Locale } from '../../domain/report'
-import { isRtl } from '../../lib/locale'
+import type { Locale } from '../../domain/report'
 import { TeamDashboard } from './TeamDashboard'
 import { ChannelsAdmin } from './ChannelsAdmin'
 import { CustomersAdmin } from './CustomersAdmin'
 import { EmployeesAdmin } from './EmployeesAdmin'
 import { ReportsAdmin } from './ReportsAdmin'
 import { ProfileSettings } from '../ProfileSettings'
-
-const ADMIN_LANG_KEY = 'admin_dashboard_locale'
 
 const VIEW_TITLE_KEYS: Record<AdminView, string> = {
   dashboard: 'admin.nav.dashboard',
@@ -26,33 +23,18 @@ const VIEW_TITLE_KEYS: Record<AdminView, string> = {
   profile: 'admin.nav.profile',
 }
 
-export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
+export function AdminDashboard({
+  onLogout,
+  locale,
+  onLocaleChange,
+}: {
+  onLogout: () => void
+  locale: Locale
+  onLocaleChange: (locale: Locale) => void
+}) {
   const auth = useAuth()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const [view, setView] = useState<AdminView>('dashboard')
-  const [locale, setLocale] = useState<Locale>(() => {
-    const saved = (() => {
-      try {
-        return localStorage.getItem(ADMIN_LANG_KEY)
-      } catch {
-        return null
-      }
-    })()
-    return (locales as readonly string[]).includes(saved ?? '') ? (saved as Locale) : 'en'
-  })
-
-  // Side effects run after render (before paint), not during it, so React can render purely.
-  useLayoutEffect(() => {
-    if (i18n.language !== locale) void i18n.changeLanguage(locale)
-    document.documentElement.lang = locale
-    document.documentElement.dir = isRtl(locale) ? 'rtl' : 'ltr'
-    try {
-      localStorage.setItem(ADMIN_LANG_KEY, locale)
-    } catch {
-      /* private browsing / storage disabled */
-    }
-  }, [i18n, locale])
-  const applyLocale = (next: Locale) => setLocale(next)
 
   const user = { name: auth.profile?.full_name ?? 'Admin', email: auth.profile?.email ?? '' }
 
@@ -71,7 +53,7 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             }}
           />
           <SidebarInset>
-            <SiteHeader title={t(VIEW_TITLE_KEYS[view])} locale={locale} onLocaleChange={applyLocale} />
+            <SiteHeader title={t(VIEW_TITLE_KEYS[view])} locale={locale} onLocaleChange={onLocaleChange} />
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="@container/main flex min-w-0 flex-1 flex-col gap-2">
                 {view === 'dashboard' && <TeamDashboard onAssignChannels={() => setView('channels')} />}
