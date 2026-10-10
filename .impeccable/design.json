@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-10T16:00:00Z",
+  "title": "Design System: Dental Operations & Treatment Plan Generator",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Ink", "tonalRamp": ["#141213", "#211e1f", "#2f2b2c", "#44403c", "#57534e", "#78716c", "#a8a29e", "#e7e5e4"] },
+      "proof-gold": { "role": "secondary", "displayName": "Proof Gold", "tonalRamp": ["#4a370e", "#6d5115", "#9a741f", "#c99b2e", "#d6b257", "#e3c985", "#efdfb5", "#f8f0dc"] },
+      "parchment": { "role": "neutral", "displayName": "Parchment", "tonalRamp": ["#5c5547", "#857c6b", "#aea592", "#cfc7b6", "#e3ddd1", "#ece7df", "#f5f2ed", "#faf8f5"] },
+      "sheet-white": { "role": "neutral", "displayName": "Sheet White" },
+      "graphite": { "role": "neutral", "displayName": "Graphite" },
+      "pencil-grey": { "role": "neutral", "displayName": "Pencil Grey" },
+      "rule-line": { "role": "neutral", "displayName": "Rule Line" },
+      "hairline": { "role": "neutral", "displayName": "Hairline" },
+      "correction-red": { "role": "error", "displayName": "Correction Red" },
+      "admin-canvas": { "role": "neutral", "displayName": "Admin Canvas", "canonical": "oklch(1 0 0)" },
+      "admin-ink": { "role": "neutral", "displayName": "Admin Ink", "canonical": "oklch(0.145 0 0)" },
+      "admin-border": { "role": "neutral", "displayName": "Admin Border", "canonical": "oklch(0.922 0 0)" }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Page titles." },
+      "title": { "displayName": "Title", "purpose": "Form section headings with the gold underline." },
+      "body": { "displayName": "Body", "purpose": "Inputs, lists, descriptions." },
+      "label": { "displayName": "Label", "purpose": "Buttons and tabs." },
+      "caption": { "displayName": "Caption", "purpose": "Metadata, timestamps, inline errors." }
+    },
+    "shadows": [
+      { "name": "sheet", "value": "0 1px 2px rgb(0 0 0 / 0.05)", "purpose": "Cards, icon buttons, active tab." },
+      { "name": "lifted-sheet", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)", "purpose": "Clinic card hover." },
+      { "name": "proof", "value": "0 18px 55px rgb(22 18 18 / 20%)", "purpose": "The rendered PDF page only." }
+    ],
+    "motion": [
+      { "name": "ease-out-strong", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Press feedback and card lift." },
+      { "name": "press", "value": "scale(0.97) over 140ms", "purpose": "Every pressable element." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink action button; the current nav view and main actions.",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/><polyline points=\"7 10 12 15 17 10\"/><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"/></svg>Finalize &amp; Download PDF</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:8px;font:600 14px/1.43 'Geist Variable',system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}.ds-btn:active{transform:scale(0.97)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 2px #c99b2e}.ds-btn-primary{background:#2f2b2c;color:#fff;border:0}.ds-btn-primary:hover{background:#44403c}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions and inactive nav views.",
+      "html": "<button class=\"ds-btn ds-btn-outline\">Switch clinic</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:8px;font:600 14px/1.43 'Geist Variable',system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}.ds-btn:active{transform:scale(0.97)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 2px #c99b2e}.ds-btn-outline{background:#fff;color:#2f2b2c;border:1px solid #d6d3d1}.ds-btn-outline:hover{background:#f5f5f4}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive confirmations only.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Clear patient data</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:8px;font:600 14px/1.43 'Geist Variable',system-ui,sans-serif;cursor:pointer;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}.ds-btn:active{transform:scale(0.97)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 2px #c99b2e}.ds-btn-danger{background:#b91c1c;color:#fff;border:0}.ds-btn-danger:hover{background:#991b1b}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labelled field with gold focus.",
+      "html": "<label class=\"ds-field\"><span>Patient name</span><input class=\"ds-input\" placeholder=\"Full name\"></label>",
+      "css": ".ds-field{display:grid;gap:6px;font:500 14px/1.43 'Geist Variable',system-ui,sans-serif;color:#44403c}.ds-input{height:40px;padding:0 12px;border:1px solid #d6d3d1;border-radius:8px;background:#fff;color:#2f2b2c;font:400 14px 'Geist Variable',system-ui,sans-serif;outline:none;transition:border-color 150ms,box-shadow 150ms}.ds-input::placeholder{color:#78716c}.ds-input:focus{border-color:#c99b2e;box-shadow:0 0 0 2px rgb(201 155 46 / 20%)}"
+    },
+    {
+      "name": "Tabs",
+      "kind": "nav",
+      "refersTo": "tabs-list",
+      "description": "Segmented switch for document type and Edit/Preview.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab-active\">Treatment plan</button><button class=\"ds-tab\">Warranty certificate</button></div>",
+      "css": ".ds-tabs{display:inline-grid;grid-auto-flow:column;padding:4px;border-radius:10px;background:#e7e5e4}.ds-tab{padding:8px 12px;border:0;border-radius:8px;background:transparent;color:#57534e;font:600 14px 'Geist Variable',system-ui,sans-serif;cursor:pointer;transition:color 150ms,background-color 150ms,box-shadow 150ms}.ds-tab:hover{color:#2f2b2c}.ds-tab:focus-visible{outline:none;box-shadow:0 0 0 2px #c99b2e}.ds-tab-active{background:#fff;color:#2f2b2c;box-shadow:0 1px 2px rgb(0 0 0 / 0.05)}"
+    },
+    {
+      "name": "Clinic Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Selectable white sheet on parchment; lifts with a gold edge.",
+      "html": "<button class=\"ds-card\"><strong>MB Dental</strong><span>Open workspace</span></button>",
+      "css": ".ds-card{display:grid;gap:4px;min-width:240px;padding:24px;text-align:start;border:1px solid #d6d3d1;border-radius:14px;background:#fff;color:#2f2b2c;font:700 16px 'Geist Variable',system-ui,sans-serif;box-shadow:0 1px 2px rgb(0 0 0 / 0.05);cursor:pointer;transition:transform 200ms cubic-bezier(0.23,1,0.32,1),border-color 200ms,box-shadow 200ms}.ds-card span{font:600 11px 'Geist Variable',system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#78716c}.ds-card:hover{transform:translateY(-2px);border-color:#c99b2e;box-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1),0 2px 4px -2px rgb(0 0 0 / 0.1)}.ds-card:active{transform:scale(0.98)}.ds-card:focus-visible{outline:none;box-shadow:0 0 0 2px #c99b2e}"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "description": "Signature form-section title with a gold start-edge underline.",
+      "html": "<h2 class=\"ds-section\">Patient details</h2>",
+      "css": ".ds-section{position:relative;margin:0;padding-bottom:8px;font:700 16px/1.5 'Geist Variable',system-ui,sans-serif;letter-spacing:-0.025em;color:#2f2b2c}.ds-section::after{content:'';position:absolute;bottom:0;inset-inline-start:0;width:32px;height:2px;border-radius:999px;background:#c99b2e}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Proofing Desk",
+    "overview": "The app is the workbench of a print shop, and the clinic PDF is the proof lying on it. The desk is warm parchment. Sheets of white paper hold the forms. Ink-dark controls do the work, and a single gold mark points to whatever needs attention: focus, the active field, a section's start. The PDF preview is always the hero. The interface around it is tactile and warm, with paper-like surfaces, soft depth, and a firm press under every button, but it never competes with the clinic's own artwork. Density is calm rather than packed. Sales staff work on laptops and phones, so controls stay large (40-44px), labels are always visible, and the editor and preview sit side by side on desktop and swap with a tab on mobile. The admin side is the back office of the same shop: the standard neutral component theme in Geist, plainer and denser, with colour reserved for data.",
+    "keyCharacteristics": [
+      "Warm parchment desk, white paper sheets, ink controls, one gold accent.",
+      "The PDF preview dominates; the UI chrome stays quieter than the clinic artwork.",
+      "Tactile feedback: soft paper shadows and a `scale(0.97)` press.",
+      "One typeface (Geist, with Noto Sans Arabic as fallback) across sales and admin. RTL is first-class."
+    ],
+    "rules": [
+      { "name": "The One Gold Mark Rule", "body": "Gold indicates attention: focus, the active field, the start of a section. Never use it as a button fill or a background wash. If two gold things compete on one screen, one of them is wrong.", "section": "colors" },
+      { "name": "The Clinic Owns Colour Rule", "body": "Brand colour belongs to the clinic artwork inside the PDF. The surrounding UI stays parchment, ink and gold, so the two clinics' identities never bleed into each other or into the chrome.", "section": "colors" },
+      { "name": "The Tabular Money Rule", "body": "Tables and totals use tabular figures, so prices line up in their columns.", "section": "typography" },
+      { "name": "The One Proof Rule", "body": "The deep Proof shadow belongs to the PDF page alone. No other surface may be lifted that high.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the PDF preview the largest, most elevated thing on screen.",
+      "Do use ink for action and gold only for attention (focus, active, section start).",
+      "Do give every pressable element `scale(0.97)` press feedback with the strong ease-out, kept under 300ms.",
+      "Do gate hover motion behind `@media (hover: hover)`.",
+      "Do keep touch targets at least 40px (44px for icon buttons) and labels visible above fields.",
+      "Do mirror layouts for RTL with logical properties (`ms-`, `me-`, `start-`)."
+    ],
+    "donts": [
+      "Don't use gradients, glow, glassmorphism or other flashy SaaS-marketing styling.",
+      "Don't introduce cold clinical/hospital blue into the sales interface.",
+      "Don't fill large areas or buttons with gold.",
+      "Don't let either clinic's brand colours leak into the shared chrome.",
+      "Don't use `transition: all` or hard-coded `100vh` offsets for pane heights."
+    ]
+  }
+}
