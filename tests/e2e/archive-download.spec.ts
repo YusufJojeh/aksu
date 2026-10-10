@@ -251,3 +251,54 @@ test('admin sign-in follows the chosen language and remembers it', async ({ page
   await expect(page.getByRole('heading', { name: 'Opérations dentaires' })).toBeVisible()
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
 })
+
+test('admin creates a sales employee directly, with no invitation email', async ({ page }, testInfo) => {
+  test.skip(
+    !testInfo.config.configFile?.endsWith('playwright.archive.config.ts'),
+    'Requires isolated mocked authentication server',
+  )
+  const user = {
+    id: '00000000-0000-4000-8000-000000000001',
+    email: 'archive@example.test',
+    aud: 'authenticated',
+    role: 'authenticated',
+  }
+  const profile = { ...user, full_name: 'Archive Tester', role: 'ADMIN', status: 'active' }
+  const token = `${Buffer.from(JSON.stringify({ alg: 'HS256' })).toString('base64url')}.${Buffer.from(JSON.stringify({ sub: user.id, exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64url')}.test`
+  await page.route('https://archive-tests.supabase.co/**', async (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname.endsWith('/token'))
+      return route.fulfill({
+        json: { access_token: token, refresh_token: 'test-refresh', token_type: 'bearer', expires_in: 3600, user },
+      })
+    if (url.pathname.endsWith('/user')) return route.fulfill({ json: user })
+    if (url.pathname.includes('/profiles'))
+      return route.fulfill({ json: route.request().headers().accept?.includes('object') ? profile : [profile] })
+    return route.fulfill({ json: [] })
+  })
+  await page.route('**/api/auth/admin-login', (route) =>
+    route.fulfill({ json: { access_token: token, refresh_token: 'test-refresh' } }),
+  )
+  const created: unknown[] = []
+  await page.route('**/api/admin/create-employee', async (route) => {
+    created.push(route.request().postDataJSON())
+    return route.fulfill({ status: 201, json: { id: 'new-user' } })
+  })
+  await page.route('**/api/admin/invite-employee', () => {
+    throw new Error('invitation endpoint must not be called')
+  })
+  await page.goto('/admin')
+  await page.getByLabel('Email', { exact: true }).fill(user.email)
+  await page.getByLabel('Password', { exact: true }).fill('test-password-only')
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle Sidebar' }).click()
+  await page.getByRole('button', { name: 'Employees', exact: true }).click()
+  if (testInfo.project.name === 'mobile') await page.keyboard.press('Escape')
+  await page.getByLabel('Full name', { exact: true }).fill('New Seller')
+  await page.getByLabel('Work phone', { exact: true }).fill('+905559998877')
+  await page.getByRole('button', { name: 'Create sales employee', exact: true }).click()
+  await expect(
+    page.getByRole('status').filter({ hasText: 'New Seller can now sign in with +905559998877.' }),
+  ).toBeVisible()
+  expect(created).toEqual([{ fullName: 'New Seller', email: '', workPhoneE164: '+905559998877' }])
+})

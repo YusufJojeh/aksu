@@ -16,7 +16,7 @@ describe('coded errors', () => {
       errorFromBody({ error: 'Invalid phone number or password.', code: 'invalid_credentials' }, 'sign_in_failed', 'x')
         .code,
     ).toBe('invalid_credentials')
-    expect(errorFromBody({ error: 'email_already_registered' }, 'invite_failed', 'x').code).toBe(
+    expect(errorFromBody({ error: 'email_already_registered' }, 'create_failed', 'x').code).toBe(
       'email_already_registered',
     )
     expect(errorFromBody({ error: 'checksum_write_failed' }, 'request_failed', 'x').code).toBe('verify_failed')

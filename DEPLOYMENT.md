@@ -16,7 +16,7 @@ Production is a single Vercel project (`pdfbuilder`) with Supabase provisioned t
 
 All later accounts start as `SALES/pending` and are activated by an administrator from the Employees admin screen. The `report-pdfs` storage bucket is private and created by the migration.
 
-Employee invitations (`POST /api/admin/invite-employee`) run as a Vercel serverless function, not a Supabase Edge Function — it uses `SUPABASE_SERVICE_ROLE_KEY` server-side (never sent to the browser) and is authorized by checking the caller's bearer token against `profiles.role = 'ADMIN'` before calling `auth.admin.inviteUserByEmail`. This avoids a second deploy target/credential (Supabase CLI login) for a single admin-only endpoint.
+Employee creation (`POST /api/admin/create-employee`; it replaced the email invitation endpoint `invite-employee`) runs as a Vercel serverless function, not a Supabase Edge Function — it uses `SUPABASE_SERVICE_ROLE_KEY` server-side (never sent to the browser) and is authorized by checking the caller's bearer token against `profiles.role = 'ADMIN'` before calling `auth.admin.createUser`. This avoids a second deploy target/credential (Supabase CLI login) for a single admin-only endpoint.
 
 ## Vercel
 
@@ -27,11 +27,11 @@ VITE_SUPABASE_URL=https://PROJECT.supabase.co
 VITE_SUPABASE_ANON_KEY=PUBLIC_ANON_KEY
 ```
 
-`VITE_SUPABASE_ANON_KEY` is intentionally public (`--type config`) — it is meaningless without the RLS policies the migration installs. `SUPABASE_SERVICE_ROLE_KEY` and the `POSTGRES_*` variables stay server-only (never `VITE_`-prefixed) and are only read by `api/admin/invite-employee.ts` and manual migration runs. Build with `npm run build`; publish `dist`; `api/**` deploys as Vercel serverless functions alongside it. `vercel.json` supplies SPA routing and baseline browser-security headers.
+`VITE_SUPABASE_ANON_KEY` is intentionally public (`--type config`) — it is meaningless without the RLS policies the migration installs. `SUPABASE_SERVICE_ROLE_KEY` and the `POSTGRES_*` variables stay server-only (never `VITE_`-prefixed) and are only read by `api/` serverless functions and manual migration runs. Build with `npm run build`; publish `dist`; `api/**` deploys as Vercel serverless functions alongside it. `vercel.json` supplies SPA routing and baseline browser-security headers.
 
 ## Release gate
 
-Run `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`, and `npm run test:visual`. After deploying, smoke-test sign-in, role denial, one finalization, exact archive download, admin analytics, number reassignment, invite-employee, and suspended-user denial.
+Run `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`, and `npm run test:visual`. After deploying, smoke-test sign-in, role denial, one finalization, exact archive download, admin analytics, number reassignment, create-employee, and suspended-user denial.
 
 ## Verification log
 
@@ -126,6 +126,6 @@ Full gate passed: format:check, tsc, lint, 127 unit tests, build, 70 E2E (30 ski
 
 **No self-registration; admins sign in by email only.** The Register tab and `AuthProvider.register()` are gone, so the app never calls Supabase `signUp`; employees arrive only through the admin invite. `/admin` signs in by email + password through the new `/api/auth/admin-login`, which refuses every non-ADMIN profile with the same generic `invalid_credentials` answer as a wrong password before any session is created. It replaces `/api/auth/login-phone`. Sales staff still sign in on `/` by phone number alone (`employee-login`). The sign-in, loading, account-status and access-denied screens are translated (`adminAuth.*`, 9 locales) with an endonym language picker; one persisted admin locale is shared with the dashboard. No migrations.
 
-**Closed 2026-10-10:** "Allow new users to sign up" is off in Supabase Authentication settings. `/auth/v1/settings` reports `disable_signup: true`, and a direct `/auth/v1/signup` call with a name now returns 422 `signup_disabled`. Admin invites and server-side account creation use the service role and are unaffected. The two signup probes left no `auth.users` rows.
+**Closed 2026-10-10:** "Allow new users to sign up" is off in Supabase Authentication settings. `/auth/v1/settings` reports `disable_signup: true`, and a direct `/auth/v1/signup` call with a name now returns 422 `signup_disabled`. Admin-created accounts use the service role and are unaffected. The two signup probes left no `auth.users` rows.
 
 Full gate passed: format:check, tsc, lint, 128 unit tests, build, 70 E2E (30 skipped by project), 3 visual, and the revived `test:e2e:auth` suite (6/6: admin email sign-in, sales phone sign-in, archive re-download, sign-in language). Smoke-tested production: `/admin` 200; `admin-login` with a phone number → 400 and with an unknown email → 401, both `invalid_credentials`; GET → 405; old `login-phone` no longer served; `employee-login` with a bad phone → 400 `invalid_phone`.

@@ -34,7 +34,8 @@ export const APP_ERROR_CODES = [
   'delete_failed',
   'profile_deleted_auth_delete_failed',
   'email_already_registered',
-  'invite_failed',
+  'phone_already_registered',
+  'create_failed',
 ] as const
 
 export type AppErrorCode = (typeof APP_ERROR_CODES)[number]

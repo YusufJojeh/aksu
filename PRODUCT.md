@@ -9,7 +9,7 @@ web
 ## Users
 
 - **Sales staff (primary).** Clinic sales employees who turn a patient conversation into a priced treatment plan. They work both at a desk or laptop in the clinic and on a phone while on the move, often straight after a chat with the patient. They are not tech-savvy, so every flow must be hard to get wrong.
-- **Administrators.** Clinic management who invite and offboard staff, assign communication numbers, browse the report archive, and read per-employee KPIs and alerts.
+- **Administrators.** Clinic management who create and offboard staff accounts, assign communication numbers, browse the report archive, and read per-employee KPIs and alerts.
 - **Patients (indirect).** Mostly international patients who receive the finished PDF. They never use the app.
 
 ## Product Purpose

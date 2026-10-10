@@ -2,7 +2,7 @@ import { Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { EmployeeProfile, EmployeeStatus, UserRole } from '../../auth/types'
-import { deleteEmployee, inviteEmployee, listEmployees, offboardEmployee, updateEmployee } from '../../lib/operations'
+import { createEmployee, deleteEmployee, listEmployees, offboardEmployee, updateEmployee } from '../../lib/operations'
 import { Accordion, AccordionField, AccordionItem, Button, ConfirmDialog, Input, Select } from '../ui'
 import { errorText } from '../../i18n/errorText'
 
@@ -20,9 +20,9 @@ export function EmployeesAdmin() {
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState('')
   const [error, setError] = useState<string>()
-  const [inviteName, setInviteName] = useState('')
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [invitePhone, setInvitePhone] = useState('')
+  const [newName, setNewName] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [newPhone, setNewPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [notice, setNotice] = useState<string>()
   const [loaded, setLoaded] = useState(false)
@@ -44,21 +44,21 @@ export function EmployeesAdmin() {
       .catch((caught: unknown) => {
         setError(errorText(caught, t, 'admin.employees.deleteFailed'))
       })
-  const invite = async () => {
+  const create = async () => {
     if (submitting) return
     setSubmitting(true)
     setError(undefined)
     setNotice(undefined)
     try {
-      await inviteEmployee({ fullName: inviteName, email: inviteEmail, workPhone: invitePhone })
-      // Only clear the form once the invite succeeded, so a typo can be corrected instead of retyped.
-      setNotice(t('admin.employees.invited', { name: inviteName.trim() }))
-      setInviteName('')
-      setInviteEmail('')
-      setInvitePhone('')
+      await createEmployee({ fullName: newName, email: newEmail, workPhone: newPhone })
+      // Only clear the form once the account exists, so a typo can be corrected instead of retyped.
+      setNotice(t('admin.employees.created', { name: newName.trim(), phone: newPhone.trim() }))
+      setNewName('')
+      setNewEmail('')
+      setNewPhone('')
       await load()
     } catch (caught) {
-      setError(errorText(caught, t, 'admin.employees.inviteFailed'))
+      setError(errorText(caught, t, 'admin.employees.createFailed'))
     } finally {
       setSubmitting(false)
     }
@@ -147,36 +147,37 @@ export function EmployeesAdmin() {
         className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-4"
         onSubmit={(event) => {
           event.preventDefault()
-          void invite()
+          void create()
         }}
       >
         <label className="grid gap-1 text-sm">
-          {t('admin.employees.inviteFullName')}
-          <Input required autoComplete="off" value={inviteName} onChange={(e) => setInviteName(e.target.value)} />
+          {t('admin.employees.createFullName')}
+          <Input required autoComplete="off" value={newName} onChange={(e) => setNewName(e.target.value)} />
         </label>
         <label className="grid gap-1 text-sm">
-          {t('admin.employees.inviteEmail')}
+          {t('admin.employees.createEmail')}
           <Input
-            required
             type="email"
+            dir="ltr"
             autoComplete="off"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
           />
         </label>
         <label className="grid gap-1 text-sm">
-          {t('admin.employees.invitePhone')}
+          {t('admin.employees.createPhone')}
           <Input
             required
             type="tel"
             inputMode="tel"
             placeholder="+905551112233"
-            value={invitePhone}
-            onChange={(e) => setInvitePhone(e.target.value)}
+            dir="ltr"
+            value={newPhone}
+            onChange={(e) => setNewPhone(e.target.value)}
           />
         </label>
         <Button type="submit" variant="primary" disabled={submitting} aria-busy={submitting}>
-          {submitting ? t('admin.common.loading') : t('admin.employees.inviteSubmit')}
+          {submitting ? t('admin.common.loading') : t('admin.employees.createSubmit')}
         </Button>
       </form>
       <p role="status" className="mt-3 text-sm text-stone-700 empty:sr-only">

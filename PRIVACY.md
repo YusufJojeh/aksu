@@ -7,7 +7,7 @@ Draft report data stays in browser memory and is not automatically persisted. Fi
 - Download events are recorded. Filenames exclude phone numbers.
 - Sales staff can see only their own reports. Administrators can see organization-wide operational data.
 - Suspended and former employees lose application, report, and storage access; their historical records remain intact.
-- The service-role key is used only in the server-side invitation endpoint (`api/admin/invite-employee.ts`) and is never included in the browser bundle.
+- The service-role key is used only in server-side endpoints under `api/` (for example `api/admin/create-employee.ts`) and is never included in the browser bundle.
 - Patient data is not placed in URLs or console logs. Blob preview URLs are revoked.
 
 Local session tokens follow Supabase's browser session model. A restrictive CSP, output escaping through React, short authorization paths, RLS, and RPC-side validation reduce browser and API trust exposure.

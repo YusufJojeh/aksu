@@ -8,12 +8,12 @@ export async function listEmployees(): Promise<EmployeeProfile[]> {
   return data.map(fromRow<EmployeeProfile>)
 }
 
-export async function inviteEmployee(input: { fullName: string; email: string; workPhone: string }): Promise<void> {
+export async function createEmployee(input: { fullName: string; email: string; workPhone: string }): Promise<void> {
   const workPhoneE164 = requireE164(input.workPhone)
   await authedPost(
-    '/api/admin/invite-employee',
+    '/api/admin/create-employee',
     { fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164 },
-    'invite_failed',
+    'create_failed',
     'Request failed',
   )
 }

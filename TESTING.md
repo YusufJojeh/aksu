@@ -27,4 +27,4 @@ npm run test:e2e:auth
 npm run test:visual
 ```
 
-The live smoke pass covers invite/pending denial, activation, SALES `/admin` denial, ADMIN access, finalization and exact archive download, number reassignment history, offboarding denial, and responsive/RTL rendering.
+The live smoke pass covers admin employee creation and phone sign-in, pending denial, activation, SALES `/admin` denial, ADMIN access, finalization and exact archive download, number reassignment history, offboarding denial, and responsive/RTL rendering.

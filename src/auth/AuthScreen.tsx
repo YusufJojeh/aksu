@@ -15,7 +15,7 @@ const endonym = (locale: Locale): string => {
   }
 }
 
-// Administrator sign-in, by email and password only. There is no self-registration: admins invite employees, and
+// Administrator sign-in, by email and password only. There is no self-registration: admins create employee accounts, and
 // sales staff sign in with their phone number alone on the workspace (/).
 export function AuthScreen({ locale, onLocaleChange }: { locale: Locale; onLocaleChange: (locale: Locale) => void }) {
   const auth = useAuth()
