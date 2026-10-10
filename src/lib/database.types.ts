@@ -423,6 +423,10 @@ export type Database = {
         Args: { p_employee_id: string; p_status: string }
         Returns: undefined
       }
+      pdf_checksum_verified: {
+        Args: { p_sha256: string; p_storage_key: string }
+        Returns: boolean
+      }
       storage_object_exists: {
         Args: { p_bucket: string; p_name: string }
         Returns: boolean
