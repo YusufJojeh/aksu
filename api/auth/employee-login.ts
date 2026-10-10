@@ -1,4 +1,11 @@
-import { bodyObject, requirePost, serverClient, supabaseEnv, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
+import {
+  bodyObject,
+  requirePost,
+  serverClient,
+  supabaseEnv,
+  type ServerlessRequest,
+  type ServerlessResponse,
+} from '../_lib/http.js'
 import { pickEmployeeProfile, type LoginCandidate } from '../../src/lib/employeeLogin.js'
 import { normalizePhone } from '../../src/lib/phone.js'
 import { fromRow } from '../../src/lib/rows.js'
@@ -11,10 +18,18 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
   if (!requirePost(req, res)) return
   const body = bodyObject(req)
   const phone = typeof body.phone === 'string' ? normalizePhone(body.phone) : undefined
-  if (!phone) { res.status(400).json({ error: 'Enter an international phone number, for example +905551112233.', code: 'invalid_phone' }); return }
+  if (!phone) {
+    res
+      .status(400)
+      .json({ error: 'Enter an international phone number, for example +905551112233.', code: 'invalid_phone' })
+    return
+  }
 
   const env = supabaseEnv()
-  if (!env) { res.status(500).json({ error: 'auth_not_configured' }); return }
+  if (!env) {
+    res.status(500).json({ error: 'auth_not_configured' })
+    return
+  }
 
   try {
     const service = serverClient(env.url, env.serviceKey)
@@ -26,17 +41,28 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
 
     const candidates = profiles.map(fromRow<LoginCandidate>)
     // Candidates share one phone (name-typo duplicates), so this is a handful of cheap head-counts; run them together.
-    const countResults = await Promise.all(candidates.map(async (profile) => {
-      const { count, error } = await service.from('reports').select('id', { count: 'exact', head: true }).eq('created_by_employee_id', profile.id)
-      if (error) throw error
-      return [profile.id, count ?? 0] as const
-    }))
+    const countResults = await Promise.all(
+      candidates.map(async (profile) => {
+        const { count, error } = await service
+          .from('reports')
+          .select('id', { count: 'exact', head: true })
+          .eq('created_by_employee_id', profile.id)
+        if (error) throw error
+        return [profile.id, count ?? 0] as const
+      }),
+    )
     const counts = new Map<string, number>(countResults)
     const profile = pickEmployeeProfile(candidates, counts)
-    if (!profile) { res.status(401).json({ error: NOT_FOUND, code: 'employee_not_found' }); return }
+    if (!profile) {
+      res.status(401).json({ error: NOT_FOUND, code: 'employee_not_found' })
+      return
+    }
 
     // generateLink only mints a one-time token (no email is sent); exchanging it yields a normal session.
-    const { data: link, error: linkError } = await service.auth.admin.generateLink({ type: 'magiclink', email: profile.email })
+    const { data: link, error: linkError } = await service.auth.admin.generateLink({
+      type: 'magiclink',
+      email: profile.email,
+    })
     if (linkError || !link.properties?.hashed_token) throw linkError ?? new Error('Could not create sign-in token.')
     const auth = serverClient(env.url, env.anonKey)
     const { data, error } = await auth.auth.verifyOtp({ token_hash: link.properties.hashed_token, type: 'magiclink' })

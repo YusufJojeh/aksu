@@ -29,17 +29,33 @@ export interface ArchivedReport {
   parent_report_id?: string
 }
 
-export interface ReportEvent { id: string; report_id: string; actor_id: string; event_type: 'finalized' | 'downloaded' | 'admin_downloaded' | 'duplicated'; created_at: string }
+export interface ReportEvent {
+  id: string
+  report_id: string
+  actor_id: string
+  event_type: 'finalized' | 'downloaded' | 'admin_downloaded' | 'duplicated'
+  created_at: string
+}
 
-export interface SalesIdentity { fullName: string; phone: string }
+export interface SalesIdentity {
+  fullName: string
+  phone: string
+}
 
-export async function finalizeReport(report: ReportData, bytes: Uint8Array, profile: EmployeeProfile, parentReportId?: string): Promise<ArchivedReport> {
+export async function finalizeReport(
+  report: ReportData,
+  bytes: Uint8Array,
+  profile: EmployeeProfile,
+  parentReportId?: string,
+): Promise<ArchivedReport> {
   await assertArchivedPdf(bytes)
   const client = requireSupabase()
   const id = crypto.randomUUID()
   const storageKey = `${profile.id}/${id}.pdf`
   const blob = new Blob([Uint8Array.from(bytes)], { type: 'application/pdf' })
-  const upload = await client.storage.from('report-pdfs').upload(storageKey, blob, { contentType: 'application/pdf', upsert: false })
+  const upload = await client.storage
+    .from('report-pdfs')
+    .upload(storageKey, blob, { contentType: 'application/pdf', upsert: false })
   if (upload.error) throw upload.error
   let hash: string
   try {
@@ -77,51 +93,85 @@ export async function downloadArchivedReport(report: ArchivedReport): Promise<Bl
   const client = requireSupabase()
   // Recheck RLS before using saved data, including after an account is suspended.
   const fresh = await client.from('reports').select('*').eq('id', report.id).single()
-  if (fresh.error || !fresh.data) throw new AppError('report_unavailable', 'This report is unavailable or you no longer have permission to download it.')
+  if (fresh.error || !fresh.data)
+    throw new AppError(
+      'report_unavailable',
+      'This report is unavailable or you no longer have permission to download it.',
+    )
   const archived = fromRow<ArchivedReport>(fresh.data)
   const result = await client.storage.from('report-pdfs').download(archived.pdf_storage_key)
   const blob = result.data
   if (result.error) {
     const code = 'statusCode' in result.error ? String(result.error.statusCode) : ''
     if (code !== '404' && !/^object not found$/i.test(result.error.message)) throw new Error(result.error.message)
-    throw new AppError('report_pdf_missing', 'The original finalized PDF is missing from storage. No replacement PDF has been generated.')
+    throw new AppError(
+      'report_pdf_missing',
+      'The original finalized PDF is missing from storage. No replacement PDF has been generated.',
+    )
   }
   if (!blob) throw new AppError('archive_empty', 'The archive did not return a PDF. Please try again.')
   const bytes = new Uint8Array(await blob.arrayBuffer())
   try {
     await assertArchivedPdf(bytes)
   } catch {
-    throw new AppError('report_pdf_damaged', 'This archive contains an incomplete or damaged PDF, not a finalized treatment report. The file cannot be downloaded.')
+    throw new AppError(
+      'report_pdf_damaged',
+      'This archive contains an incomplete or damaged PDF, not a finalized treatment report. The file cannot be downloaded.',
+    )
   }
-  if (await sha256Hex(bytes) !== archived.pdf_sha256.toLowerCase()) {
-    throw new AppError('report_checksum_mismatch', 'The archived PDF does not match the saved original checksum. Download stopped to protect report integrity.')
+  if ((await sha256Hex(bytes)) !== archived.pdf_sha256.toLowerCase()) {
+    throw new AppError(
+      'report_checksum_mismatch',
+      'The archived PDF does not match the saved original checksum. Download stopped to protect report integrity.',
+    )
   }
   const event = await client.rpc('log_report_download', { p_report_id: archived.id })
   if (event.error) throw new Error(event.error.message)
   return blob
 }
 
-export async function finalizePublicReport(report: ReportData, bytes: Uint8Array, identity: SalesIdentity, parentReportId?: string): Promise<ArchivedReport> {
+export async function finalizePublicReport(
+  report: ReportData,
+  bytes: Uint8Array,
+  identity: SalesIdentity,
+  parentReportId?: string,
+): Promise<ArchivedReport> {
   await assertArchivedPdf(bytes)
   const pdfBase64 = bytesToBase64(bytes)
   const response = await fetch('/api/reports/finalize-public', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ report, pdfBase64, salesName: identity.fullName, salesPhone: identity.phone, parentReportId: parentReportId ?? null }),
+    body: JSON.stringify({
+      report,
+      pdfBase64,
+      salesName: identity.fullName,
+      salesPhone: identity.phone,
+      parentReportId: parentReportId ?? null,
+    }),
   })
-  const payload = await response.json().catch(() => ({})) as { report?: ArchivedReport; error?: string; code?: string }
+  const payload = (await response.json().catch(() => ({}))) as {
+    report?: ArchivedReport
+    error?: string
+    code?: string
+  }
   if (!response.ok || !payload.report) throw errorFromBody(payload, 'finalize_failed', 'Failed to finalize report.')
   return payload.report
 }
 
 export async function listReports(): Promise<ArchivedReport[]> {
-  const { data, error } = await requireSupabase().from('reports').select('*').order('finalized_at', { ascending: false })
+  const { data, error } = await requireSupabase()
+    .from('reports')
+    .select('*')
+    .order('finalized_at', { ascending: false })
   if (error) throw error
   return data.map(fromRow<ArchivedReport>)
 }
 
 export async function listReportEvents(): Promise<ReportEvent[]> {
-  const { data, error } = await requireSupabase().from('report_events').select('*').order('created_at', { ascending: false })
+  const { data, error } = await requireSupabase()
+    .from('report_events')
+    .select('*')
+    .order('created_at', { ascending: false })
   if (error) throw error
   return data.map(fromRow<ReportEvent>)
 }

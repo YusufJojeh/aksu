@@ -40,12 +40,18 @@ export const frPdfCoordinates: AksuPdfCoordinates = {
   page2: {
     // Circle centres, measured from the artwork's own navy outlines (15.3-16.0pt diameter).
     assessment: {
-      missingTeeth: { x: 51.3, y: 659.0 }, existingDentalRestorations: { x: 51.3, y: 637.9 },
-      existingDentalImplants: { x: 51.3, y: 618.4 }, teethRelativelyAligned: { x: 51.3, y: 599.6 },
-      dentalCrowding: { x: 278.3, y: 659.3 }, toothWear: { x: 278.3, y: 638.9 },
-      boneResorption: { x: 278.3, y: 620.0 }, gingivalRecession: { x: 278.3, y: 601.9 },
-      dentalAbscesses: { x: 425.9, y: 659.3 }, gingivalInflammation: { x: 425.9, y: 639.1 },
-      malocclusion: { x: 425.9, y: 620.4 }, dentalCaries: { x: 425.9, y: 602.5 },
+      missingTeeth: { x: 51.3, y: 659.0 },
+      existingDentalRestorations: { x: 51.3, y: 637.9 },
+      existingDentalImplants: { x: 51.3, y: 618.4 },
+      teethRelativelyAligned: { x: 51.3, y: 599.6 },
+      dentalCrowding: { x: 278.3, y: 659.3 },
+      toothWear: { x: 278.3, y: 638.9 },
+      boneResorption: { x: 278.3, y: 620.0 },
+      gingivalRecession: { x: 278.3, y: 601.9 },
+      dentalAbscesses: { x: 425.9, y: 659.3 },
+      gingivalInflammation: { x: 425.9, y: 639.1 },
+      malocclusion: { x: 425.9, y: 620.4 },
+      dentalCaries: { x: 425.9, y: 602.5 },
     },
     firstVisit: { ...firstVisit, total: box(324.7, 360.6, 234.5, 23.4, 18, 'center') },
     // The gold gradient bar under the first table is blank in this artwork (English prints its

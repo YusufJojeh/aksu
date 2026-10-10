@@ -8,20 +8,47 @@ const NOW = new Date(2026, 9, 14, 15, 0)
 const daysAgo = (days: number, hour = 10) => new Date(2026, 9, 14 - days, hour).toISOString()
 
 const employee = (id: string, overrides: Partial<EmployeeProfile> = {}): EmployeeProfile => ({
-  id, full_name: id.toUpperCase(), email: `${id}@clinic.test`, role: 'SALES', status: 'active',
-  requested_phone_e164: `+90555-${id}`, created_at: daysAgo(200), updated_at: daysAgo(200), ...overrides,
+  id,
+  full_name: id.toUpperCase(),
+  email: `${id}@clinic.test`,
+  role: 'SALES',
+  status: 'active',
+  requested_phone_e164: `+90555-${id}`,
+  created_at: daysAgo(200),
+  updated_at: daysAgo(200),
+  ...overrides,
 })
 
 let seq = 0
 const report = (owner: string, finalizedDaysAgo: number, overrides: Partial<ArchivedReport> = {}): ArchivedReport => ({
-  id: `r${++seq}`, created_by_employee_id: owner, clinic_id: 'aksu', document_locale: 'en', currency: 'EUR',
-  patient_name: 'P', patient_phone: '+1', report_payload: {} as ArchivedReport['report_payload'],
-  first_visit_total_minor: 100_00, second_visit_total_minor: 50_00, employee_name_snapshot: owner, employee_phone_snapshot: '+1',
-  template_version: 'v1', finalized_at: daysAgo(finalizedDaysAgo), pdf_storage_key: 'k', pdf_sha256: 'h', ...overrides,
+  id: `r${++seq}`,
+  created_by_employee_id: owner,
+  clinic_id: 'aksu',
+  document_locale: 'en',
+  currency: 'EUR',
+  patient_name: 'P',
+  patient_phone: '+1',
+  report_payload: {} as ArchivedReport['report_payload'],
+  first_visit_total_minor: 100_00,
+  second_visit_total_minor: 50_00,
+  employee_name_snapshot: owner,
+  employee_phone_snapshot: '+1',
+  template_version: 'v1',
+  finalized_at: daysAgo(finalizedDaysAgo),
+  pdf_storage_key: 'k',
+  pdf_sha256: 'h',
+  ...overrides,
 })
 
-const build = (input: { reports?: ArchivedReport[]; employees?: EmployeeProfile[]; events?: ReportEvent[]; channels?: CommunicationChannel[] }, rangeDays: 7 | 30 | 90 = 7) =>
-  buildTeamAnalytics({ reports: [], employees: [], events: [], channels: [], ...input, rangeDays, now: NOW })
+const build = (
+  input: {
+    reports?: ArchivedReport[]
+    employees?: EmployeeProfile[]
+    events?: ReportEvent[]
+    channels?: CommunicationChannel[]
+  },
+  rangeDays: 7 | 30 | 90 = 7,
+) => buildTeamAnalytics({ reports: [], employees: [], events: [], channels: [], ...input, rangeDays, now: NOW })
 
 describe('buildTeamAnalytics', () => {
   it('splits reports into the current and previous period and computes the change', () => {
@@ -38,7 +65,10 @@ describe('buildTeamAnalytics', () => {
   })
 
   it('buckets the 90-day trend into weeks keyed by their first day', () => {
-    const result = build({ employees: [employee('a')], reports: [report('a', 0), report('a', 1), report('a', 89), report('a', 95)] }, 90)
+    const result = build(
+      { employees: [employee('a')], reports: [report('a', 0), report('a', 1), report('a', 89), report('a', 95)] },
+      90,
+    )
     expect(result.trendUnit).toBe('week')
     expect(result.trend).toHaveLength(13)
     expect(result.trend[0]).toMatchObject({ date: '2026-07-17', current: 1 })
@@ -51,7 +81,12 @@ describe('buildTeamAnalytics', () => {
   it('derives the headline insights in reading order', () => {
     const result = build({
       employees: [employee('a'), employee('b')],
-      reports: [report('a', 0, { finalized_at: new Date(2026, 9, 14, 9, 30).toISOString() }), report('a', 1), report('b', 2), report('a', 8)],
+      reports: [
+        report('a', 0, { finalized_at: new Date(2026, 9, 14, 9, 30).toISOString() }),
+        report('a', 1),
+        report('b', 2),
+        report('a', 8),
+      ],
     })
     expect(result.insights).toEqual([
       { kind: 'change', pct: 200 },
@@ -60,11 +95,16 @@ describe('buildTeamAnalytics', () => {
       { kind: 'busiest', weekday: 0, block: 5 },
       { kind: 'allActive' },
     ])
-    expect(build({ employees: [employee('a')], reports: [report('a', 20)] }).insights).toEqual([{ kind: 'idle', count: 1 }])
+    expect(build({ employees: [employee('a')], reports: [report('a', 20)] }).insights).toEqual([
+      { kind: 'idle', count: 1 },
+    ])
   })
 
   it('counts a report stamped slightly after the client clock (server clock skew)', () => {
-    const result = build({ employees: [employee('a')], reports: [report('a', 0, { finalized_at: new Date(NOW.getTime() + 60_000).toISOString() })] })
+    const result = build({
+      employees: [employee('a')],
+      reports: [report('a', 0, { finalized_at: new Date(NOW.getTime() + 60_000).toISOString() })],
+    })
     expect(result.summary.reports).toBe(1)
     expect(result.employees[0]).toMatchObject({ reports: 1, daysSinceActivity: 0 })
   })
@@ -76,7 +116,10 @@ describe('buildTeamAnalytics', () => {
   it('keeps plan value separated per currency', () => {
     const result = build({
       employees: [employee('a')],
-      reports: [report('a', 1), report('a', 2, { currency: 'GBP', first_visit_total_minor: 200_00, second_visit_total_minor: 0 })],
+      reports: [
+        report('a', 1),
+        report('a', 2, { currency: 'GBP', first_visit_total_minor: 200_00, second_visit_total_minor: 0 }),
+      ],
     })
     expect(result.summary.valueByCurrency).toEqual({ EUR: 150_00, GBP: 200_00 })
     expect(result.employees[0]!.valueByCurrency).toEqual({ EUR: 150_00, GBP: 200_00 })
@@ -88,7 +131,12 @@ describe('buildTeamAnalytics', () => {
       reports: [...[0, 1, 2, 3, 4, 5].map((d) => report('a', d)), report('b', 1), report('b', 2), report('c', 1)],
     })
     // 9 reports / 4 active = 2.25 average.
-    expect(result.employees.map((row) => [row.id, row.tier])).toEqual([['a', 'top'], ['b', 'average'], ['c', 'below'], ['d', 'none']])
+    expect(result.employees.map((row) => [row.id, row.tier])).toEqual([
+      ['a', 'top'],
+      ['b', 'average'],
+      ['c', 'below'],
+      ['d', 'none'],
+    ])
   })
 
   it('counts active days, follow-ups and only the employee own downloads in the period', () => {
@@ -110,16 +158,19 @@ describe('buildTeamAnalytics', () => {
   })
 
   it('marks quiet active employees idle but gives new hires a grace period', () => {
-    const result = build({
-      employees: [
-        employee('quiet'),
-        employee('never', { created_at: daysAgo(40) }),
-        employee('fresh', { created_at: daysAgo(2) }),
-        employee('busy'),
-        employee('gone', { status: 'former' }),
-      ],
-      reports: [report('quiet', 10), report('busy', 1), report('gone', 20)],
-    }, 30)
+    const result = build(
+      {
+        employees: [
+          employee('quiet'),
+          employee('never', { created_at: daysAgo(40) }),
+          employee('fresh', { created_at: daysAgo(2) }),
+          employee('busy'),
+          employee('gone', { status: 'former' }),
+        ],
+        reports: [report('quiet', 10), report('busy', 1), report('gone', 20)],
+      },
+      30,
+    )
     const byId = Object.fromEntries(result.employees.map((row) => [row.id, row]))
     expect(byId.quiet).toMatchObject({ idle: true, daysSinceActivity: 10 })
     expect(byId.never).toMatchObject({ idle: true, daysSinceActivity: null })
@@ -133,7 +184,13 @@ describe('buildTeamAnalytics', () => {
 
   it('lists pending staff and active channels without an assignee as attention items', () => {
     const channel = (id: string, overrides: Partial<CommunicationChannel>): CommunicationChannel => ({
-      id, phone_e164: '+905551112233', type: 'whatsapp', label: id, status: 'active', created_at: daysAgo(5), ...overrides,
+      id,
+      phone_e164: '+905551112233',
+      type: 'whatsapp',
+      label: id,
+      status: 'active',
+      created_at: daysAgo(5),
+      ...overrides,
     })
     const result = build({
       employees: [employee('a'), employee('p', { status: 'pending' })],
@@ -152,7 +209,10 @@ describe('buildTeamAnalytics', () => {
 
   it('buckets the heatmap by Monday-first weekday and two-hour block', () => {
     // NOW is a Wednesday; 10:00 falls in block 5.
-    const result = build({ employees: [employee('a')], reports: [report('a', 0, { finalized_at: new Date(2026, 9, 14, 10, 30).toISOString() })] })
+    const result = build({
+      employees: [employee('a')],
+      reports: [report('a', 0, { finalized_at: new Date(2026, 9, 14, 10, 30).toISOString() })],
+    })
     expect(result.heatmap[2]![5]).toBe(1)
     expect(result.heatmap.flat().reduce((a, b) => a + b, 0)).toBe(1)
   })
@@ -168,17 +228,32 @@ describe('buildTeamAnalytics', () => {
   it('groups clinic and language counts for the period only, largest first', () => {
     const result = build({
       employees: [employee('a')],
-      reports: [report('a', 1, { clinic_id: 'mb-dental', document_locale: 'ar' }), report('a', 2, { clinic_id: 'mb-dental' }), report('a', 3), report('a', 20, { clinic_id: 'other' })],
+      reports: [
+        report('a', 1, { clinic_id: 'mb-dental', document_locale: 'ar' }),
+        report('a', 2, { clinic_id: 'mb-dental' }),
+        report('a', 3),
+        report('a', 20, { clinic_id: 'other' }),
+      ],
     })
-    expect(result.byClinic).toEqual([{ key: 'mb-dental', count: 2 }, { key: 'aksu', count: 1 }])
-    expect(result.byLocale).toEqual([{ key: 'en', count: 2 }, { key: 'ar', count: 1 }])
+    expect(result.byClinic).toEqual([
+      { key: 'mb-dental', count: 2 },
+      { key: 'aksu', count: 1 },
+    ])
+    expect(result.byLocale).toEqual([
+      { key: 'en', count: 2 },
+      { key: 'ar', count: 1 },
+    ])
   })
   it('treats profiles sharing a phone as one person and lists the extras as duplicates, not idle staff', () => {
     const result = build({
       employees: [
         employee('main', { full_name: "Baha'a Dental Assistant", requested_phone_e164: '+90111' }),
         employee('typo1', { full_name: "Baha'a Denntal Assistant", requested_phone_e164: '+90111' }),
-        employee('typo2', { full_name: "Baha'a Detal assistant", requested_phone_e164: '+90111', created_at: daysAgo(300) }),
+        employee('typo2', {
+          full_name: "Baha'a Detal assistant",
+          requested_phone_e164: '+90111',
+          created_at: daysAgo(300),
+        }),
         employee('solo', { requested_phone_e164: '+90222' }),
       ],
       reports: [report('main', 1), report('main', 40), report('typo1', 30), report('solo', 20)],

@@ -21,7 +21,14 @@ export interface ShapedTextOptions {
   padding?: { x: number; y: number }
 }
 
-export async function drawBrowserShapedText(pdf: PDFDocument, page: PDFPage, text: string, box: FieldBox, color = '#171515', options: ShapedTextOptions = {}): Promise<void> {
+export async function drawBrowserShapedText(
+  pdf: PDFDocument,
+  page: PDFPage,
+  text: string,
+  box: FieldBox,
+  color = '#171515',
+  options: ShapedTextOptions = {},
+): Promise<void> {
   await ensureArabicFont()
   const scale = 4
   const canvas = document.createElement('canvas')
@@ -43,7 +50,11 @@ export async function drawBrowserShapedText(pdf: PDFDocument, page: PDFPage, tex
     // the shrink decision and the centering use what is actually painted rather than em-box guesses.
     const ink = () => {
       const metrics = context.measureText(text)
-      return { metrics, width: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight, height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent }
+      return {
+        metrics,
+        width: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+        height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
+      }
     }
     context.textAlign = 'left'
     context.textBaseline = 'alphabetic'
@@ -56,7 +67,12 @@ export async function drawBrowserShapedText(pdf: PDFDocument, page: PDFPage, tex
     if (measured.width > box.width || measured.height > box.height) {
       throw new Error(`Text does not fit the calibrated PDF field: ${text.slice(0, 32)}`)
     }
-    const { actualBoundingBoxLeft: left, actualBoundingBoxRight: right, actualBoundingBoxAscent: ascent, actualBoundingBoxDescent: descent } = measured.metrics
+    const {
+      actualBoundingBoxLeft: left,
+      actualBoundingBoxRight: right,
+      actualBoundingBoxAscent: ascent,
+      actualBoundingBoxDescent: descent,
+    } = measured.metrics
     context.fillText(text, box.width / 2 - (right - left) / 2, box.height / 2 + (ascent - descent) / 2)
   } else {
     context.textBaseline = 'middle'

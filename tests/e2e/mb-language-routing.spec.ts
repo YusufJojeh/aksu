@@ -8,14 +8,18 @@ test('MB Dental document language picker offers only its five evidenced locales'
   await selectClinic(page, 'mb-dental')
   const picker = page.getByLabel('Document language')
   await expect(picker.locator('option')).toHaveCount(5)
-  const values = await picker.locator('option').evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value))
+  const values = await picker
+    .locator('option')
+    .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value))
   expect(values.sort()).toEqual(['ar', 'de', 'en', 'es', 'fr'])
 })
 
 for (const locale of ['en', 'fr', 'de', 'es', 'ar'] as const) {
   test(`MB Dental regenerates a five-page report in ${locale}`, async ({ page }, testInfo) => {
     let templateRequests = 0
-    page.on('request', (request) => { if (request.url().includes(`/templates/mb-dental/${locale}.pdf`)) templateRequests += 1 })
+    page.on('request', (request) => {
+      if (request.url().includes(`/templates/mb-dental/${locale}.pdf`)) templateRequests += 1
+    })
     await page.goto('/')
     await selectClinic(page, 'mb-dental')
     await page.getByLabel('Document language').selectOption(locale)
@@ -26,7 +30,9 @@ for (const locale of ['en', 'fr', 'de', 'es', 'ar'] as const) {
     const download = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Download PDF' }).click()
     const completedDownload = await download
-    expect(completedDownload.suggestedFilename()).toMatch(new RegExp(`MB-Dental-Treatment-Plan_.*_${locale.toUpperCase()}\\.pdf`))
+    expect(completedDownload.suggestedFilename()).toMatch(
+      new RegExp(`MB-Dental-Treatment-Plan_.*_${locale.toUpperCase()}\\.pdf`),
+    )
     const output = testInfo.outputPath(`mb-${locale}.pdf`)
     await completedDownload.saveAs(output)
     const bytes = new Uint8Array(await readFile(output))

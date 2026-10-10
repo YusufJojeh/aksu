@@ -9,18 +9,13 @@ import { cannotEncode } from '../../src/pdf/generators/shared'
 // These are the exact strings the QA pass found crashing PDF generation for the Dr. Emir Aksu
 // clinic: a WinAnsi (cp1252) standard font throws synchronously from `widthOfTextAtSize`/
 // `drawText` for any of these characters, which is what used to blow up report generation.
-const REGRESSION_STRINGS = [
-  'Лечение',
-  'Пациент',
-  'ą ć ę ł ń ó ś ź ż',
-  'İ ı Ş ş Ğ ğ',
-  'ä ö ü ß',
-  'é è ç',
-]
+const REGRESSION_STRINGS = ['Лечение', 'Пациент', 'ą ć ę ł ń ó ś ź ż', 'İ ı Ş ş Ğ ğ', 'ä ö ü ß', 'é è ç']
 
 function loadFallbackFontBytes(): Uint8Array[] {
   const dir = path.resolve(__dirname, '../../public/fonts')
-  return ['GeistLatin.woff2', 'GeistLatinExt.woff2', 'GeistCyrillic.woff2'].map((name) => new Uint8Array(readFileSync(path.join(dir, name))))
+  return ['GeistLatin.woff2', 'GeistLatinExt.woff2', 'GeistCyrillic.woff2'].map(
+    (name) => new Uint8Array(readFileSync(path.join(dir, name))),
+  )
 }
 
 describe('unicode fallback font embedding', () => {

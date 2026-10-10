@@ -21,28 +21,47 @@ export interface AksuTemplateDefinition {
 
 const aksuTemplates: Record<AksuLocale, AksuTemplateDefinition> = {
   en: {
-    locale: 'en', clearDynamicRegions: true, clearDiscountRegion: true, drawDiscountSentence: true,
-    drawSecondVisitHeading: true, selectionStyle: 'navy',
+    locale: 'en',
+    clearDynamicRegions: true,
+    clearDiscountRegion: true,
+    drawDiscountSentence: true,
+    drawSecondVisitHeading: true,
+    selectionStyle: 'navy',
   },
   // The French and Spanish artworks pre-print a sample treatment in each table, so their cells are
   // cleared like English. Their second-visit headings are printed by the artwork itself, so the
   // generator must not draw over them.
   fr: {
-    locale: 'fr', clearDynamicRegions: true, clearDiscountRegion: false, drawDiscountSentence: true,
-    drawSecondVisitHeading: false, selectionStyle: 'navy',
+    locale: 'fr',
+    clearDynamicRegions: true,
+    clearDiscountRegion: false,
+    drawDiscountSentence: true,
+    drawSecondVisitHeading: false,
+    selectionStyle: 'navy',
   },
   es: {
-    locale: 'es', clearDynamicRegions: true, clearDiscountRegion: false, drawDiscountSentence: true,
-    drawSecondVisitHeading: false, selectionStyle: 'navy',
+    locale: 'es',
+    clearDynamicRegions: true,
+    clearDiscountRegion: false,
+    drawDiscountSentence: true,
+    drawSecondVisitHeading: false,
+    selectionStyle: 'navy',
   },
   ar: {
-    locale: 'ar', clearDynamicRegions: false, clearDiscountRegion: false, drawDiscountSentence: false,
-    drawSecondVisitHeading: false, selectionStyle: 'gold',
+    locale: 'ar',
+    clearDynamicRegions: false,
+    clearDiscountRegion: false,
+    drawDiscountSentence: false,
+    drawSecondVisitHeading: false,
+    selectionStyle: 'gold',
   },
 }
 
 const aksuCoordinatesByLocale: Record<AksuLocale, AksuPdfCoordinates> = {
-  en: enPdfCoordinates, fr: frPdfCoordinates, es: esPdfCoordinates, ar: arPdfCoordinates,
+  en: enPdfCoordinates,
+  fr: frPdfCoordinates,
+  es: esPdfCoordinates,
+  ar: arPdfCoordinates,
 }
 
 export const availableAksuTemplateLocales: AksuLocale[] = ['en', 'fr', 'es', 'ar']

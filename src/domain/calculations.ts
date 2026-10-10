@@ -12,7 +12,10 @@ export function visitTotalMinor(rows: TreatmentRow[]): number {
   return rows.reduce((total, row) => total + rowTotalMinor(row), 0)
 }
 
-type VisitDiscount = Pick<AksuReportData['firstVisit'], 'discountEnabled' | 'discountMode' | 'discountedFinalPrice' | 'discountPercentage'>
+type VisitDiscount = Pick<
+  AksuReportData['firstVisit'],
+  'discountEnabled' | 'discountMode' | 'discountedFinalPrice' | 'discountPercentage'
+>
 
 function visitFinalTotalMinor(rows: TreatmentRow[], discount: VisitDiscount): number {
   const gross = visitTotalMinor(rows)

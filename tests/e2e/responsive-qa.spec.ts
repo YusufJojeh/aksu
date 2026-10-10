@@ -28,10 +28,14 @@ for (const viewport of viewports) {
     test.skip(testInfo.project.name !== 'chromium', 'viewport sweep is project-independent')
     const consoleErrors: string[] = []
     const failedRequests: string[] = []
-    page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
+    page.on('console', (message) => {
+      if (message.type() === 'error') consoleErrors.push(message.text())
+    })
     page.on('pageerror', (error) => consoleErrors.push(`pageerror: ${error.message}`))
     page.on('requestfailed', (request) => failedRequests.push(`${request.url()} ${request.failure()?.errorText}`))
-    page.on('response', (response) => { if (response.status() >= 400) failedRequests.push(`${response.url()} ${response.status()}`) })
+    page.on('response', (response) => {
+      if (response.status() >= 400) failedRequests.push(`${response.url()} ${response.status()}`)
+    })
 
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
     await page.goto('/')
@@ -57,7 +61,9 @@ for (const viewport of viewports) {
 test('Arabic RTL interface stays usable and mirrored', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'viewport sweep is project-independent')
   const consoleErrors: string[] = []
-  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
   page.on('pageerror', (error) => consoleErrors.push(`pageerror: ${error.message}`))
   await page.setViewportSize({ width: 375, height: 812 })
   await page.goto('/')
@@ -66,7 +72,9 @@ test('Arabic RTL interface stays usable and mirrored', async ({ page }, testInfo
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   await page.locator('[name="patient.name"]').fill('فريد')
   await expect(page.locator('footer button').last()).toBeEnabled({ timeout: 30_000 })
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  )
   expect(overflow).toBeLessThanOrEqual(1)
   expect(consoleErrors).toEqual([])
 })

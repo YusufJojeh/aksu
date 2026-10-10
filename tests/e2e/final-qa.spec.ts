@@ -5,9 +5,7 @@ import { PDFDocument } from 'pdf-lib'
 import { selectClinic } from './helpers/selectClinic'
 
 const live = process.env.QA_MODE === 'live'
-const target = live
-  ? (process.env.LIVE_BASE_URL ?? 'https://dist-ten-eta-38.vercel.app')
-  : '/'
+const target = live ? (process.env.LIVE_BASE_URL ?? 'https://dist-ten-eta-38.vercel.app') : '/'
 const artifactDir = path.join(process.cwd(), 'qa-artifacts')
 
 async function assertPdf(file: string) {
@@ -39,14 +37,24 @@ async function fillProductionReport(page: import('@playwright/test').Page) {
   await page.locator('[name="patient.age"]').fill('34')
   await page.locator('[name="patient.phone"]').fill('+44 7700 900123')
   await page.locator('[name="document.currency"]').selectOption('GBP')
-  const assessments = page.locator('section').filter({ hasText: 'Aesthetic assessment' }).locator('input[type="checkbox"]')
+  const assessments = page
+    .locator('section')
+    .filter({ hasText: 'Aesthetic assessment' })
+    .locator('input[type="checkbox"]')
   for (const index of [0, 3, 4]) await assessments.nth(index).check()
   const expected = [
-    [1, 215], [20, 171], [2, 100], [0, 0], [1, 129], [2, 65], [0, 0],
+    [1, 215],
+    [20, 171],
+    [2, 100],
+    [0, 0],
+    [1, 129],
+    [2, 65],
+    [0, 0],
   ]
   for (let index = 0; index < expected.length; index += 1) {
     await page.locator(`[name="firstVisit.treatmentRows.${index}.quantity"]`).fill(String(expected[index]![0]))
-    if (index !== 6) await page.locator(`[name="firstVisit.treatmentRows.${index}.unitPrice"]`).fill(String(expected[index]![1]))
+    if (index !== 6)
+      await page.locator(`[name="firstVisit.treatmentRows.${index}.unitPrice"]`).fill(String(expected[index]![1]))
   }
   await expect(page.getByTestId('firstVisit-total')).toContainText('4,094')
   await page.getByLabel('Apply discount').first().check()
@@ -69,12 +77,15 @@ test('final production report QA', async ({ page }, testInfo) => {
   const consoleErrors: string[] = []
   const failedRequests: string[] = []
   const leakedRequests: string[] = []
-  page.on('pageerror', error => pageErrors.push(error.message))
-  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()) })
-  page.on('requestfailed', request => failedRequests.push(`${request.method()} ${request.url()}`))
-  page.on('request', request => {
+  page.on('pageerror', (error) => pageErrors.push(error.message))
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+  page.on('requestfailed', (request) => failedRequests.push(`${request.method()} ${request.url()}`))
+  page.on('request', (request) => {
     const wire = `${request.url()} ${request.postData() ?? ''}`
-    if (['John Production Test', '+44 7700 900123', 'يوسف محمد جوجة'].some(value => wire.includes(value))) leakedRequests.push(wire)
+    if (['John Production Test', '+44 7700 900123', 'يوسف محمد جوجة'].some((value) => wire.includes(value)))
+      leakedRequests.push(wire)
   })
 
   await page.goto(target, { waitUntil: 'networkidle' })
@@ -83,7 +94,11 @@ test('final production report QA', async ({ page }, testInfo) => {
   await fillProductionReport(page)
 
   const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas').first()
-  await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 500 && node.height > 700), { timeout: 30_000 }).toBe(true)
+  await expect
+    .poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 500 && node.height > 700), {
+      timeout: 30_000,
+    })
+    .toBe(true)
 
   for (const currency of ['GBP', 'EUR', 'USD', 'TRY']) {
     await page.locator('[name="document.currency"]').selectOption(currency)
@@ -161,5 +176,7 @@ test('final mobile QA', async ({ page }, testInfo) => {
   await page.getByRole('tab', { name: 'Preview' }).click()
   await expect(page.getByRole('region', { name: 'PDF preview' })).toBeVisible()
   await expect(page.locator('footer button').last()).toBeVisible()
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+    true,
+  )
 })

@@ -10,8 +10,24 @@ import { coordinatesForTemplate } from '../profiles/resolve'
 import type { FieldBox } from '../profiles/shared/fieldBox'
 import { loadArabicFont, loadTemplateBytes } from '../templateCache'
 import type { GeneratedReport } from '../generateReport'
-import { buildUnicodeFallback, embedUnicodeFallbackFonts, loadUnicodeFallbackFontBytes, type UnicodeFallback } from '../unicodeFallback'
-import { BLACK, WHITE, RED, VISIT_TOTAL_PADDING, clearBox, drawCenteredCell, drawFitted, drawTableGrid, drawTreatmentRows, formatPdfMoney } from './shared'
+import {
+  buildUnicodeFallback,
+  embedUnicodeFallbackFonts,
+  loadUnicodeFallbackFontBytes,
+  type UnicodeFallback,
+} from '../unicodeFallback'
+import {
+  BLACK,
+  WHITE,
+  RED,
+  VISIT_TOTAL_PADDING,
+  clearBox,
+  drawCenteredCell,
+  drawFitted,
+  drawTableGrid,
+  drawTreatmentRows,
+  formatPdfMoney,
+} from './shared'
 
 const NAVY = rgb(0.07, 0.17, 0.32)
 const GOLD = rgb(0.79, 0.61, 0.18)
@@ -35,7 +51,16 @@ async function createAksuArabicRasterDocument(): Promise<PDFDocument> {
  * ascender/descender metrics (spec §12) rather than on `(height - fontSize) / 2`, with the same
  * generous padding MB's gold pill uses.
  */
-async function drawVisitTotal(pdf: PDFDocument, page: PDFPage, text: string, total: FieldBox, font: PDFFont, definition: AksuTemplateDefinition, arabicFont?: PDFFont, unicodeFallback?: UnicodeFallback): Promise<void> {
+async function drawVisitTotal(
+  pdf: PDFDocument,
+  page: PDFPage,
+  text: string,
+  total: FieldBox,
+  font: PDFFont,
+  definition: AksuTemplateDefinition,
+  arabicFont?: PDFFont,
+  unicodeFallback?: UnicodeFallback,
+): Promise<void> {
   if (definition.clearDynamicRegions) clearBox(page, total, WHITE)
   await drawCenteredCell(pdf, page, text, total, font, BLACK, arabicFont, VISIT_TOTAL_PADDING, unicodeFallback)
 }
@@ -45,14 +70,37 @@ interface VisitDiscountDraw {
   discountExpiryDate?: string
 }
 
-async function drawVisitDiscount(pdf: PDFDocument, page: PDFPage, visit: VisitDiscountDraw, finalTotal: string, box: { sentence: FieldBox; price: FieldBox }, definition: AksuTemplateDefinition, bold: PDFFont, locale: Locale, t: typeof i18n.t, arabicFont?: PDFFont, unicodeFallbackBold?: UnicodeFallback): Promise<void> {
+async function drawVisitDiscount(
+  pdf: PDFDocument,
+  page: PDFPage,
+  visit: VisitDiscountDraw,
+  finalTotal: string,
+  box: { sentence: FieldBox; price: FieldBox },
+  definition: AksuTemplateDefinition,
+  bold: PDFFont,
+  locale: Locale,
+  t: typeof i18n.t,
+  arabicFont?: PDFFont,
+  unicodeFallbackBold?: UnicodeFallback,
+): Promise<void> {
   if (definition.clearDiscountRegion) {
     clearBox(page, box.sentence, GOLD)
     clearBox(page, box.price)
   }
   if (visit.discountEnabled) {
     if (definition.drawDiscountSentence) {
-      await drawFitted(pdf, page, t('document.discountExpires', { date: formatLongDate(visit.discountExpiryDate ?? '', locale) }), box.sentence, bold, locale, BLACK, undefined, arabicFont, unicodeFallbackBold)
+      await drawFitted(
+        pdf,
+        page,
+        t('document.discountExpires', { date: formatLongDate(visit.discountExpiryDate ?? '', locale) }),
+        box.sentence,
+        bold,
+        locale,
+        BLACK,
+        undefined,
+        arabicFont,
+        unicodeFallbackBold,
+      )
     }
     await drawFitted(pdf, page, finalTotal, box.price, bold, locale, RED, undefined, arabicFont, unicodeFallbackBold)
   }
@@ -94,7 +142,15 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   // template's own measured background tone and redraw the corrected word in white.
   const page1Background = definition.clearDynamicRegions ? DARK : undefined
   if (resolved.usedTemplate === 'fr') {
-    const titleLine1: FieldBox = { x: 13.7773, y: 474.5615, width: 320, height: 33, fontSize: 33, minFontSize: 33, alignment: 'left' }
+    const titleLine1: FieldBox = {
+      x: 13.7773,
+      y: 474.5615,
+      width: 320,
+      height: 33,
+      fontSize: 33,
+      minFontSize: 33,
+      alignment: 'left',
+    }
     clearBox(page1, titleLine1, DARK)
     page1.drawText('Plan de traitement', { x: titleLine1.x, y: titleLine1.y, size: 33, font: bold, color: WHITE })
   }
@@ -112,10 +168,26 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   // the per-field draw below clears its own (narrower) box again, which is harmless.
   if (page1Background && (resolved.usedTemplate === 'fr' || resolved.usedTemplate === 'es')) {
     // [ruleLeft, ruleRight, labelRight] per field, all measured from the template's own text/vector objects.
-    const ruleSpans: [number, number, number][] = resolved.usedTemplate === 'fr'
-      ? [[73.0, 344.7, 66.6], [73.0, 344.7, 72.2], [68.1, 344.7, 61.2], [113.5, 344.7, 114.9]]
-      : [[80.3, 314.5, 80.7], [89.5, 314.5, 96.3], [76.1, 314.5, 72.4], [115.7, 314.5, 116.4]]
-    const fields = [coordinates.page1.reportDate, coordinates.page1.patientName, coordinates.page1.age, coordinates.page1.phone]
+    const ruleSpans: [number, number, number][] =
+      resolved.usedTemplate === 'fr'
+        ? [
+            [73.0, 344.7, 66.6],
+            [73.0, 344.7, 72.2],
+            [68.1, 344.7, 61.2],
+            [113.5, 344.7, 114.9],
+          ]
+        : [
+            [80.3, 314.5, 80.7],
+            [89.5, 314.5, 96.3],
+            [76.1, 314.5, 72.4],
+            [115.7, 314.5, 116.4],
+          ]
+    const fields = [
+      coordinates.page1.reportDate,
+      coordinates.page1.patientName,
+      coordinates.page1.age,
+      coordinates.page1.phone,
+    ]
     fields.forEach((field, index) => {
       const [ruleLeft, ruleRight, labelRight] = ruleSpans[index]!
       const clearLeft = Math.max(ruleLeft, labelRight)
@@ -124,10 +196,54 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   }
 
   const age = locale === 'ar' ? t('document.ageYears', { age: validated.patient.age }) : String(validated.patient.age)
-  await drawFitted(pdf, page1, formatReportDate(validated.patient.reportDate, locale), coordinates.page1.reportDate, regular, locale, WHITE, page1Background, arabicFont, unicodeFallback)
-  await drawFitted(pdf, page1, validated.patient.name, coordinates.page1.patientName, regular, locale, WHITE, page1Background, arabicFont, unicodeFallback)
-  await drawFitted(pdf, page1, age, coordinates.page1.age, regular, locale, WHITE, page1Background, arabicFont, unicodeFallback)
-  await drawFitted(pdf, page1, validated.patient.phone, coordinates.page1.phone, regular, locale, WHITE, page1Background, arabicFont, unicodeFallback)
+  await drawFitted(
+    pdf,
+    page1,
+    formatReportDate(validated.patient.reportDate, locale),
+    coordinates.page1.reportDate,
+    regular,
+    locale,
+    WHITE,
+    page1Background,
+    arabicFont,
+    unicodeFallback,
+  )
+  await drawFitted(
+    pdf,
+    page1,
+    validated.patient.name,
+    coordinates.page1.patientName,
+    regular,
+    locale,
+    WHITE,
+    page1Background,
+    arabicFont,
+    unicodeFallback,
+  )
+  await drawFitted(
+    pdf,
+    page1,
+    age,
+    coordinates.page1.age,
+    regular,
+    locale,
+    WHITE,
+    page1Background,
+    arabicFont,
+    unicodeFallback,
+  )
+  await drawFitted(
+    pdf,
+    page1,
+    validated.patient.phone,
+    coordinates.page1.phone,
+    regular,
+    locale,
+    WHITE,
+    page1Background,
+    arabicFont,
+    unicodeFallback,
+  )
 
   for (const key of Object.keys(coordinates.page2.assessment) as Array<keyof typeof coordinates.page2.assessment>) {
     const point = coordinates.page2.assessment[key]
@@ -135,20 +251,101 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
       if (validated.assessment[key]) page2.drawCircle({ x: point.x, y: point.y, size: 7.1, color: GOLD })
     } else {
       page2.drawRectangle({ x: point.x - 10, y: point.y - 10, width: 20, height: 20, color: WHITE })
-      page2.drawCircle({ x: point.x, y: point.y, size: 7.5, borderColor: NAVY, borderWidth: 1.2, color: validated.assessment[key] ? NAVY : WHITE })
-      if (validated.assessment[key]) page2.drawCircle({ x: point.x, y: point.y, size: 4.8, color: rgb(0.12, 0.31, 0.5) })
+      page2.drawCircle({
+        x: point.x,
+        y: point.y,
+        size: 7.5,
+        borderColor: NAVY,
+        borderWidth: 1.2,
+        color: validated.assessment[key] ? NAVY : WHITE,
+      })
+      if (validated.assessment[key])
+        page2.drawCircle({ x: point.x, y: point.y, size: 4.8, color: rgb(0.12, 0.31, 0.5) })
     }
   }
 
-  await drawTreatmentRows(pdf, page2, validated.firstVisit.treatmentRows, coordinates.page2.firstVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont, unicodeFallback)
-  await drawVisitTotal(pdf, page2, formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated), coordinates.page2.firstVisit.total, bold, definition, arabicFont, unicodeFallbackBold)
-  await drawVisitDiscount(pdf, page2, validated.firstVisit, formatPdfMoney(finalTotalMinor(validated), validated), coordinates.page2.discount, definition, bold, locale, t, arabicFont, unicodeFallbackBold)
+  await drawTreatmentRows(
+    pdf,
+    page2,
+    validated.firstVisit.treatmentRows,
+    coordinates.page2.firstVisit.rows,
+    regular,
+    validated,
+    { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true },
+    arabicFont,
+    unicodeFallback,
+  )
+  await drawVisitTotal(
+    pdf,
+    page2,
+    formatPdfMoney(visitTotalMinor(validated.firstVisit.treatmentRows), validated),
+    coordinates.page2.firstVisit.total,
+    bold,
+    definition,
+    arabicFont,
+    unicodeFallbackBold,
+  )
+  await drawVisitDiscount(
+    pdf,
+    page2,
+    validated.firstVisit,
+    formatPdfMoney(finalTotalMinor(validated), validated),
+    coordinates.page2.discount,
+    definition,
+    bold,
+    locale,
+    t,
+    arabicFont,
+    unicodeFallbackBold,
+  )
   if (definition.drawSecondVisitHeading) {
-    await drawFitted(pdf, page2, t('document.secondVisitHeading', { interval: clinicRegistry.aksu.docOnly?.secondVisitInterval ?? '' }), coordinates.page2.secondVisit.heading, bold, locale, BLACK, WHITE, arabicFont, unicodeFallbackBold)
+    await drawFitted(
+      pdf,
+      page2,
+      t('document.secondVisitHeading', { interval: clinicRegistry.aksu.docOnly?.secondVisitInterval ?? '' }),
+      coordinates.page2.secondVisit.heading,
+      bold,
+      locale,
+      BLACK,
+      WHITE,
+      arabicFont,
+      unicodeFallbackBold,
+    )
   }
-  await drawTreatmentRows(pdf, page2, validated.secondVisit.treatmentRows, coordinates.page2.secondVisit.rows, regular, validated, { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true }, arabicFont, unicodeFallback)
-  await drawVisitTotal(pdf, page2, formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated), coordinates.page2.secondVisit.total, bold, definition, arabicFont, unicodeFallbackBold)
-  await drawVisitDiscount(pdf, page2, validated.secondVisit, formatPdfMoney(secondVisitFinalTotalMinor(validated), validated), coordinates.page2.secondDiscount, definition, bold, locale, t, arabicFont, unicodeFallbackBold)
+  await drawTreatmentRows(
+    pdf,
+    page2,
+    validated.secondVisit.treatmentRows,
+    coordinates.page2.secondVisit.rows,
+    regular,
+    validated,
+    { clearDynamicRegions: definition.clearDynamicRegions, centerInCells: true },
+    arabicFont,
+    unicodeFallback,
+  )
+  await drawVisitTotal(
+    pdf,
+    page2,
+    formatPdfMoney(visitTotalMinor(validated.secondVisit.treatmentRows), validated),
+    coordinates.page2.secondVisit.total,
+    bold,
+    definition,
+    arabicFont,
+    unicodeFallbackBold,
+  )
+  await drawVisitDiscount(
+    pdf,
+    page2,
+    validated.secondVisit,
+    formatPdfMoney(secondVisitFinalTotalMinor(validated), validated),
+    coordinates.page2.secondDiscount,
+    definition,
+    bold,
+    locale,
+    t,
+    arabicFont,
+    unicodeFallbackBold,
+  )
   // Clearing a pre-filled treatment column wipes the artwork's own rules with it, so any template
   // that carries its measured grid gets those exact rules put back.
   if (definition.clearDynamicRegions) {
@@ -160,5 +357,10 @@ export async function generateAksuReport(report: AksuReportData): Promise<Genera
   pdf.setTitle(`Treatment Plan - ${validated.patient.name}`)
   pdf.setAuthor(clinicRegistry.aksu.pdfAuthor)
   pdf.setCreator(clinicRegistry.aksu.pdfCreator)
-  return { bytes: await pdf.save({ useObjectStreams: true }), clinicId: 'aksu', usedTemplate: resolved.usedTemplate, usedFallback: resolved.usedFallback }
+  return {
+    bytes: await pdf.save({ useObjectStreams: true }),
+    clinicId: 'aksu',
+    usedTemplate: resolved.usedTemplate,
+    usedFallback: resolved.usedFallback,
+  }
 }

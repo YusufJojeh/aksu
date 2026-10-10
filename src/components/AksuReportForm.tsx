@@ -9,42 +9,239 @@ import { TreatmentEditor } from './TreatmentEditor'
 
 export function AksuReportForm() {
   const { t } = useTranslation()
-  const { register, control, watch, setValue, formState: { errors } } = useFormContext<AksuReportData>()
+  const {
+    register,
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext<AksuReportData>()
   const report = watch()
   const visit = report.firstVisit
   const secondVisit = report.secondVisit
   const localeField = register('document.locale')
-  return <div>
-    <Section title={t('sections.document')}><div className="grid gap-4 sm:grid-cols-2">
-      <Field label={t('fields.documentLanguage')}><Select {...localeField} onChange={(event) => { void localeField.onChange(event); if (event.target.value === 'ar') setValue('document.currency', 'EUR', { shouldDirty: true }) }}>{clinicRegistry.aksu.supportedDocumentLocales.map((locale) => <option key={locale} value={locale}>{t(`languages.${locale}`)}</option>)}</Select></Field>
-      <Field label={t('fields.currency')}><Select {...register('document.currency')}>{currencies.map((currency) => <option key={currency}>{currency}</option>)}</Select></Field>
-    </div></Section>
-    <Section title={t('sections.patient')}><div className="grid gap-4 sm:grid-cols-2">
-      <Field label={t('fields.reportDate')} error={errors.patient?.reportDate?.message && t(errors.patient.reportDate.message)}><Input aria-invalid={Boolean(errors.patient?.reportDate)} type="date" {...register('patient.reportDate')} /></Field>
-      <Field label={t('fields.patientName')} error={errors.patient?.name?.message && t(errors.patient.name.message)}><Input aria-invalid={Boolean(errors.patient?.name)} autoComplete="off" {...register('patient.name')} /></Field>
-      <Field label={t('fields.age')} error={errors.patient?.age?.message && t(errors.patient.age.message)}><Input aria-invalid={Boolean(errors.patient?.age)} type="number" min="0" max="120" {...register('patient.age', { valueAsNumber: true })} /></Field>
-      <Field label={t('fields.phone')} error={errors.patient?.phone?.message && t(errors.patient.phone.message)}><Input aria-invalid={Boolean(errors.patient?.phone)} type="tel" autoComplete="off" {...register('patient.phone')} /></Field>
-    </div></Section>
-    <Section title={t('sections.assessment')}><div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{assessmentKeys.map((key) => <Controller key={key} control={control} name={`assessment.${key}`} render={({ field }) => <Checkbox className="rounded-md px-2 py-1 transition-colors duration-150 [@media(hover:hover)]:hover:bg-stone-100" checked={field.value} onChange={field.onChange} label={t(`assessment.${key}`)} />} />)}</div></Section>
-    <Section title={t('sections.firstVisit')}><TreatmentEditor visit="firstVisit" /></Section>
-    <Section title={t('sections.discount')}><div className="space-y-4">
-      <Controller control={control} name="firstVisit.discountEnabled" render={({ field }) => <Checkbox className="font-semibold" checked={field.value} onChange={field.onChange} label={t('fields.discountEnabled')} />} />
-      {visit.discountEnabled && <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t('fields.discountMode')}><Select {...register('firstVisit.discountMode')}><option value="manual_final_price">{t('fields.manualFinalPrice')}</option><option value="percentage">{t('fields.percentage')}</option></Select></Field>
-        {report.document.locale !== 'ar' && <Field label={t('fields.discountExpiryDate')} error={errors.firstVisit?.discountExpiryDate?.message && t(errors.firstVisit.discountExpiryDate.message)}><Input aria-invalid={Boolean(errors.firstVisit?.discountExpiryDate)} type="date" {...register('firstVisit.discountExpiryDate')} /></Field>}
-        {visit.discountMode === 'manual_final_price' ? <Field label={t('fields.discountedFinalPrice')}><Input type="number" min="0" step="0.01" {...register('firstVisit.discountedFinalPrice', { valueAsNumber: true })} /></Field> : <Field label={t('fields.discountPercentage')}><Input type="number" min="0" max="100" step="0.01" {...register('firstVisit.discountPercentage', { valueAsNumber: true })} /></Field>}
-        <div className="flex items-end justify-between rounded-md bg-amber-50 px-4 py-3 text-sm font-bold text-ink"><span>{t('fields.total')}</span><output>{formatMoneyMinor(finalTotalMinor(report), report.document.currency, report.document.locale)}</output></div>
-      </div>}
-    </div></Section>
-    <Section title={t('sections.secondVisit')}><TreatmentEditor visit="secondVisit" /></Section>
-    <Section title={t('sections.discount')}><div className="space-y-4">
-      <Controller control={control} name="secondVisit.discountEnabled" render={({ field }) => <Checkbox className="font-semibold" checked={field.value} onChange={field.onChange} label={t('fields.discountEnabled')} />} />
-      {secondVisit.discountEnabled && <div className="grid gap-4 sm:grid-cols-2">
-        <Field label={t('fields.discountMode')}><Select {...register('secondVisit.discountMode')}><option value="manual_final_price">{t('fields.manualFinalPrice')}</option><option value="percentage">{t('fields.percentage')}</option></Select></Field>
-        {report.document.locale !== 'ar' && <Field label={t('fields.discountExpiryDate')} error={errors.secondVisit?.discountExpiryDate?.message && t(errors.secondVisit.discountExpiryDate.message)}><Input aria-invalid={Boolean(errors.secondVisit?.discountExpiryDate)} type="date" {...register('secondVisit.discountExpiryDate')} /></Field>}
-        {secondVisit.discountMode === 'manual_final_price' ? <Field label={t('fields.discountedFinalPrice')}><Input type="number" min="0" step="0.01" {...register('secondVisit.discountedFinalPrice', { valueAsNumber: true })} /></Field> : <Field label={t('fields.discountPercentage')}><Input type="number" min="0" max="100" step="0.01" {...register('secondVisit.discountPercentage', { valueAsNumber: true })} /></Field>}
-        <div className="flex items-end justify-between rounded-md bg-amber-50 px-4 py-3 text-sm font-bold text-ink"><span>{t('fields.total')}</span><output>{formatMoneyMinor(secondVisitFinalTotalMinor(report), report.document.currency, report.document.locale)}</output></div>
-      </div>}
-    </div></Section>
-  </div>
+  return (
+    <div>
+      <Section title={t('sections.document')}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t('fields.documentLanguage')}>
+            <Select
+              {...localeField}
+              onChange={(event) => {
+                void localeField.onChange(event)
+                if (event.target.value === 'ar') setValue('document.currency', 'EUR', { shouldDirty: true })
+              }}
+            >
+              {clinicRegistry.aksu.supportedDocumentLocales.map((locale) => (
+                <option key={locale} value={locale}>
+                  {t(`languages.${locale}`)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={t('fields.currency')}>
+            <Select {...register('document.currency')}>
+              {currencies.map((currency) => (
+                <option key={currency}>{currency}</option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+      </Section>
+      <Section title={t('sections.patient')}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={t('fields.reportDate')}
+            error={errors.patient?.reportDate?.message && t(errors.patient.reportDate.message)}
+          >
+            <Input aria-invalid={Boolean(errors.patient?.reportDate)} type="date" {...register('patient.reportDate')} />
+          </Field>
+          <Field
+            label={t('fields.patientName')}
+            error={errors.patient?.name?.message && t(errors.patient.name.message)}
+          >
+            <Input aria-invalid={Boolean(errors.patient?.name)} autoComplete="off" {...register('patient.name')} />
+          </Field>
+          <Field label={t('fields.age')} error={errors.patient?.age?.message && t(errors.patient.age.message)}>
+            <Input
+              aria-invalid={Boolean(errors.patient?.age)}
+              type="number"
+              min="0"
+              max="120"
+              {...register('patient.age', { valueAsNumber: true })}
+            />
+          </Field>
+          <Field label={t('fields.phone')} error={errors.patient?.phone?.message && t(errors.patient.phone.message)}>
+            <Input
+              aria-invalid={Boolean(errors.patient?.phone)}
+              type="tel"
+              autoComplete="off"
+              {...register('patient.phone')}
+            />
+          </Field>
+        </div>
+      </Section>
+      <Section title={t('sections.assessment')}>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {assessmentKeys.map((key) => (
+            <Controller
+              key={key}
+              control={control}
+              name={`assessment.${key}`}
+              render={({ field }) => (
+                <Checkbox
+                  className="rounded-md px-2 py-1 transition-colors duration-150 [@media(hover:hover)]:hover:bg-stone-100"
+                  checked={field.value}
+                  onChange={field.onChange}
+                  label={t(`assessment.${key}`)}
+                />
+              )}
+            />
+          ))}
+        </div>
+      </Section>
+      <Section title={t('sections.firstVisit')}>
+        <TreatmentEditor visit="firstVisit" />
+      </Section>
+      <Section title={t('sections.discount')}>
+        <div className="space-y-4">
+          <Controller
+            control={control}
+            name="firstVisit.discountEnabled"
+            render={({ field }) => (
+              <Checkbox
+                className="font-semibold"
+                checked={field.value}
+                onChange={field.onChange}
+                label={t('fields.discountEnabled')}
+              />
+            )}
+          />
+          {visit.discountEnabled && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t('fields.discountMode')}>
+                <Select {...register('firstVisit.discountMode')}>
+                  <option value="manual_final_price">{t('fields.manualFinalPrice')}</option>
+                  <option value="percentage">{t('fields.percentage')}</option>
+                </Select>
+              </Field>
+              {report.document.locale !== 'ar' && (
+                <Field
+                  label={t('fields.discountExpiryDate')}
+                  error={
+                    errors.firstVisit?.discountExpiryDate?.message && t(errors.firstVisit.discountExpiryDate.message)
+                  }
+                >
+                  <Input
+                    aria-invalid={Boolean(errors.firstVisit?.discountExpiryDate)}
+                    type="date"
+                    {...register('firstVisit.discountExpiryDate')}
+                  />
+                </Field>
+              )}
+              {visit.discountMode === 'manual_final_price' ? (
+                <Field label={t('fields.discountedFinalPrice')}>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    {...register('firstVisit.discountedFinalPrice', { valueAsNumber: true })}
+                  />
+                </Field>
+              ) : (
+                <Field label={t('fields.discountPercentage')}>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    {...register('firstVisit.discountPercentage', { valueAsNumber: true })}
+                  />
+                </Field>
+              )}
+              <div className="flex items-end justify-between rounded-md bg-amber-50 px-4 py-3 text-sm font-bold text-ink">
+                <span>{t('fields.total')}</span>
+                <output>
+                  {formatMoneyMinor(finalTotalMinor(report), report.document.currency, report.document.locale)}
+                </output>
+              </div>
+            </div>
+          )}
+        </div>
+      </Section>
+      <Section title={t('sections.secondVisit')}>
+        <TreatmentEditor visit="secondVisit" />
+      </Section>
+      <Section title={t('sections.discount')}>
+        <div className="space-y-4">
+          <Controller
+            control={control}
+            name="secondVisit.discountEnabled"
+            render={({ field }) => (
+              <Checkbox
+                className="font-semibold"
+                checked={field.value}
+                onChange={field.onChange}
+                label={t('fields.discountEnabled')}
+              />
+            )}
+          />
+          {secondVisit.discountEnabled && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label={t('fields.discountMode')}>
+                <Select {...register('secondVisit.discountMode')}>
+                  <option value="manual_final_price">{t('fields.manualFinalPrice')}</option>
+                  <option value="percentage">{t('fields.percentage')}</option>
+                </Select>
+              </Field>
+              {report.document.locale !== 'ar' && (
+                <Field
+                  label={t('fields.discountExpiryDate')}
+                  error={
+                    errors.secondVisit?.discountExpiryDate?.message && t(errors.secondVisit.discountExpiryDate.message)
+                  }
+                >
+                  <Input
+                    aria-invalid={Boolean(errors.secondVisit?.discountExpiryDate)}
+                    type="date"
+                    {...register('secondVisit.discountExpiryDate')}
+                  />
+                </Field>
+              )}
+              {secondVisit.discountMode === 'manual_final_price' ? (
+                <Field label={t('fields.discountedFinalPrice')}>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    {...register('secondVisit.discountedFinalPrice', { valueAsNumber: true })}
+                  />
+                </Field>
+              ) : (
+                <Field label={t('fields.discountPercentage')}>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    {...register('secondVisit.discountPercentage', { valueAsNumber: true })}
+                  />
+                </Field>
+              )}
+              <div className="flex items-end justify-between rounded-md bg-amber-50 px-4 py-3 text-sm font-bold text-ink">
+                <span>{t('fields.total')}</span>
+                <output>
+                  {formatMoneyMinor(
+                    secondVisitFinalTotalMinor(report),
+                    report.document.currency,
+                    report.document.locale,
+                  )}
+                </output>
+              </div>
+            </div>
+          )}
+        </div>
+      </Section>
+    </div>
+  )
 }

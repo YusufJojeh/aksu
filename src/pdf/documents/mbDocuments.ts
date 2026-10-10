@@ -1,6 +1,11 @@
 import fontkit from '@pdf-lib/fontkit'
 import { PDFDocument, StandardFonts, rgb, type PDFPage } from 'pdf-lib'
-import { buildUnicodeFallback, embedUnicodeFallbackFonts, loadUnicodeFallbackFontBytes, type UnicodeFallback } from '../unicodeFallback'
+import {
+  buildUnicodeFallback,
+  embedUnicodeFallbackFonts,
+  loadUnicodeFallbackFontBytes,
+  type UnicodeFallback,
+} from '../unicodeFallback'
 
 // Fill-in documents MB Dental sales staff produce alongside the treatment plan. They are filled on
 // top of the clinic's own artwork (public/templates/mb-dental/documents/*.pdf, metadata scrubbed).
@@ -38,8 +43,19 @@ export interface InvitationData {
 
 export type MbDocumentData = { kind: 'warranty'; data: WarrantyData } | { kind: 'invitation'; data: InvitationData }
 
-interface Slot { page: number; x0: number; x1: number; baseline: number; maxX: number; size: number }
-interface MultiSlot extends Slot { lineGap: number; maxLines: number; minSize: number }
+interface Slot {
+  page: number
+  x0: number
+  x1: number
+  baseline: number
+  maxX: number
+  size: number
+}
+interface MultiSlot extends Slot {
+  lineGap: number
+  maxLines: number
+  minSize: number
+}
 
 const PAGE_HEIGHT = 792
 const top = (y: number) => PAGE_HEIGHT - y
@@ -53,7 +69,17 @@ const warrantySlots = {
   patientName: { page: 0, x0: 129.8, x1: 238, baseline: top(289.6), maxX: 578, size: 12 },
   treatmentDate: { page: 0, x0: 147.4, x1: 244, baseline: top(312.5), maxX: 578, size: 12 },
   certificateNo: { page: 0, x0: 143.5, x1: 211, baseline: top(335.5), maxX: 578, size: 12 },
-  treatmentPerformed: { page: 0, x0: 191.2, x1: 285, baseline: top(358.4), maxX: 578, size: 12, lineGap: 14.5, maxLines: 3, minSize: 9 },
+  treatmentPerformed: {
+    page: 0,
+    x0: 191.2,
+    x1: 285,
+    baseline: top(358.4),
+    maxX: 578,
+    size: 12,
+    lineGap: 14.5,
+    maxLines: 3,
+    minSize: 9,
+  },
   issueDate: { page: 1, x0: 240.3, x1: 416.3, baseline: top(512.3), maxX: 470, size: 15 },
 } satisfies Record<keyof WarrantyData, Slot | MultiSlot>
 
@@ -63,7 +89,17 @@ const invitationSlots = {
   passportNumber: { page: 0, x0: 134, x1: 282.7, baseline: top(290.3), maxX: 567, size: 11.5 },
   nationality: { page: 0, x0: 103.8, x1: 274.4, baseline: top(311.9), maxX: 567, size: 11.5 },
   // The value starts beside the "Treatment Plan:" label and wraps over the full-width rule below it.
-  treatmentPlan: { page: 0, x0: 134, x1: 567.2, baseline: top(407.9), maxX: 567, size: 11, lineGap: 12.6, maxLines: 3, minSize: 8.5 },
+  treatmentPlan: {
+    page: 0,
+    x0: 134,
+    x1: 567.2,
+    baseline: top(407.9),
+    maxX: 567,
+    size: 11,
+    lineGap: 12.6,
+    maxLines: 3,
+    minSize: 8.5,
+  },
   arrivalDate: { page: 0, x0: 110.8, x1: 275.8, baseline: top(472.8), maxX: 567, size: 11.5 },
   startDate: { page: 0, x0: 99.8, x1: 226.3, baseline: top(494.5), maxX: 567, size: 11.5 },
   completionDate: { page: 0, x0: 177.1, x1: 281.6, baseline: top(516.1), maxX: 567, size: 11.5 },
@@ -75,7 +111,14 @@ const invitationSlots = {
 // The plan's printed full-width rule sits one line below the label; it is erased with the label line.
 const INVITATION_PLAN_RULE = { x0: 43.5, x1: 567.2, baseline: top(429.2) }
 
-const DATE_FIELDS = new Set<string>(['treatmentDate', 'issueDate', 'letterDate', 'arrivalDate', 'startDate', 'completionDate'])
+const DATE_FIELDS = new Set<string>([
+  'treatmentDate',
+  'issueDate',
+  'letterDate',
+  'arrivalDate',
+  'startDate',
+  'completionDate',
+])
 
 /** dd / mm / yyyy, the same shape as the warranty's printed "……. / …… / ……" placeholder. */
 export function formatDocumentDate(iso: string): string {
@@ -93,7 +136,9 @@ const ARABIC = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/
 
 /** Field keys whose value uses a script these English documents cannot print. */
 export function unsupportedFields(document: MbDocumentData): string[] {
-  return Object.entries(document.data).filter(([, value]) => typeof value === 'string' && ARABIC.test(value)).map(([key]) => key)
+  return Object.entries(document.data)
+    .filter(([, value]) => typeof value === 'string' && ARABIC.test(value))
+    .map(([key]) => key)
 }
 
 function clean(value: string): string {
@@ -130,21 +175,39 @@ function drawSingle(page: PDFPage, font: UnicodeFallback, raw: string, slot: Slo
 }
 
 /** Greedy word wrap; returns undefined when the text needs more than `maxLines` at this size. */
-function wrap(font: UnicodeFallback, text: string, width: number, size: number, maxLines: number): string[] | undefined {
+function wrap(
+  font: UnicodeFallback,
+  text: string,
+  width: number,
+  size: number,
+  maxLines: number,
+): string[] | undefined {
   const lines: string[] = []
   let line = ''
   for (const word of text.split(' ')) {
     const candidate = line ? `${line} ${word}` : word
-    if (font.widthOfTextAtSize(candidate, size) <= width) { line = candidate; continue }
+    if (font.widthOfTextAtSize(candidate, size) <= width) {
+      line = candidate
+      continue
+    }
     if (line) lines.push(line)
     line = word
     if (lines.length >= maxLines) return undefined
   }
   if (line) lines.push(line)
-  return lines.length <= maxLines && lines.every((entry) => font.widthOfTextAtSize(entry, size) <= width) ? lines : undefined
+  return lines.length <= maxLines && lines.every((entry) => font.widthOfTextAtSize(entry, size) <= width)
+    ? lines
+    : undefined
 }
 
-function drawMulti(page: PDFPage, font: UnicodeFallback, raw: string, slot: MultiSlot, paper: ReturnType<typeof rgb>, extraErase?: { x0: number; x1: number; baseline: number }) {
+function drawMulti(
+  page: PDFPage,
+  font: UnicodeFallback,
+  raw: string,
+  slot: MultiSlot,
+  paper: ReturnType<typeof rgb>,
+  extraErase?: { x0: number; x1: number; baseline: number },
+) {
   const text = clean(raw)
   if (!text) return
   erase(page, slot.x0, slot.x1, slot.baseline, slot.size, paper)
@@ -153,17 +216,24 @@ function drawMulti(page: PDFPage, font: UnicodeFallback, raw: string, slot: Mult
   const width = slot.maxX - x
   let size = slot.size
   let lines = wrap(font, text, width, size, slot.maxLines)
-  while (!lines && size > slot.minSize) { size -= 0.25; lines = wrap(font, text, width, size, slot.maxLines) }
+  while (!lines && size > slot.minSize) {
+    size -= 0.25
+    lines = wrap(font, text, width, size, slot.maxLines)
+  }
   if (!lines) {
     // Still too long at the minimum size: keep what fits and mark the cut on the last line.
     lines = []
     let rest = text
     for (let index = 0; index < slot.maxLines && rest; index += 1) {
       const last = index === slot.maxLines - 1
-      if (last) { lines.push(truncate(font, rest, width, size)); break }
+      if (last) {
+        lines.push(truncate(font, rest, width, size))
+        break
+      }
       const words = rest.split(' ')
       let line = words.shift() ?? ''
-      while (words.length && font.widthOfTextAtSize(`${line} ${words[0]}`, size) <= width) line = `${line} ${words.shift()}`
+      while (words.length && font.widthOfTextAtSize(`${line} ${words[0]}`, size) <= width)
+        line = `${line} ${words.shift()}`
       lines.push(truncate(font, line, width, size))
       rest = words.join(' ')
     }
@@ -172,7 +242,10 @@ function drawMulti(page: PDFPage, font: UnicodeFallback, raw: string, slot: Mult
   lines.forEach((line, index) => font.draw(page, line, x, slot.baseline - index * gap, size, INK))
 }
 
-export interface MbDocumentAssets { template: ArrayBuffer | Uint8Array; fallbackFonts: (ArrayBuffer | Uint8Array)[] }
+export interface MbDocumentAssets {
+  template: ArrayBuffer | Uint8Array
+  fallbackFonts: (ArrayBuffer | Uint8Array)[]
+}
 
 export async function renderMbDocument(document: MbDocumentData, assets: MbDocumentAssets): Promise<Uint8Array> {
   const pdf = await PDFDocument.load(assets.template)
@@ -194,7 +267,18 @@ export async function renderMbDocument(document: MbDocumentData, assets: MbDocum
   } else {
     const { data } = document
     const page = pages[0]!
-    for (const key of ['letterDate', 'patientName', 'passportNumber', 'nationality', 'arrivalDate', 'startDate', 'completionDate', 'phone', 'email', 'website'] as const) {
+    for (const key of [
+      'letterDate',
+      'patientName',
+      'passportNumber',
+      'nationality',
+      'arrivalDate',
+      'startDate',
+      'completionDate',
+      'phone',
+      'email',
+      'website',
+    ] as const) {
       const value = DATE_FIELDS.has(key) ? formatDocumentDate(data[key]) : data[key]
       drawSingle(page, font, value, invitationSlots[key], LETTER_PAPER)
     }
@@ -212,21 +296,32 @@ const templateRequests = new Map<MbDocumentKind, Promise<ArrayBuffer>>()
 function loadDocumentTemplate(kind: MbDocumentKind): Promise<ArrayBuffer> {
   let request = templateRequests.get(kind)
   if (!request) {
-    request = fetch(`./templates/mb-dental/documents/${kind}.pdf`).then((response) => {
-      if (!response.ok) throw new Error(`Could not load the ${kind} template: ${response.status}`)
-      return response.arrayBuffer()
-    }).catch((error) => { templateRequests.delete(kind); throw error })
+    request = fetch(`./templates/mb-dental/documents/${kind}.pdf`)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Could not load the ${kind} template: ${response.status}`)
+        return response.arrayBuffer()
+      })
+      .catch((error) => {
+        templateRequests.delete(kind)
+        throw error
+      })
     templateRequests.set(kind, request)
   }
   return request
 }
 
 export async function generateMbDocument(document: MbDocumentData): Promise<Uint8Array> {
-  const [template, fallbackFonts] = await Promise.all([loadDocumentTemplate(document.kind), loadUnicodeFallbackFontBytes()])
+  const [template, fallbackFonts] = await Promise.all([
+    loadDocumentTemplate(document.kind),
+    loadUnicodeFallbackFontBytes(),
+  ])
   return renderMbDocument(document, { template, fallbackFonts })
 }
 
 export function mbDocumentFilename(document: MbDocumentData): string {
-  const name = clean(document.data.patientName).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '') || 'Patient'
+  const name =
+    clean(document.data.patientName)
+      .replace(/[^\p{L}\p{N}]+/gu, '-')
+      .replace(/^-|-$/g, '') || 'Patient'
   return document.kind === 'warranty' ? `MB-Warranty-Certificate-${name}.pdf` : `MB-Medical-Invitation-${name}.pdf`
 }

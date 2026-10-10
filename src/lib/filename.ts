@@ -7,7 +7,12 @@ import type { ArchivedReport } from './operations'
 const RESERVED_FILENAME_CHARS = /[<>:"/\\|?*\x00-\x1F]/g
 
 export function sanitizeFilenamePart(value: string): string {
-  return value.normalize('NFKD').replace(RESERVED_FILENAME_CHARS, '').replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '').slice(0, 80)
+  return value
+    .normalize('NFKD')
+    .replace(RESERVED_FILENAME_CHARS, '')
+    .replace(/[^\p{L}\p{N}]+/gu, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 80)
 }
 
 export function reportFilename(clinicId: ClinicId, name: string, date: string, locale: Locale): string {
@@ -17,6 +22,10 @@ export function reportFilename(clinicId: ClinicId, name: string, date: string, l
 }
 
 export function archivedReportFilename(report: ArchivedReport): string {
-  return reportFilename(report.clinic_id as ClinicId, report.patient_name,
-    report.report_payload?.patient?.reportDate || report.finalized_at.slice(0, 10), report.document_locale as Locale)
+  return reportFilename(
+    report.clinic_id as ClinicId,
+    report.patient_name,
+    report.report_payload?.patient?.reportDate || report.finalized_at.slice(0, 10),
+    report.document_locale as Locale,
+  )
 }

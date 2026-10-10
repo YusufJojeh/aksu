@@ -8,4 +8,14 @@ import { AuthProvider } from './auth/AuthProvider'
 import { PdfMapper } from './dev/PdfMapper'
 
 const isMapper = import.meta.env.DEV && window.location.pathname.endsWith('/dev/pdf-mapper')
-createRoot(document.getElementById('root')!).render(<StrictMode>{isMapper ? <PdfMapper /> : <AuthProvider><App /></AuthProvider>}</StrictMode>)
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    {isMapper ? (
+      <PdfMapper />
+    ) : (
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    )}
+  </StrictMode>,
+)

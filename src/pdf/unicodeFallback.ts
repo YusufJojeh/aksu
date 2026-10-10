@@ -19,7 +19,9 @@ export interface UnicodeFallback {
   draw(page: PDFPage, text: string, x: number, y: number, size: number, color: Color): void
 }
 
-interface FallbackFontSource { url: string }
+interface FallbackFontSource {
+  url: string
+}
 
 // Ordered by how much of cp1252 they overlap so the earliest capable entry in the chain wins:
 // GeistLatin covers base Latin + the odd extras (e.g. dotless "ı") that a WinAnsi font lacks,
@@ -35,7 +37,11 @@ let fallbackFontRequest: Promise<ArrayBuffer[]> | undefined
 
 export async function loadUnicodeFallbackFontBytes(): Promise<ArrayBuffer[]> {
   fallbackFontRequest ??= Promise.all(
-    FALLBACK_SOURCES.map((source) => fetch(source.url).then((response) => (response.ok ? response.arrayBuffer() : Promise.reject(new Error(`Unable to load fallback font: ${source.url}`))))),
+    FALLBACK_SOURCES.map((source) =>
+      fetch(source.url).then((response) =>
+        response.ok ? response.arrayBuffer() : Promise.reject(new Error(`Unable to load fallback font: ${source.url}`)),
+      ),
+    ),
   ).catch((error) => {
     fallbackFontRequest = undefined
     throw error
@@ -43,7 +49,10 @@ export async function loadUnicodeFallbackFontBytes(): Promise<ArrayBuffer[]> {
   return fallbackFontRequest
 }
 
-interface FallbackEntry { pdfFont: PDFFont; supports(codePoint: number): boolean }
+interface FallbackEntry {
+  pdfFont: PDFFont
+  supports(codePoint: number): boolean
+}
 
 /**
  * Embeds every fallback font and pairs each with a cheap glyph-coverage check (via a second,
@@ -51,7 +60,10 @@ interface FallbackEntry { pdfFont: PDFFont; supports(codePoint: number): boolean
  * Subsetting is disabled: these variable-weight files trip pdf-lib's TrueType subsetter, and at
  * ~15-30KB apiece embedding them whole is inexpensive.
  */
-export async function embedUnicodeFallbackFonts(pdf: PDFDocument, fontBytesList: (ArrayBuffer | Uint8Array)[]): Promise<FallbackEntry[]> {
+export async function embedUnicodeFallbackFonts(
+  pdf: PDFDocument,
+  fontBytesList: (ArrayBuffer | Uint8Array)[],
+): Promise<FallbackEntry[]> {
   const entries: FallbackEntry[] = []
   for (const bytes of fontBytesList) {
     const pdfFont = await pdf.embedFont(bytes, { subset: false })
@@ -71,7 +83,11 @@ function primaryCannotEncode(font: PDFFont, text: string): boolean {
   }
 }
 
-function splitIntoFontRuns(text: string, primary: PDFFont, fallbacks: FallbackEntry[]): { text: string; font: PDFFont }[] {
+function splitIntoFontRuns(
+  text: string,
+  primary: PDFFont,
+  fallbacks: FallbackEntry[],
+): { text: string; font: PDFFont }[] {
   const fontFor = (char: string): PDFFont => {
     const codePoint = char.codePointAt(0) ?? 0
     if (!primaryCannotEncode(primary, char)) return primary
@@ -97,7 +113,10 @@ function splitIntoFontRuns(text: string, primary: PDFFont, fallbacks: FallbackEn
 export function buildUnicodeFallback(primary: PDFFont, fallbacks: FallbackEntry[]): UnicodeFallback {
   return {
     widthOfTextAtSize(text, size) {
-      return splitIntoFontRuns(text, primary, fallbacks).reduce((sum, run) => sum + run.font.widthOfTextAtSize(run.text, size), 0)
+      return splitIntoFontRuns(text, primary, fallbacks).reduce(
+        (sum, run) => sum + run.font.widthOfTextAtSize(run.text, size),
+        0,
+      )
     },
     draw(page, text, x, y, size, color) {
       let cursor = x

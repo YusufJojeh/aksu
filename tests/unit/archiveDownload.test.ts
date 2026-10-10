@@ -5,13 +5,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { assertArchivedPdf } from '../../src/lib/pdfIntegrity'
 
 const mocks = vi.hoisted(() => ({
-  single: vi.fn(), storageDownload: vi.fn(), rpc: vi.fn(), upload: vi.fn(),
+  single: vi.fn(),
+  storageDownload: vi.fn(),
+  rpc: vi.fn(),
+  upload: vi.fn(),
 }))
-vi.mock('../../src/lib/supabase', () => ({ requireSupabase: () => ({
-  from: () => ({ select: () => ({ eq: () => ({ single: mocks.single }) }) }),
-  storage: { from: () => ({ download: mocks.storageDownload, upload: mocks.upload }) },
-  rpc: mocks.rpc,
-}) }))
+vi.mock('../../src/lib/supabase', () => ({
+  requireSupabase: () => ({
+    from: () => ({ select: () => ({ eq: () => ({ single: mocks.single }) }) }),
+    storage: { from: () => ({ download: mocks.storageDownload, upload: mocks.upload }) },
+    rpc: mocks.rpc,
+  }),
+}))
 import { downloadArchivedReport, finalizeReport, type ArchivedReport } from '../../src/lib/operations'
 
 async function populatedPdf() {
@@ -26,7 +31,11 @@ describe('archived PDF downloads', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     bytes = await populatedPdf()
-    report = { id: 'report-id', pdf_storage_key: 'owner/original.pdf', pdf_sha256: createHash('sha256').update(bytes).digest('hex') } as ArchivedReport
+    report = {
+      id: 'report-id',
+      pdf_storage_key: 'owner/original.pdf',
+      pdf_sha256: createHash('sha256').update(bytes).digest('hex'),
+    } as ArchivedReport
     mocks.single.mockResolvedValue({ data: report, error: null })
     mocks.storageDownload.mockResolvedValue({ data: new Blob([Uint8Array.from(bytes)]), error: null })
     mocks.rpc.mockResolvedValue({ error: null })
@@ -40,11 +49,14 @@ describe('archived PDF downloads', () => {
   })
   it('uses a fresh authorized snapshot and reports a missing original', async () => {
     mocks.storageDownload.mockResolvedValue({ data: null, error: { statusCode: '404', message: 'Object not found' } })
-    await expect(downloadArchivedReport({ ...report, pdf_storage_key: 'untrusted/changed.pdf' })).rejects.toThrow('missing from storage')
+    await expect(downloadArchivedReport({ ...report, pdf_storage_key: 'untrusted/changed.pdf' })).rejects.toThrow(
+      'missing from storage',
+    )
     expect(mocks.storageDownload).toHaveBeenCalledWith(report.pdf_storage_key)
   })
   it('rejects blank legacy PDFs instead of downloading an empty page', async () => {
-    const blank = await PDFDocument.create(); blank.addPage([200, 200])
+    const blank = await PDFDocument.create()
+    blank.addPage([200, 200])
     mocks.storageDownload.mockResolvedValue({ data: new Blob([Uint8Array.from(await blank.save())]), error: null })
     await expect(downloadArchivedReport(report)).rejects.toThrow('incomplete or damaged')
   })

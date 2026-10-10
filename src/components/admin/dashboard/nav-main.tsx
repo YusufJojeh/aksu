@@ -4,7 +4,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
 
 export function NavMain({
   items,
@@ -22,11 +22,7 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                isActive={item.isActive}
-                onClick={item.onClick}
-              >
+              <SidebarMenuButton tooltip={item.title} isActive={item.isActive} onClick={item.onClick}>
                 {item.icon}
                 <span>{item.title}</span>
               </SidebarMenuButton>

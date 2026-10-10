@@ -37,7 +37,7 @@ export function serverClient(url: string, key: string, token?: string) {
 }
 
 export function bodyObject(req: { body?: unknown }): Record<string, unknown> {
-  return typeof req.body === 'object' && req.body !== null ? req.body as Record<string, unknown> : {}
+  return typeof req.body === 'object' && req.body !== null ? (req.body as Record<string, unknown>) : {}
 }
 
 export function requirePost(req: ServerlessRequest, res: ServerlessResponse): boolean {
@@ -56,18 +56,34 @@ function bearerToken(req: ServerlessRequest): string | undefined {
  * Verifies the bearer token belongs to an active account (and, with `role`, that role). On failure
  * the response has already been sent and null is returned.
  */
-export async function requireActiveUser(req: ServerlessRequest, res: ServerlessResponse, role?: 'ADMIN'): Promise<{ userId: string; url: string } | null> {
+export async function requireActiveUser(
+  req: ServerlessRequest,
+  res: ServerlessResponse,
+  role?: 'ADMIN',
+): Promise<{ userId: string; url: string } | null> {
   const token = bearerToken(req)
-  if (!token) { res.status(401).json({ error: 'unauthorized' }); return null }
+  if (!token) {
+    res.status(401).json({ error: 'unauthorized' })
+    return null
+  }
 
   const url = requireEnv('SUPABASE_URL')
   const anon = serverClient(url, requireEnv('SUPABASE_ANON_KEY'), token)
   const { data: authData, error: authError } = await anon.auth.getUser(token)
-  if (authError || !authData.user) { res.status(401).json({ error: 'unauthorized' }); return null }
+  if (authError || !authData.user) {
+    res.status(401).json({ error: 'unauthorized' })
+    return null
+  }
 
   const { data: profile } = await anon.from('profiles').select('role,status').eq('id', authData.user.id).single()
-  if (role && (profile?.role !== role || profile.status !== 'active')) { res.status(403).json({ error: 'admin_required' }); return null }
-  if (profile?.status !== 'active') { res.status(403).json({ error: 'active_account_required' }); return null }
+  if (role && (profile?.role !== role || profile.status !== 'active')) {
+    res.status(403).json({ error: 'admin_required' })
+    return null
+  }
+  if (profile?.status !== 'active') {
+    res.status(403).json({ error: 'active_account_required' })
+    return null
+  }
   return { userId: authData.user.id, url }
 }
 

@@ -11,7 +11,11 @@ export type { MbPdfCoordinates } from './types'
 export type MbLocale = 'en' | 'fr' | 'de' | 'es' | 'ar'
 
 const mbCoordinatesByLocale: Record<MbLocale, MbPdfCoordinates> = {
-  en: enMbPdfCoordinates, fr: frMbPdfCoordinates, de: deMbPdfCoordinates, es: esMbPdfCoordinates, ar: arMbPdfCoordinates,
+  en: enMbPdfCoordinates,
+  fr: frMbPdfCoordinates,
+  de: deMbPdfCoordinates,
+  es: esMbPdfCoordinates,
+  ar: arMbPdfCoordinates,
 }
 
 export const availableMbTemplateLocales: MbLocale[] = ['en', 'fr', 'de', 'es', 'ar']
@@ -25,7 +29,9 @@ function isMbLocale(locale: Locale): locale is MbLocale {
 // a silent substitution for Aksu's or MB's own English artwork.
 export function resolveMbTemplate(locale: Locale): { usedTemplate: MbLocale } {
   if (!isMbLocale(locale)) {
-    throw new Error(`MB Dental has no template for locale "${locale}". Supported locales: ${availableMbTemplateLocales.join(', ')}.`)
+    throw new Error(
+      `MB Dental has no template for locale "${locale}". Supported locales: ${availableMbTemplateLocales.join(', ')}.`,
+    )
   }
   return { usedTemplate: locale }
 }

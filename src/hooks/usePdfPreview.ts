@@ -51,10 +51,17 @@ export function usePdfPreview(report: ReportData, delay = 250) {
     // regeneration on every single keystroke/field-fill in addition to the trailing one, which could
     // starve the UI thread long enough to fail input-driven interactions. One deferred regeneration
     // per burst is what "the preview updates shortly after you stop typing" actually requires.
-    const timeout = window.setTimeout(() => { void run() }, delay)
+    const timeout = window.setTimeout(() => {
+      void run()
+    }, delay)
     return () => window.clearTimeout(timeout)
   }, [delay, run])
 
-  useEffect(() => () => { if (url) URL.revokeObjectURL(url) }, [url])
+  useEffect(
+    () => () => {
+      if (url) URL.revokeObjectURL(url)
+    },
+    [url],
+  )
   return { url, bytes, blob, isGenerating, error, usedFallback, regenerate: run }
 }

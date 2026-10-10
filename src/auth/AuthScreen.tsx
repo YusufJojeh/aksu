@@ -18,30 +18,102 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false)
 
   const submit = async () => {
-    setBusy(true); setError(undefined); setNotice(undefined)
+    setBusy(true)
+    setError(undefined)
+    setNotice(undefined)
     try {
       if (mode === 'login') await auth.login(identifier, password)
       else {
         await auth.register({ fullName, email: identifier, password, workPhone: phone })
         setNotice('Registration received. Confirm your email if requested, then wait for admin approval.')
       }
-    } catch (caught) { setError(errorText(caught, t, 'errors.sign_in_failed')) }
-    finally { setBusy(false) }
+    } catch (caught) {
+      setError(errorText(caught, t, 'errors.sign_in_failed'))
+    } finally {
+      setBusy(false)
+    }
   }
 
-  return <main className="grid min-h-screen place-items-center bg-parchment p-6 text-ink">
-    <form className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-sm" onSubmit={(event) => { event.preventDefault(); void submit() }}>
-      <div className="mb-6 text-center"><span className="mx-auto mb-3 grid size-12 place-items-center rounded-full border border-gold/70 text-gold"><FileText /></span><h1 className="text-2xl font-bold">Dental Operations</h1></div>
-      <Tabs value={mode} onValueChange={(value) => setMode(value as typeof mode)}><TabsList className="mb-5"><TabsTrigger value="login">Sign in</TabsTrigger><TabsTrigger value="register">Register</TabsTrigger></TabsList></Tabs>
-      <div className="grid gap-4">
-        {mode === 'register' && <Field label="Full name"><Input required minLength={2} autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} /></Field>}
-        <Field label={mode === 'login' ? 'Email or phone number' : 'Email'}><Input required type={mode === 'login' ? 'text' : 'email'} placeholder={mode === 'login' ? 'email@example.com or +905551112233' : undefined} autoComplete={mode === 'login' ? 'username' : 'email'} value={identifier} onChange={(event) => setIdentifier(event.target.value)} /></Field>
-        <Field label="Password"><Input required minLength={10} type="password" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={(event) => setPassword(event.target.value)} /></Field>
-        {mode === 'register' && <Field label="Work / WhatsApp number (E.164)"><Input required type="tel" placeholder="+905551112233" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} /></Field>}
-      </div>
-      {error && <p role="alert" className="mt-4 text-sm text-red-700">{error}</p>}
-      {notice && <p role="status" className="mt-4 text-sm text-green-800">{notice}</p>}
-      <Button type="submit" variant="primary" className="mt-5 w-full" disabled={busy}>{busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create sales account'}</Button>
-    </form>
-  </main>
+  return (
+    <main className="grid min-h-screen place-items-center bg-parchment p-6 text-ink">
+      <form
+        className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 shadow-sm"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void submit()
+        }}
+      >
+        <div className="mb-6 text-center">
+          <span className="mx-auto mb-3 grid size-12 place-items-center rounded-full border border-gold/70 text-gold">
+            <FileText />
+          </span>
+          <h1 className="text-2xl font-bold">Dental Operations</h1>
+        </div>
+        <Tabs value={mode} onValueChange={(value) => setMode(value as typeof mode)}>
+          <TabsList className="mb-5">
+            <TabsTrigger value="login">Sign in</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <div className="grid gap-4">
+          {mode === 'register' && (
+            <Field label="Full name">
+              <Input
+                required
+                minLength={2}
+                autoComplete="name"
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+              />
+            </Field>
+          )}
+          <Field label={mode === 'login' ? 'Email or phone number' : 'Email'}>
+            <Input
+              required
+              type={mode === 'login' ? 'text' : 'email'}
+              placeholder={mode === 'login' ? 'email@example.com or +905551112233' : undefined}
+              autoComplete={mode === 'login' ? 'username' : 'email'}
+              value={identifier}
+              onChange={(event) => setIdentifier(event.target.value)}
+            />
+          </Field>
+          <Field label="Password">
+            <Input
+              required
+              minLength={10}
+              type="password"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+          </Field>
+          {mode === 'register' && (
+            <Field label="Work / WhatsApp number (E.164)">
+              <Input
+                required
+                type="tel"
+                placeholder="+905551112233"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+              />
+            </Field>
+          )}
+        </div>
+        {error && (
+          <p role="alert" className="mt-4 text-sm text-red-700">
+            {error}
+          </p>
+        )}
+        {notice && (
+          <p role="status" className="mt-4 text-sm text-green-800">
+            {notice}
+          </p>
+        )}
+        <Button type="submit" variant="primary" className="mt-5 w-full" disabled={busy}>
+          {busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create sales account'}
+        </Button>
+      </form>
+    </main>
+  )
 }

@@ -21,22 +21,42 @@ import type { MbPdfCoordinates } from './types'
 const MEDIA_BOX_Y = 7.83
 const pdfRowEdges = (edges: number[]) => edges.map((y) => y + MEDIA_BOX_Y)
 const firstVisitColumns = {
-  treatment: [28.1, 230.1], quality: [230.1, 327.9], quantity: [327.9, 378.9], unitPrice: [378.9, 476.4], total: [476.4, 565.4],
+  treatment: [28.1, 230.1],
+  quality: [230.1, 327.9],
+  quantity: [327.9, 378.9],
+  unitPrice: [378.9, 476.4],
+  total: [476.4, 565.4],
 } as const
 const secondVisitColumns = {
-  treatment: [22.1, 224.1], quality: [224.1, 321.9], quantity: [321.9, 373.0], unitPrice: [373.0, 470.5], total: [470.5, 559.5],
+  treatment: [22.1, 224.1],
+  quality: [224.1, 321.9],
+  quantity: [321.9, 373.0],
+  unitPrice: [373.0, 470.5],
+  total: [470.5, 559.5],
 } as const
 // Checkbox squares are measured directly from this artwork's own gold outlines, in pdf-lib user
 // space — see profiles/mb/checkbox.ts and scripts/measure_mb_checkboxes.py. en.pdf and de.pdf are
 // byte-identical apart from their printed labels, so both import these squares.
 export const enConditionColumn = checkboxColumn(mbConditionRowOrder, 50.2, [
-  [670.62, 12.60, 13.08], [638.76, 12.60, 13.08], [610.04, 12.60, 13.08], [583.36, 12.60, 13.08],
-  [554.17, 12.60, 13.08], [523.43, 12.60, 13.08], [491.59, 12.60, 13.08], [462.27, 12.60, 13.08],
+  [670.62, 12.6, 13.08],
+  [638.76, 12.6, 13.08],
+  [610.04, 12.6, 13.08],
+  [583.36, 12.6, 13.08],
+  [554.17, 12.6, 13.08],
+  [523.43, 12.6, 13.08],
+  [491.59, 12.6, 13.08],
+  [462.27, 12.6, 13.08],
 ])
 
 export const enRecommendedColumn = checkboxColumn(mbRecommendedRowOrderLatin, 297.47, [
-  [337.05, 13.75, 14.28], [305.25, 13.75, 14.28], [276.34, 13.75, 14.28], [247.06, 13.75, 14.28],
-  [217.79, 13.75, 14.28], [185.88, 13.75, 14.28], [156.61, 13.75, 14.28], [127.34, 13.75, 14.28],
+  [337.05, 13.75, 14.28],
+  [305.25, 13.75, 14.28],
+  [276.34, 13.75, 14.28],
+  [247.06, 13.75, 14.28],
+  [217.79, 13.75, 14.28],
+  [185.88, 13.75, 14.28],
+  [156.61, 13.75, 14.28],
+  [127.34, 13.75, 14.28],
 ])
 
 export const enMbPdfCoordinates: MbPdfCoordinates = {
@@ -58,7 +78,21 @@ export const enMbPdfCoordinates: MbPdfCoordinates = {
     // left the total looking far smaller than the table's own 21pt cell text. Boxes below inset
     // that real pill by ~10pt horizontally / ~5pt vertically for padding; drawCenteredCell (with
     // VISIT_TOTAL_PADDING) centers the big preferred size inside on real glyph/font metrics.
-    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbEnglishCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbEnglishCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
+    firstVisit: {
+      rows: mbTableRows(
+        firstVisitColumns,
+        pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]),
+        mbEnglishCellSizes,
+      ),
+      total: box(317, 437, 238, 36, 26, 'center', undefined, 18),
+    },
+    secondVisit: {
+      rows: mbTableRows(
+        secondVisitColumns,
+        pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]),
+        mbEnglishCellSizes,
+      ),
+      total: box(311, 117, 238, 36, 26, 'center', undefined, 18),
+    },
   },
 }

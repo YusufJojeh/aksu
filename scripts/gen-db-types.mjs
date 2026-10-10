@@ -9,7 +9,9 @@ const OUT = 'src/lib/database.types.ts'
 
 function envFromFile(name) {
   if (!existsSync('.env.local')) return undefined
-  const line = readFileSync('.env.local', 'utf8').split(/\r?\n/).find((l) => l.startsWith(`${name}=`))
+  const line = readFileSync('.env.local', 'utf8')
+    .split(/\r?\n/)
+    .find((l) => l.startsWith(`${name}=`))
   return line?.slice(name.length + 1).replace(/^"|"$/g, '')
 }
 

@@ -17,7 +17,9 @@ test('creates, localizes, previews, downloads and resets a report', async ({ pag
   await page.getByLabel('لغة المستند').selectOption('ar')
   await page.getByLabel('اسم المريض').fill('محمد يوسف')
   await page.getByRole('button', { name: 'معاينة PDF' }).click()
-  await expect(page.getByText('المعاينة جاهزة')).toBeAttached({ timeout: 20_000 }).catch(() => {})
+  await expect(page.getByText('المعاينة جاهزة'))
+    .toBeAttached({ timeout: 20_000 })
+    .catch(() => {})
   const download = page.waitForEvent('download')
   await page.getByRole('button', { name: 'تنزيل PDF' }).click()
   const completedDownload = await download
@@ -53,12 +55,20 @@ test('preview renders once and remains stable while idle', async ({ page }, test
   await page.getByLabel('Phone', { exact: true }).fill('+44 7000 000000')
   const canvases = page.getByRole('region', { name: 'PDF preview' }).locator('canvas')
   const canvas = canvases.first()
-  await expect.poll(async () => canvas.evaluate((element) => {
-    const node = element as HTMLCanvasElement
-    if (!node.width || !node.height) return false
-    const pixels = node.getContext('2d')?.getImageData(0, 0, Math.min(40, node.width), Math.min(40, node.height)).data
-    return Boolean(pixels && Array.from(pixels).some((value, index) => index % 4 !== 3 && value < 245))
-  }), { timeout: 20_000 }).toBe(true)
+  await expect
+    .poll(
+      async () =>
+        canvas.evaluate((element) => {
+          const node = element as HTMLCanvasElement
+          if (!node.width || !node.height) return false
+          const pixels = node
+            .getContext('2d')
+            ?.getImageData(0, 0, Math.min(40, node.width), Math.min(40, node.height)).data
+          return Boolean(pixels && Array.from(pixels).some((value, index) => index % 4 !== 3 && value < 245))
+        }),
+      { timeout: 20_000 },
+    )
+    .toBe(true)
   await expect(canvases).toHaveCount(5)
   await page.waitForTimeout(3_000)
   expect(errors).toEqual([])
@@ -72,10 +82,13 @@ test('interface language picker exposes every readable locale', async ({ page },
   await selectClinic(page, 'aksu')
   const picker = page.getByLabel('Interface language')
   await expect(picker.locator('option')).toHaveCount(9)
-  const contrast = await picker.locator('option').first().evaluate((option) => {
-    const style = getComputedStyle(option)
-    return { color: style.color, background: style.backgroundColor }
-  })
+  const contrast = await picker
+    .locator('option')
+    .first()
+    .evaluate((option) => {
+      const style = getComputedStyle(option)
+      return { color: style.color, background: style.backgroundColor }
+    })
   expect(contrast.color).not.toBe(contrast.background)
   await expect(picker).toHaveCSS('width', '144px')
 })
@@ -100,14 +113,29 @@ test('generates representative English and French reports', async ({ page }, tes
 
 test('generates a private five-page Arabic report from the preview Blob', async ({ page }, testInfo) => {
   let templateRequests = 0
-  page.on('request', (request) => { if (request.url().includes('/templates/aksu/ar.pdf')) templateRequests += 1 })
+  page.on('request', (request) => {
+    if (request.url().includes('/templates/aksu/ar.pdf')) templateRequests += 1
+  })
   await page.goto('/')
   await selectClinic(page, 'aksu')
   await page.getByLabel('Document language').selectOption('ar')
   await expect(page.getByLabel('Currency')).toHaveValue('EUR')
   await page.getByLabel('Patient name').fill('ليلى الجديدة')
   await page.getByLabel('Phone', { exact: true }).fill('+90 555 111 2233')
-  for (const label of ['Existing dental implants', 'Existing dental restorations', 'Teeth are relatively aligned', 'Gingival inflammation', 'Dental caries', 'Malocclusion', 'Tooth wear', 'Missing teeth', 'Dental abscesses', 'Gingival recession', 'Dental crowding', 'Bone resorption']) {
+  for (const label of [
+    'Existing dental implants',
+    'Existing dental restorations',
+    'Teeth are relatively aligned',
+    'Gingival inflammation',
+    'Dental caries',
+    'Malocclusion',
+    'Tooth wear',
+    'Missing teeth',
+    'Dental abscesses',
+    'Gingival recession',
+    'Dental crowding',
+    'Bone resorption',
+  ]) {
     await page.getByText(label, { exact: true }).click()
   }
   await page.locator('[name="firstVisit.treatmentRows.0.customTreatment"]').fill('زراعة أسنان')
@@ -135,7 +163,7 @@ test('generates a private five-page Arabic report from the preview Blob', async 
   let extracted = ''
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const content = await (await pdf.getPage(pageNumber)).getTextContent()
-    extracted += content.items.map((item) => 'str' in item ? item.str : '').join(' ')
+    extracted += content.items.map((item) => ('str' in item ? item.str : '')).join(' ')
   }
   // eslint-disable-next-line no-control-regex -- embedded-font extraction may contain PDF character-map controls
   extracted = extracted.replace(/[\u0000-\u001F]/g, '')

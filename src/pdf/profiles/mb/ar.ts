@@ -31,10 +31,18 @@ import type { MbPdfCoordinates } from './types'
 // المجموع (total). As with de.ts, the second table's outer border and dividers sit further left
 // than the first table's, so each visit has its own measured columns and row lines.
 const firstVisitColumns = {
-  treatment: [409.8, 565.4], quality: [315.2, 409.8], quantity: [232.0, 315.2], unitPrice: [130.0, 232.0], total: [27.6, 130.0],
+  treatment: [409.8, 565.4],
+  quality: [315.2, 409.8],
+  quantity: [232.0, 315.2],
+  unitPrice: [130.0, 232.0],
+  total: [27.6, 130.0],
 } as const
 const secondVisitColumns = {
-  treatment: [409.8, 559.8], quality: [319.8, 409.8], quantity: [238.0, 319.8], unitPrice: [136.0, 238.0], total: [21.8, 136.0],
+  treatment: [409.8, 559.8],
+  quality: [319.8, 409.8],
+  quantity: [238.0, 319.8],
+  unitPrice: [136.0, 238.0],
+  total: [21.8, 136.0],
 } as const
 
 export const arMbPdfCoordinates: MbPdfCoordinates = {
@@ -51,16 +59,44 @@ export const arMbPdfCoordinates: MbPdfCoordinates = {
     // squares, which are the visible border. Panels sit on the same physical sides as the Latin
     // templates with the columns mirrored, so conditions are the left-hand x=283 column.
     currentCondition: checkboxColumn(mbConditionRowOrder, 283.4, [
-      [663.60, 13.20, 13.20], [631.70, 13.20, 13.20], [603.10, 13.20, 13.20], [576.40, 13.20, 13.20],
-      [547.10, 13.20, 13.20], [516.40, 13.20, 13.20], [484.60, 13.20, 13.20], [455.20, 13.20, 13.20],
+      [663.6, 13.2, 13.2],
+      [631.7, 13.2, 13.2],
+      [603.1, 13.2, 13.2],
+      [576.4, 13.2, 13.2],
+      [547.1, 13.2, 13.2],
+      [516.4, 13.2, 13.2],
+      [484.6, 13.2, 13.2],
+      [455.2, 13.2, 13.2],
     ]),
     recommendedTreatments: checkboxColumn(mbRecommendedRowOrderLatin, 543.9, [
-      [330.40, 13.20, 13.20], [298.60, 13.20, 13.20], [269.70, 13.20, 13.20], [240.40, 13.20, 13.20],
-      [211.10, 13.20, 13.20], [179.20, 13.20, 13.20], [149.90, 13.20, 13.20], [120.70, 13.20, 13.20],
+      [330.4, 13.2, 13.2],
+      [298.6, 13.2, 13.2],
+      [269.7, 13.2, 13.2],
+      [240.4, 13.2, 13.2],
+      [211.1, 13.2, 13.2],
+      [179.2, 13.2, 13.2],
+      [149.9, 13.2, 13.2],
+      [120.7, 13.2, 13.2],
     ]),
   },
   treatmentPlan: {
-    firstVisit: { rows: mbTableRows(firstVisitColumns, [655.25, 628.1, 601.0, 573.2, 546.2, 519.2, 484.2], mbArabicCellSizes, 'rtl'), total: box(49, 430, 230, 44, 32, 'center', 'ltr') },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 252.8, 225.8, 198.8, 163.8], mbArabicCellSizes, 'rtl'), total: box(47, 108, 230, 44, 32, 'center', 'ltr') },
+    firstVisit: {
+      rows: mbTableRows(
+        firstVisitColumns,
+        [655.25, 628.1, 601.0, 573.2, 546.2, 519.2, 484.2],
+        mbArabicCellSizes,
+        'rtl',
+      ),
+      total: box(49, 430, 230, 44, 32, 'center', 'ltr'),
+    },
+    secondVisit: {
+      rows: mbTableRows(
+        secondVisitColumns,
+        [335.0, 307.5, 280.5, 252.8, 225.8, 198.8, 163.8],
+        mbArabicCellSizes,
+        'rtl',
+      ),
+      total: box(47, 108, 230, 44, 32, 'center', 'ltr'),
+    },
   },
 }

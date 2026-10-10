@@ -16,10 +16,12 @@ describe('Aksu French and Spanish templates', () => {
   it('keeps French and Spanish on separately measured geometry', () => {
     // The two artworks are NOT interchangeable: the page-1 rules and the table row rules differ.
     expect(frPdfCoordinates.page1.reportDate.width).not.toBe(esPdfCoordinates.page1.reportDate.width)
-    expect(frPdfCoordinates.page2.firstVisit.rows[0]!.treatment.y).not.toBe(esPdfCoordinates.page2.firstVisit.rows[0]!.treatment.y)
+    expect(frPdfCoordinates.page2.firstVisit.rows[0]!.treatment.y).not.toBe(
+      esPdfCoordinates.page2.firstVisit.rows[0]!.treatment.y,
+    )
     expect(frPdfCoordinates.page2.assessment.missingTeeth).not.toEqual(esPdfCoordinates.page2.assessment.missingTeeth)
   })
-  it('maps every assessment key to its own circle, in each artwork\'s own printed order', () => {
+  it("maps every assessment key to its own circle, in each artwork's own printed order", () => {
     for (const coordinates of [frPdfCoordinates, esPdfCoordinates]) {
       const points = assessmentKeys.map((key) => coordinates.page2.assessment[key])
       expect(points).toHaveLength(12)
@@ -61,7 +63,9 @@ describe('MB Spanish template', () => {
   })
   it('reuses the English checkbox squares, which the Spanish artwork prints identically', () => {
     expect(esMbPdfCoordinates.oralHealth.currentCondition).toBe(enMbPdfCoordinates.oralHealth.currentCondition)
-    expect(esMbPdfCoordinates.oralHealth.recommendedTreatments).toBe(enMbPdfCoordinates.oralHealth.recommendedTreatments)
+    expect(esMbPdfCoordinates.oralHealth.recommendedTreatments).toBe(
+      enMbPdfCoordinates.oralHealth.recommendedTreatments,
+    )
     for (const key of mbConditionKeys) expect(esMbPdfCoordinates.oralHealth.currentCondition[key]).toBeDefined()
     // Spanish prints a fillings row and no extraction row, like English and German.
     for (const key of mbRecommendedTreatmentKeys) {

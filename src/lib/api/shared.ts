@@ -29,11 +29,18 @@ export function bytesToBase64(bytes: Uint8Array): string {
 }
 
 export async function sha256Hex(bytes: Uint8Array): Promise<string> {
-  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (byte) => byte.toString(16).padStart(2, '0')).join('')
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('')
 }
 
 /** POSTs JSON to one of our serverless endpoints with the current session's bearer token. */
-export async function authedPost<T = unknown>(path: string, body: Record<string, unknown>, fallbackCode: AppErrorCode, fallbackError: string): Promise<T> {
+export async function authedPost<T = unknown>(
+  path: string,
+  body: Record<string, unknown>,
+  fallbackCode: AppErrorCode,
+  fallbackError: string,
+): Promise<T> {
   const { data: sessionData } = await requireSupabase().auth.getSession()
   const token = sessionData.session?.access_token
   if (!token) throw new AppError('session_expired', 'Not authenticated')
@@ -53,6 +60,11 @@ export async function authedPost<T = unknown>(path: string, body: Record<string,
  * warranty/invitation, omit it for a treatment report.
  */
 export async function verifyUploadedPdf(storageKey: string, documentKind?: ArchivedDocumentKind): Promise<string> {
-  const payload = await authedPost<{ sha256: string }>('/api/reports/verify-pdf', { storageKey, documentKind }, 'verify_failed', 'Failed to verify archived PDF')
+  const payload = await authedPost<{ sha256: string }>(
+    '/api/reports/verify-pdf',
+    { storageKey, documentKind },
+    'verify_failed',
+    'Failed to verify archived PDF',
+  )
   return payload.sha256
 }

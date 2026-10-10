@@ -23,7 +23,9 @@ describe('archived PDF integrity', () => {
     await expect(assertArchivedDocumentPdf(await pdfWithPages(2), 'warranty')).resolves.toBeUndefined()
     await expect(assertArchivedDocumentPdf(await pdfWithPages(1), 'invitation')).resolves.toBeUndefined()
     await expect(assertArchivedDocumentPdf(await pdfWithPages(1), 'warranty')).rejects.toThrow('warranty')
-    await expect(assertArchivedDocumentPdf(new TextEncoder().encode('not a pdf'), 'invitation')).rejects.toThrow('invitation')
+    await expect(assertArchivedDocumentPdf(new TextEncoder().encode('not a pdf'), 'invitation')).rejects.toThrow(
+      'invitation',
+    )
   })
 
   it('only recognises the archived document kinds', () => {

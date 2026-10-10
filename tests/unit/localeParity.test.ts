@@ -10,14 +10,21 @@ import ru from '../../src/i18n/locales/ru.json'
 import tr from '../../src/i18n/locales/tr.json'
 
 type Tree = { [key: string]: string | Tree }
-const flatten = (tree: Tree, prefix = ''): string[] => Object.entries(tree).flatMap(([key, value]) =>
-  typeof value === 'object' ? flatten(value, `${prefix}${key}.`) : [`${prefix}${key}`])
+const flatten = (tree: Tree, prefix = ''): string[] =>
+  Object.entries(tree).flatMap(([key, value]) =>
+    typeof value === 'object' ? flatten(value, `${prefix}${key}.`) : [`${prefix}${key}`],
+  )
 
 // i18next plural suffixes differ per language (ar has _zero/_two/_few/_many), so compare the base key.
 const base = (key: string) => key.replace(/_(zero|one|two|few|many|other)$/, '')
 // `document.*` holds strings printed inside the PDF artwork, which only exists for each clinic's
 // supported document locales; it is not interface copy.
-const interfaceKeys = (tree: Tree) => new Set(flatten(tree).filter((key) => !key.startsWith('document.')).map(base))
+const interfaceKeys = (tree: Tree) =>
+  new Set(
+    flatten(tree)
+      .filter((key) => !key.startsWith('document.'))
+      .map(base),
+  )
 
 describe('interface locale parity', () => {
   const english = interfaceKeys(en as Tree)

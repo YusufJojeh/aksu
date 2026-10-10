@@ -15,9 +15,8 @@ async function assertCompletePdf(bytes: Uint8Array, pageCount: number, message: 
     if (pdf.getPageCount() !== pageCount) throw new Error('Unexpected page count')
     for (const page of pdf.getPages()) {
       const contents = page.node.Contents()
-      const streams = contents instanceof PDFArray
-        ? contents.asArray().map((ref) => pdf.context.lookup(ref))
-        : [contents]
+      const streams =
+        contents instanceof PDFArray ? contents.asArray().map((ref) => pdf.context.lookup(ref)) : [contents]
       if (!streams.some((stream) => stream instanceof PDFRawStream && stream.getContents().length > 0)) {
         throw new Error('Empty page')
       }

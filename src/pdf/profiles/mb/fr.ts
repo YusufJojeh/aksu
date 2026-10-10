@@ -27,10 +27,18 @@ import type { MbPdfCoordinates } from './types'
 // left (x=22.2, the same shift as the other templates' second tables), so it reuses these columns
 // shifted by 6pt and the shared MB second-table row lines.
 const firstVisitColumns = {
-  treatment: [28.4, 229.8], quality: [229.8, 308.6], quantity: [308.6, 401.2], unitPrice: [401.2, 476.4], total: [476.4, 565.8],
+  treatment: [28.4, 229.8],
+  quality: [229.8, 308.6],
+  quantity: [308.6, 401.2],
+  unitPrice: [401.2, 476.4],
+  total: [476.4, 565.8],
 } as const
 const secondVisitColumns = {
-  treatment: [22.4, 223.8], quality: [223.8, 302.6], quantity: [302.6, 395.2], unitPrice: [395.2, 470.4], total: [470.4, 559.8],
+  treatment: [22.4, 223.8],
+  quality: [223.8, 302.6],
+  quantity: [302.6, 395.2],
+  unitPrice: [395.2, 470.4],
+  total: [470.4, 559.8],
 } as const
 // Measured from this artwork's own gold outlines (scripts/measure_mb_checkboxes.py). The French
 // squares really are on an exact 30pt pitch, unlike the English/German ones.
@@ -55,7 +63,13 @@ export const frMbPdfCoordinates: MbPdfCoordinates = {
     // The gold TOTAL pill (measured directly from the rendered artwork) spans x=307.1-564.8,
     // y=432.5-479.3 (first visit) — same physical size as en.ts/de.ts's pill. Widened/enlarged to
     // match: the total should read as dramatically more prominent than ordinary table text.
-    firstVisit: { rows: mbTableRows(firstVisitColumns, [655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5], mbLatinCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0], mbLatinCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
+    firstVisit: {
+      rows: mbTableRows(firstVisitColumns, [655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5], mbLatinCellSizes),
+      total: box(317, 437, 238, 36, 26, 'center', undefined, 18),
+    },
+    secondVisit: {
+      rows: mbTableRows(secondVisitColumns, [335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0], mbLatinCellSizes),
+      total: box(311, 117, 238, 36, 26, 'center', undefined, 18),
+    },
   },
 }

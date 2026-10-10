@@ -13,6 +13,8 @@ test('English PDF page remains aligned with A4 template', async ({ page }, testI
   const canvas = page.getByRole('region', { name: 'PDF preview' }).locator('canvas').first()
   await expect(canvas).toBeVisible({ timeout: 20_000 })
   await expect(page.getByText('Generating preview…')).toBeHidden({ timeout: 20_000 })
-  await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 700 && node.height > 1_000)).toBe(true)
+  await expect
+    .poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width > 700 && node.height > 1_000))
+    .toBe(true)
   await expect(canvas).toHaveScreenshot('english-page-1.png', { maxDiffPixelRatio: 0.02 })
 })

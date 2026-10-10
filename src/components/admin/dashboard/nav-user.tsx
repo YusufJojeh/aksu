@@ -1,7 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,15 +6,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { EllipsisVerticalIcon, IdCardIcon, LogOutIcon } from "lucide-react"
-import { useTranslation } from "react-i18next"
+} from '@/components/ui/dropdown-menu'
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import { EllipsisVerticalIcon, IdCardIcon, LogOutIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function NavUser({
   user,
@@ -33,12 +25,13 @@ export function NavUser({
 }) {
   const { t, i18n } = useTranslation()
   const { isMobile } = useSidebar()
-  const initials = user.name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("") || "?"
+  const initials =
+    user.name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('') || '?'
 
   return (
     <SidebarMenu>
@@ -54,16 +47,14 @@ export function NavUser({
               </Avatar>
               <div className="grid flex-1 text-start text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {user.email}
-                </span>
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
               </div>
               <EllipsisVerticalIcon className="ms-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : i18n.dir() === "rtl" ? "left" : "right"}
+            side={isMobile ? 'bottom' : i18n.dir() === 'rtl' ? 'left' : 'right'}
             align="end"
             sideOffset={4}
           >
@@ -74,20 +65,18 @@ export function NavUser({
                 </Avatar>
                 <div className="grid flex-1 text-start text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {user.email}
-                  </span>
+                  <span className="truncate text-xs text-muted-foreground">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onProfile}>
               <IdCardIcon />
-              {t("admin.nav.profile", "Profile")}
+              {t('admin.nav.profile', 'Profile')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onLogout}>
               <LogOutIcon />
-              {t("admin.nav.logout")}
+              {t('admin.nav.logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

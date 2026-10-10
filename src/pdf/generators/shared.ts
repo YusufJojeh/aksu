@@ -24,18 +24,44 @@ export function clearBox(page: PDFPage, box: FieldBox, background = WHITE): void
 
 // Redraws a table's own printed rules after its cells have been cleared. `left`/`right` are the
 // table's outer edges, which differ per template, so they are passed in rather than assumed.
-export function drawTableGrid(page: PDFPage, grid: { verticals: number[]; top: number; bottom: number; horizontals: number[]; left: number; right: number }): void {
+export function drawTableGrid(
+  page: PDFPage,
+  grid: { verticals: number[]; top: number; bottom: number; horizontals: number[]; left: number; right: number },
+): void {
   const color = rgb(0.79, 0.79, 0.79)
-  for (const x of grid.verticals) page.drawLine({ start: { x, y: grid.bottom }, end: { x, y: grid.top }, color, thickness: 0.55 })
-  for (const y of grid.horizontals) page.drawLine({ start: { x: grid.left, y }, end: { x: grid.right, y }, color, thickness: 0.55 })
+  for (const x of grid.verticals)
+    page.drawLine({ start: { x, y: grid.bottom }, end: { x, y: grid.top }, color, thickness: 0.55 })
+  for (const y of grid.horizontals)
+    page.drawLine({ start: { x: grid.left, y }, end: { x: grid.right, y }, color, thickness: 0.55 })
 }
 
-export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, box: FieldBox, font: PDFFont, locale: Locale, color = BLACK, background?: ReturnType<typeof rgb>, searchFont?: PDFFont, unicodeFallback?: UnicodeFallback): Promise<void> {
+export async function drawFitted(
+  pdf: PDFDocument,
+  page: PDFPage,
+  text: string,
+  box: FieldBox,
+  font: PDFFont,
+  locale: Locale,
+  color = BLACK,
+  background?: ReturnType<typeof rgb>,
+  searchFont?: PDFFont,
+  unicodeFallback?: UnicodeFallback,
+): Promise<void> {
   if (background) clearBox(page, box, background)
   if (!text) return
   if (/[؀-ۿ]/.test(text)) {
     const hasArabicLetters = /[ء-ي]/.test(text)
-    await drawBrowserShapedText(pdf, page, text, { ...box, direction: hasArabicLetters ? 'rtl' : 'ltr', alignment: hasArabicLetters && box.alignment === 'left' ? 'right' : box.alignment }, color === RED ? '#e00d0d' : color === WHITE ? '#ffffff' : '#171515')
+    await drawBrowserShapedText(
+      pdf,
+      page,
+      text,
+      {
+        ...box,
+        direction: hasArabicLetters ? 'rtl' : 'ltr',
+        alignment: hasArabicLetters && box.alignment === 'left' ? 'right' : box.alignment,
+      },
+      color === RED ? '#e00d0d' : color === WHITE ? '#ffffff' : '#171515',
+    )
     if (searchFont) page.drawText(text, { x: box.x, y: box.y, size: 1, font: searchFont, opacity: 0 })
     return
   }
@@ -45,10 +71,23 @@ export async function drawFitted(pdf: PDFDocument, page: PDFPage, text: string, 
   const measurer = unicodeFallback && cannotEncode(font, text) ? unicodeFallback : font
   const fitted = fitTextToBox(text, measurer, box)
   if (measurer === unicodeFallback) {
-    unicodeFallback.draw(page, fitted.text, alignX(box, fitted.width), box.y + Math.max(1, (box.height - fitted.fontSize) / 2), fitted.fontSize, color)
+    unicodeFallback.draw(
+      page,
+      fitted.text,
+      alignX(box, fitted.width),
+      box.y + Math.max(1, (box.height - fitted.fontSize) / 2),
+      fitted.fontSize,
+      color,
+    )
     return
   }
-  page.drawText(fitted.text, { x: alignX(box, fitted.width), y: box.y + Math.max(1, (box.height - fitted.fontSize) / 2), size: fitted.fontSize, font, color })
+  page.drawText(fitted.text, {
+    x: alignX(box, fitted.width),
+    y: box.y + Math.max(1, (box.height - fitted.fontSize) / 2),
+    size: fitted.fontSize,
+    font,
+    color,
+  })
 }
 
 /** True when `font.widthOfTextAtSize` would throw for this text (a WinAnsi encoding gap). */
@@ -71,11 +110,28 @@ export const VISIT_TOTAL_PADDING = { x: 8, y: 3 }
 
 // Draws one value centered in a real table cell (box = the cell). Preferred size first; shrinks
 // toward minFontSize only when the value exceeds the usable width (or, for shaped Arabic, height).
-export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: string, cell: FieldBox, font: PDFFont, color = BLACK, searchFont?: PDFFont, padding = CELL_PADDING, unicodeFallback?: UnicodeFallback): Promise<void> {
+export async function drawCenteredCell(
+  pdf: PDFDocument,
+  page: PDFPage,
+  text: string,
+  cell: FieldBox,
+  font: PDFFont,
+  color = BLACK,
+  searchFont?: PDFFont,
+  padding = CELL_PADDING,
+  unicodeFallback?: UnicodeFallback,
+): Promise<void> {
   if (!text) return
   if (/[؀-ۿ]/.test(text)) {
     const direction = /[ء-ي]/.test(text) ? 'rtl' : 'ltr'
-    await drawBrowserShapedText(pdf, page, text, { ...cell, alignment: 'center', direction }, color === WHITE ? '#ffffff' : '#171515', { centerInk: true, padding })
+    await drawBrowserShapedText(
+      pdf,
+      page,
+      text,
+      { ...cell, alignment: 'center', direction },
+      color === WHITE ? '#ffffff' : '#171515',
+      { centerInk: true, padding },
+    )
     if (searchFont) page.drawText(text, { x: cell.x, y: cell.y, size: 1, font: searchFont, opacity: 0 })
     return
   }
@@ -84,8 +140,20 @@ export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: st
   // crashing) characters a standard font can't encode — still centered, never truncated silently.
   if (unicodeFallback && cannotEncode(font, text)) {
     const usable = { width: cell.width - 2 * padding.x, height: cell.height - 2 * padding.y }
-    const fitted = fitTextToBox(text, unicodeFallback, { ...cell, width: usable.width, fontSize: Math.min(cell.fontSize, usable.height) }, false)
-    unicodeFallback.draw(page, fitted.text, cell.x + (cell.width - fitted.width) / 2, cell.y + Math.max(1, (cell.height - fitted.fontSize) / 2), fitted.fontSize, color)
+    const fitted = fitTextToBox(
+      text,
+      unicodeFallback,
+      { ...cell, width: usable.width, fontSize: Math.min(cell.fontSize, usable.height) },
+      false,
+    )
+    unicodeFallback.draw(
+      page,
+      fitted.text,
+      cell.x + (cell.width - fitted.width) / 2,
+      cell.y + Math.max(1, (cell.height - fitted.fontSize) / 2),
+      fitted.fontSize,
+      color,
+    )
     return
   }
   const usableWidth = cell.width - 2 * padding.x
@@ -93,7 +161,12 @@ export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: st
   // heightAtSize(1) spans ascender to descender, so this cap keeps descenders inside the cell too.
   const lineHeight = font.heightAtSize(1)
   const ascentAt = (size: number) => font.heightAtSize(size, { descender: false })
-  const oneLine = fitTextToBox(text, font, { ...cell, width: usableWidth, fontSize: Math.min(cell.fontSize, usableHeight / lineHeight) }, false)
+  const oneLine = fitTextToBox(
+    text,
+    font,
+    { ...cell, width: usableWidth, fontSize: Math.min(cell.fontSize, usableHeight / lineHeight) },
+    false,
+  )
   if (oneLine.width > usableWidth) {
     // Even the minimum size overflows one line: stack two centered lines rather than truncate.
     const lines = splitIntoTwoLines(text, font)
@@ -107,20 +180,35 @@ export async function drawCenteredCell(pdf: PDFDocument, page: PDFPage, text: st
         const descent = lineHeight * size - ascentAt(size)
         const bottomBaseline = cell.y + (cell.height - pitch - lineHeight * size) / 2 + descent
         lines.forEach((line, index) => {
-          page.drawText(line, { x: cell.x + (cell.width - font.widthOfTextAtSize(line, size)) / 2, y: bottomBaseline + pitch * (lines.length - 1 - index), size, font, color })
+          page.drawText(line, {
+            x: cell.x + (cell.width - font.widthOfTextAtSize(line, size)) / 2,
+            y: bottomBaseline + pitch * (lines.length - 1 - index),
+            size,
+            font,
+            color,
+          })
         })
         return
       }
     }
   }
-  const fitted = oneLine.width <= usableWidth ? oneLine : fitTextToBox(text, font, { ...cell, width: usableWidth, fontSize: oneLine.fontSize })
+  const fitted =
+    oneLine.width <= usableWidth
+      ? oneLine
+      : fitTextToBox(text, font, { ...cell, width: usableWidth, fontSize: oneLine.fontSize })
   // The standard Times/Helvetica ascender (683/718 per mille) matches their cap/digit height
   // (662-676/718), so centering the baseline-to-ascender band centers the visible glyphs. The
   // baseline is only nudged up if a descender (g, p, y) would otherwise enter the bottom padding.
   const ascent = ascentAt(fitted.fontSize)
   const descent = lineHeight * fitted.fontSize - ascent
   const baseline = Math.max(cell.y + (cell.height - ascent) / 2, cell.y + padding.y + descent)
-  page.drawText(fitted.text, { x: cell.x + (cell.width - fitted.width) / 2, y: baseline, size: fitted.fontSize, font, color })
+  page.drawText(fitted.text, {
+    x: cell.x + (cell.width - fitted.width) / 2,
+    y: baseline,
+    size: fitted.fontSize,
+    font,
+    color,
+  })
 }
 
 // Line pitch for a two-line cell, as a multiple of the font's ascender-to-descender height, so the
@@ -137,7 +225,10 @@ function splitIntoTwoLines(text: string, font: PDFFont): string[] | undefined {
     const second = text.slice(index).trimStart()
     if (!first || !second) continue
     const width = Math.max(font.widthOfTextAtSize(first, 1), font.widthOfTextAtSize(second, 1))
-    if (width < bestWidth) { bestWidth = width; best = [first, second] }
+    if (width < bestWidth) {
+      bestWidth = width
+      best = [first, second]
+    }
   }
   return best
 }
@@ -157,31 +248,54 @@ function isHotelRow(row: TreatmentRow): boolean {
 }
 
 export function rowHasContent(row: TreatmentRow | undefined): row is TreatmentRow {
-  return Boolean(row?.enabled && (
-    row.customTreatment?.trim() || row.quality.trim() || row.duration?.trim()
-    || row.quantity > 0 || row.unitPrice > 0 || row.included
-  ))
+  return Boolean(
+    row?.enabled &&
+      (row.customTreatment?.trim() ||
+        row.quality.trim() ||
+        row.duration?.trim() ||
+        row.quantity > 0 ||
+        row.unitPrice > 0 ||
+        row.included),
+  )
 }
 
-export async function drawTreatmentRows(pdf: PDFDocument, page: PDFPage, rows: TreatmentRow[], boxes: TreatmentRowBoxes[], font: PDFFont, report: ReportData, options: { clearDynamicRegions: boolean; centerInCells?: boolean }, searchFont?: PDFFont, unicodeFallback?: UnicodeFallback): Promise<void> {
+export async function drawTreatmentRows(
+  pdf: PDFDocument,
+  page: PDFPage,
+  rows: TreatmentRow[],
+  boxes: TreatmentRowBoxes[],
+  font: PDFFont,
+  report: ReportData,
+  options: { clearDynamicRegions: boolean; centerInCells?: boolean },
+  searchFont?: PDFFont,
+  unicodeFallback?: UnicodeFallback,
+): Promise<void> {
   const locale = report.document.locale
   const t = i18n.getFixedT(locale)
-  const drawCell = (text: string, cell: FieldBox) => options.centerInCells
-    ? drawCenteredCell(pdf, page, text, cell, font, BLACK, searchFont, CELL_PADDING, unicodeFallback)
-    : drawFitted(pdf, page, text, cell, font, locale, BLACK, undefined, searchFont, unicodeFallback)
+  const drawCell = (text: string, cell: FieldBox) =>
+    options.centerInCells
+      ? drawCenteredCell(pdf, page, text, cell, font, BLACK, searchFont, CELL_PADDING, unicodeFallback)
+      : drawFitted(pdf, page, text, cell, font, locale, BLACK, undefined, searchFont, unicodeFallback)
   for (let index = 0; index < boxes.length; index += 1) {
     const box = boxes[index]
     const row = rows[index]
     if (!box) continue
     if (options.clearDynamicRegions) for (const cell of Object.values(box)) clearBox(page, cell)
     if (!rowHasContent(row)) continue
-    const included = t(report.clinicId === 'mb-dental'
-      ? (isHotelRow(row) ? 'document.includedMbHotel' : 'document.includedMb')
-      : 'document.included')
+    const included = t(
+      report.clinicId === 'mb-dental'
+        ? isHotelRow(row)
+          ? 'document.includedMbHotel'
+          : 'document.includedMb'
+        : 'document.included',
+    )
     await drawCell(treatmentLabel(row, t), box.treatment)
     await drawCell(row.quality, box.quality)
     await drawCell(row.duration || (row.quantity ? String(row.quantity) : ''), box.quantity)
-    await drawCell(row.included ? included : row.unitPrice ? formatPdfMoney(Math.round(row.unitPrice * 100), report) : '', box.unitPrice)
+    await drawCell(
+      row.included ? included : row.unitPrice ? formatPdfMoney(Math.round(row.unitPrice * 100), report) : '',
+      box.unitPrice,
+    )
     await drawCell(row.included ? included : row.unitPrice ? formatPdfMoney(rowTotalMinor(row), report) : '', box.total)
   }
 }

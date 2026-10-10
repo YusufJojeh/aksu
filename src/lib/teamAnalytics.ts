@@ -94,7 +94,8 @@ function changePct(current: number, previous: number): number | null {
 }
 
 function addValue(target: Record<string, number>, report: ArchivedReport) {
-  target[report.currency] = (target[report.currency] ?? 0) + report.first_visit_total_minor + report.second_visit_total_minor
+  target[report.currency] =
+    (target[report.currency] ?? 0) + report.first_visit_total_minor + report.second_visit_total_minor
 }
 
 function countBy(reports: ArchivedReport[], key: 'clinic_id' | 'document_locale') {
@@ -128,19 +129,36 @@ export function buildTeamAnalytics(input: {
   // Team trend: one point per day, aligned with the same weekday offset in the previous period.
   const currentByDay = new Map<string, number>()
   const previousByDay = new Map<string, number>()
-  for (const report of current) { const key = toDayKey(new Date(report.finalized_at)); currentByDay.set(key, (currentByDay.get(key) ?? 0) + 1) }
-  for (const report of previous) { const key = toDayKey(new Date(report.finalized_at)); previousByDay.set(key, (previousByDay.get(key) ?? 0) + 1) }
+  for (const report of current) {
+    const key = toDayKey(new Date(report.finalized_at))
+    currentByDay.set(key, (currentByDay.get(key) ?? 0) + 1)
+  }
+  for (const report of previous) {
+    const key = toDayKey(new Date(report.finalized_at))
+    previousByDay.set(key, (previousByDay.get(key) ?? 0) + 1)
+  }
   const daily = Array.from({ length: rangeDays }, (_, index) => {
     const day = addDays(periodStart, index)
-    return { date: toDayKey(day), current: currentByDay.get(toDayKey(day)) ?? 0, previous: previousByDay.get(toDayKey(addDays(day, -rangeDays))) ?? 0 }
+    return {
+      date: toDayKey(day),
+      current: currentByDay.get(toDayKey(day)) ?? 0,
+      previous: previousByDay.get(toDayKey(addDays(day, -rangeDays))) ?? 0,
+    }
   })
   // 90 daily points are too noisy to read at a glance; sum them into weeks.
   const trendUnit: TeamAnalytics['trendUnit'] = rangeDays === 90 ? 'week' : 'day'
-  const trend = trendUnit === 'day' ? daily : daily.reduce<typeof daily>((weeks, point, index) => {
-    if (index % 7 === 0) weeks.push({ ...point })
-    else { const week = weeks[weeks.length - 1]!; week.current += point.current; week.previous += point.previous }
-    return weeks
-  }, [])
+  const trend =
+    trendUnit === 'day'
+      ? daily
+      : daily.reduce<typeof daily>((weeks, point, index) => {
+          if (index % 7 === 0) weeks.push({ ...point })
+          else {
+            const week = weeks[weeks.length - 1]!
+            week.current += point.current
+            week.previous += point.previous
+          }
+          return weeks
+        }, [])
 
   const reportOwner = new Map(reports.map((report) => [report.id, report.created_by_employee_id]))
   const downloadsByEmployee = new Map<string, number>()
@@ -154,75 +172,96 @@ export function buildTeamAnalytics(input: {
   const lastReportAt = new Map<string, string>()
   for (const report of reports) {
     const last = lastReportAt.get(report.created_by_employee_id)
-    if (!last || time(report.finalized_at) > time(last)) lastReportAt.set(report.created_by_employee_id, report.finalized_at)
+    if (!last || time(report.finalized_at) > time(last))
+      lastReportAt.set(report.created_by_employee_id, report.finalized_at)
   }
 
   const phoneByEmployee = new Map<string, string>()
-  for (const channel of channels) if (channel.current_assignment) phoneByEmployee.set(channel.current_assignment.employee_id, channel.phone_e164)
+  for (const channel of channels)
+    if (channel.current_assignment) phoneByEmployee.set(channel.current_assignment.employee_id, channel.phone_e164)
 
   // One phone = one person. Among working profiles sharing a phone, the one with the most reports
   // (then the oldest) is the real identity; the others are duplicates from name typos.
   const allTimeReports = new Map<string, number>()
-  for (const report of reports) allTimeReports.set(report.created_by_employee_id, (allTimeReports.get(report.created_by_employee_id) ?? 0) + 1)
+  for (const report of reports)
+    allTimeReports.set(report.created_by_employee_id, (allTimeReports.get(report.created_by_employee_id) ?? 0) + 1)
   const primaryByPhone = new Map<string, EmployeeProfile>()
   for (const employee of employees) {
     const phone = employee.requested_phone_e164?.trim()
     if (!phone || (employee.status !== 'active' && employee.status !== 'suspended')) continue
     const current = primaryByPhone.get(phone)
     const score = (profile: EmployeeProfile) => allTimeReports.get(profile.id) ?? 0
-    if (!current || score(employee) > score(current) || (score(employee) === score(current) && time(employee.created_at) < time(current.created_at))) primaryByPhone.set(phone, employee)
+    if (
+      !current ||
+      score(employee) > score(current) ||
+      (score(employee) === score(current) && time(employee.created_at) < time(current.created_at))
+    )
+      primaryByPhone.set(phone, employee)
   }
   const duplicateOf = (employee: EmployeeProfile) => {
     const primary = primaryByPhone.get(employee.requested_phone_e164?.trim() ?? '')
-    return primary && primary.id !== employee.id && (employee.status === 'active' || employee.status === 'suspended') ? { id: primary.id, name: primary.full_name } : null
+    return primary && primary.id !== employee.id && (employee.status === 'active' || employee.status === 'suspended')
+      ? { id: primary.id, name: primary.full_name }
+      : null
   }
 
   const sparkStart = addDays(today, -(SPARKLINE_WEEKS * 7 - 1))
   const activeEmployees = employees.filter((employee) => employee.status === 'active')
   const avgPerActive = activeEmployees.length ? current.length / activeEmployees.length : 0
 
-  const rows = employees.map((employee): EmployeePerformance => {
-    const own = current.filter((report) => report.created_by_employee_id === employee.id)
-    const ownPrevious = previous.filter((report) => report.created_by_employee_id === employee.id).length
-    const valueByCurrency: Record<string, number> = {}
-    for (const report of own) addValue(valueByCurrency, report)
-    const weekly = new Array<number>(SPARKLINE_WEEKS).fill(0)
-    for (const report of reports) {
-      if (report.created_by_employee_id !== employee.id) continue
-      const offset = Math.floor((startOfDay(new Date(report.finalized_at)).getTime() - sparkStart.getTime()) / DAY_MS)
-      if (offset >= 0 && offset < SPARKLINE_WEEKS * 7) weekly[Math.floor(offset / 7)]! += 1
-    }
-    const lastActivityAt = lastReportAt.get(employee.id) ?? null
-    const daysSinceActivity = lastActivityAt ? Math.max(0, Math.floor((today.getTime() - startOfDay(new Date(lastActivityAt)).getTime()) / DAY_MS)) : null
-    const daysSinceJoined = Math.floor((today.getTime() - startOfDay(new Date(employee.created_at)).getTime()) / DAY_MS)
-    const isNew = daysSinceJoined < NEW_EMPLOYEE_DAYS
-    // A brand-new account is not idle until it has had IDLE_AFTER_DAYS to produce its first report.
-    const quietDays = daysSinceActivity ?? daysSinceJoined
-    const idle = employee.status === 'active' && quietDays >= IDLE_AFTER_DAYS
-    let tier: PerformanceTier = 'none'
-    if (own.length > 0) tier = own.length > avgPerActive * (1 + TIER_BAND) ? 'above' : own.length < avgPerActive * (1 - TIER_BAND) ? 'below' : 'average'
-    return {
-      id: employee.id,
-      name: employee.full_name,
-      status: employee.status,
-      isNew,
-      idle,
-      tier,
-      reports: own.length,
-      previousReports: ownPrevious,
-      changePct: changePct(own.length, ownPrevious),
-      valueByCurrency,
-      activeDays: new Set(own.map((report) => toDayKey(new Date(report.finalized_at)))).size,
-      followUps: own.filter((report) => report.parent_report_id).length,
-      downloads: downloadsByEmployee.get(employee.id) ?? 0,
-      lastActivityAt,
-      daysSinceActivity,
-      weekly,
-      phone: phoneByEmployee.get(employee.id),
-      requestedPhone: employee.requested_phone_e164,
-      duplicateOf: duplicateOf(employee),
-    }
-  })
+  const rows = employees
+    .map((employee): EmployeePerformance => {
+      const own = current.filter((report) => report.created_by_employee_id === employee.id)
+      const ownPrevious = previous.filter((report) => report.created_by_employee_id === employee.id).length
+      const valueByCurrency: Record<string, number> = {}
+      for (const report of own) addValue(valueByCurrency, report)
+      const weekly = new Array<number>(SPARKLINE_WEEKS).fill(0)
+      for (const report of reports) {
+        if (report.created_by_employee_id !== employee.id) continue
+        const offset = Math.floor((startOfDay(new Date(report.finalized_at)).getTime() - sparkStart.getTime()) / DAY_MS)
+        if (offset >= 0 && offset < SPARKLINE_WEEKS * 7) weekly[Math.floor(offset / 7)]! += 1
+      }
+      const lastActivityAt = lastReportAt.get(employee.id) ?? null
+      const daysSinceActivity = lastActivityAt
+        ? Math.max(0, Math.floor((today.getTime() - startOfDay(new Date(lastActivityAt)).getTime()) / DAY_MS))
+        : null
+      const daysSinceJoined = Math.floor(
+        (today.getTime() - startOfDay(new Date(employee.created_at)).getTime()) / DAY_MS,
+      )
+      const isNew = daysSinceJoined < NEW_EMPLOYEE_DAYS
+      // A brand-new account is not idle until it has had IDLE_AFTER_DAYS to produce its first report.
+      const quietDays = daysSinceActivity ?? daysSinceJoined
+      const idle = employee.status === 'active' && quietDays >= IDLE_AFTER_DAYS
+      let tier: PerformanceTier = 'none'
+      if (own.length > 0)
+        tier =
+          own.length > avgPerActive * (1 + TIER_BAND)
+            ? 'above'
+            : own.length < avgPerActive * (1 - TIER_BAND)
+              ? 'below'
+              : 'average'
+      return {
+        id: employee.id,
+        name: employee.full_name,
+        status: employee.status,
+        isNew,
+        idle,
+        tier,
+        reports: own.length,
+        previousReports: ownPrevious,
+        changePct: changePct(own.length, ownPrevious),
+        valueByCurrency,
+        activeDays: new Set(own.map((report) => toDayKey(new Date(report.finalized_at)))).size,
+        followUps: own.filter((report) => report.parent_report_id).length,
+        downloads: downloadsByEmployee.get(employee.id) ?? 0,
+        lastActivityAt,
+        daysSinceActivity,
+        weekly,
+        phone: phoneByEmployee.get(employee.id),
+        requestedPhone: employee.requested_phone_e164,
+        duplicateOf: duplicateOf(employee),
+      }
+    })
     // Former / pending staff only matter here if they produced something in the period.
     .filter((row) => row.status === 'active' || row.status === 'suspended' || row.reports > 0)
     .sort((a, b) => b.reports - a.reports || a.name.localeCompare(b.name))
@@ -240,7 +279,8 @@ export function buildTeamAnalytics(input: {
 
   const duplicateRows = rows.filter((row) => row.duplicateOf)
   // Longest-quiet first: those are the ones to follow up (or offboard) before anyone else.
-  const idleRows = rows.filter((row) => row.idle && !row.duplicateOf)
+  const idleRows = rows
+    .filter((row) => row.idle && !row.duplicateOf)
     .sort((a, b) => (b.daysSinceActivity ?? Infinity) - (a.daysSinceActivity ?? Infinity))
   const pending = employees.filter((employee) => employee.status === 'pending')
 
@@ -249,9 +289,14 @@ export function buildTeamAnalytics(input: {
   if (teamChange !== null) insights.push({ kind: 'change', pct: teamChange })
   if (rows[0] && rows[0].reports > 0) insights.push({ kind: 'leader', name: rows[0].name, reports: rows[0].reports })
   let busiest = { weekday: 0, block: 0, count: 0 }
-  heatmap.forEach((row, weekday) => row.forEach((count, block) => { if (count > busiest.count) busiest = { weekday, block, count } }))
+  heatmap.forEach((row, weekday) =>
+    row.forEach((count, block) => {
+      if (count > busiest.count) busiest = { weekday, block, count }
+    }),
+  )
   if (busiest.count > 0) insights.push({ kind: 'busiest', weekday: busiest.weekday, block: busiest.block })
-  if (activeEmployees.length > 0) insights.push(idleRows.length ? { kind: 'idle', count: idleRows.length } : { kind: 'allActive' })
+  if (activeEmployees.length > 0)
+    insights.push(idleRows.length ? { kind: 'idle', count: idleRows.length } : { kind: 'allActive' })
 
   return {
     rangeDays,
@@ -300,7 +345,12 @@ export interface EmployeeDetail {
 }
 
 /** Drill-down for one employee. Customers are the distinct patients across all of their reports. */
-export function buildEmployeeDetail(input: { reports: ArchivedReport[]; employeeId: string; rangeDays: RangeDays; now?: Date }): EmployeeDetail {
+export function buildEmployeeDetail(input: {
+  reports: ArchivedReport[]
+  employeeId: string
+  rangeDays: RangeDays
+  now?: Date
+}): EmployeeDetail {
   const today = startOfDay(input.now ?? new Date())
   const own = input.reports
     .filter((report) => report.created_by_employee_id === input.employeeId)
@@ -313,7 +363,14 @@ export function buildEmployeeDetail(input: { reports: ArchivedReport[]; employee
     const existing = customers.get(key)
     // Reports are newest first, so the first one seen carries the current name and the last visit.
     if (existing) existing.reports += 1
-    else customers.set(key, { key, name: report.patient_name.trim(), phone: report.patient_phone, reports: 1, lastAt: report.finalized_at })
+    else
+      customers.set(key, {
+        key,
+        name: report.patient_name.trim(),
+        phone: report.patient_phone,
+        reports: 1,
+        lastAt: report.finalized_at,
+      })
   }
 
   const periodStart = addDays(today, -(input.rangeDays - 1))

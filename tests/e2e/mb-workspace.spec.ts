@@ -3,7 +3,9 @@ import { readFile } from 'node:fs/promises'
 import { PDFDocument } from 'pdf-lib'
 import { selectClinic } from './helpers/selectClinic'
 
-test('MB Dental workspace: no form before clinic selection, EN default preview, fill and download a five-page report', async ({ page }, testInfo) => {
+test('MB Dental workspace: no form before clinic selection, EN default preview, fill and download a five-page report', async ({
+  page,
+}, testInfo) => {
   await page.goto('/')
   await expect(page.locator('[name="patient.name"]')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Select a clinic' })).toBeVisible()

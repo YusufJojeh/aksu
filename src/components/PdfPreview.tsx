@@ -12,12 +12,25 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.m
 const WIDTH_GRID = 4
 const quantizeWidth = (width: number) => Math.floor(width / WIDTH_GRID) * WIDTH_GRID
 
-export function PdfPreview({ url, loading, error, onRetry }: { url?: string; loading: boolean; error?: Error; onRetry?: () => void }) {
+export function PdfPreview({
+  url,
+  loading,
+  error,
+  onRetry,
+}: {
+  url?: string
+  loading: boolean
+  error?: Error
+  onRetry?: () => void
+}) {
   const { t } = useTranslation()
   const pagesContainer = useRef<HTMLDivElement>(null)
   // Page labels follow the interface language without re-parsing and re-rendering the whole PDF:
   // the render effect reads the latest labeller from a ref, and a language change relabels in place.
-  const pageLabel = useCallback((current: number, total: number) => `${t('sections.pdfPreview')}, ${t('status.page', { current, total })}`, [t])
+  const pageLabel = useCallback(
+    (current: number, total: number) => `${t('sections.pdfPreview')}, ${t('status.page', { current, total })}`,
+    [t],
+  )
   const pageLabelRef = useRef(pageLabel)
   useLayoutEffect(() => {
     pageLabelRef.current = pageLabel
@@ -53,7 +66,10 @@ export function PdfPreview({ url, loading, error, onRetry }: { url?: string; loa
           const selected = await documentProxy.getPage(pageNumber)
           if (superseded() || !pagesContainer.current) return
           const base = selected.getViewport({ scale: 1 })
-          const available = Math.min(1.35, (quantizeWidth(pagesContainer.current.parentElement?.clientWidth ?? 600) - 32) / base.width)
+          const available = Math.min(
+            1.35,
+            (quantizeWidth(pagesContainer.current.parentElement?.clientWidth ?? 600) - 32) / base.width,
+          )
           // Rounded to a hundredth so a pixel of layout jitter cannot change the canvas size.
           const scale = Math.round(Math.max(0.55, available) * 100) / 100
           const viewport = selected.getViewport({ scale: scale * window.devicePixelRatio })
@@ -84,13 +100,16 @@ export function PdfPreview({ url, loading, error, onRetry }: { url?: string; loa
     let resizeTimeout: number | undefined
     const container = pagesContainer.current.parentElement
     let lastWidth = quantizeWidth(container?.clientWidth ?? 0)
-    const observer = container && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => {
-      const nextWidth = quantizeWidth(container.clientWidth)
-      if (nextWidth === lastWidth) return
-      lastWidth = nextWidth
-      window.clearTimeout(resizeTimeout)
-      resizeTimeout = window.setTimeout(() => void renderAll(), 150)
-    }) : undefined
+    const observer =
+      container && typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            const nextWidth = quantizeWidth(container.clientWidth)
+            if (nextWidth === lastWidth) return
+            lastWidth = nextWidth
+            window.clearTimeout(resizeTimeout)
+            resizeTimeout = window.setTimeout(() => void renderAll(), 150)
+          })
+        : undefined
     if (container) observer?.observe(container)
     return () => {
       cancelled = true
@@ -101,25 +120,49 @@ export function PdfPreview({ url, loading, error, onRetry }: { url?: string; loa
     }
   }, [url])
 
-  if (error) return <div role="alert" className="grid min-h-[420px] place-items-center p-8 text-center text-red-800"><div className="grid justify-items-center gap-2">
-    <FileWarning className="mb-1" />
-    <p className="font-semibold">{t('status.error')}</p>
-    <p className="max-w-md text-sm text-stone-700">{t('status.errorHint')}</p>
-    {onRetry && <Button className="mt-2" onClick={onRetry}><RotateCcw size={16} />{t('actions.retry')}</Button>}
-    {/* The technical message stays available for support, below the plain-language guidance. */}
-    <p className="mt-1 max-w-md break-words text-xs text-stone-500">{error.message}</p>
-  </div></div>
+  if (error)
+    return (
+      <div role="alert" className="grid min-h-[420px] place-items-center p-8 text-center text-red-800">
+        <div className="grid justify-items-center gap-2">
+          <FileWarning className="mb-1" />
+          <p className="font-semibold">{t('status.error')}</p>
+          <p className="max-w-md text-sm text-stone-700">{t('status.errorHint')}</p>
+          {onRetry && (
+            <Button className="mt-2" onClick={onRetry}>
+              <RotateCcw size={16} />
+              {t('actions.retry')}
+            </Button>
+          )}
+          {/* The technical message stays available for support, below the plain-language guidance. */}
+          <p className="mt-1 max-w-md break-words text-xs text-stone-500">{error.message}</p>
+        </div>
+      </div>
+    )
 
-  return <div className="relative flex min-h-[420px] flex-col items-center">
-    <div className="sticky top-0 z-10 flex w-full items-center justify-center gap-3 border-b border-stone-300/70 bg-stone-200 p-2">
-      <span className="flex min-w-28 items-center justify-center gap-1.5 text-center text-xs font-semibold text-stone-600">{t('sections.pdfPreview')}{loading && url && <LoaderCircle aria-hidden size={12} className="animate-spin text-gold" />}</span>
-      <span role="status" className="sr-only">{!loading && url ? t('status.ready') : ''}</span>
-    </div>
-    {/* The gutter is reserved so the scrollbar appearing partway through the first render cannot
+  return (
+    <div className="relative flex min-h-[420px] flex-col items-center">
+      <div className="sticky top-0 z-10 flex w-full items-center justify-center gap-3 border-b border-stone-300/70 bg-stone-200 p-2">
+        <span className="flex min-w-28 items-center justify-center gap-1.5 text-center text-xs font-semibold text-stone-600">
+          {t('sections.pdfPreview')}
+          {loading && url && <LoaderCircle aria-hidden size={12} className="animate-spin text-gold" />}
+        </span>
+        <span role="status" className="sr-only">
+          {!loading && url ? t('status.ready') : ''}
+        </span>
+      </div>
+      {/* The gutter is reserved so the scrollbar appearing partway through the first render cannot
         narrow the container and make the remaining pages render at a slightly different scale. */}
-    <div className="w-full overflow-auto p-4 text-center [scrollbar-gutter:stable]">
-      <div ref={pagesContainer} className="mx-auto flex w-fit flex-col gap-5" />
+      <div className="w-full overflow-auto p-4 text-center [scrollbar-gutter:stable]">
+        <div ref={pagesContainer} className="mx-auto flex w-fit flex-col gap-5" />
+      </div>
+      {loading && !url && (
+        <div role="status" className="absolute inset-0 z-20 grid place-items-center bg-stone-100/70">
+          <div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink shadow-lg">
+            <LoaderCircle className="me-2 inline animate-spin" size={17} />
+            {t('status.generating')}
+          </div>
+        </div>
+      )}
     </div>
-    {loading && !url && <div role="status" className="absolute inset-0 z-20 grid place-items-center bg-stone-100/70"><div className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink shadow-lg"><LoaderCircle className="me-2 inline animate-spin" size={17} />{t('status.generating')}</div></div>}
-  </div>
+  )
 }

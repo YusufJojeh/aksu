@@ -12,7 +12,10 @@ if (!url) {
 
 const schemaPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'db', 'schema.sql')
 const schema = readFileSync(schemaPath, 'utf8')
-const statements = schema.split(';').map((s) => s.trim()).filter(Boolean)
+const statements = schema
+  .split(';')
+  .map((s) => s.trim())
+  .filter(Boolean)
 
 const sql = neon(url)
 for (const statement of statements) {

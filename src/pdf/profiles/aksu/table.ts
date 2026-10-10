@@ -37,7 +37,16 @@ export function aksuVisitTable(
     const cell = (column: number) => {
       const left = columnEdges[column]!
       const right = columnEdges[column + 1]!
-      return box(left + AKSU_GRIDLINE_INSET, bottom + AKSU_GRIDLINE_INSET, right - left - 2 * AKSU_GRIDLINE_INSET, top - bottom - 2 * AKSU_GRIDLINE_INSET, fontSize, 'center', undefined, minFontSize)
+      return box(
+        left + AKSU_GRIDLINE_INSET,
+        bottom + AKSU_GRIDLINE_INSET,
+        right - left - 2 * AKSU_GRIDLINE_INSET,
+        top - bottom - 2 * AKSU_GRIDLINE_INSET,
+        fontSize,
+        'center',
+        undefined,
+        minFontSize,
+      )
     }
     rows.push({ treatment: cell(0), quality: cell(1), quantity: cell(2), unitPrice: cell(3), total: cell(4) })
   }

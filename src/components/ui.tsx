@@ -18,73 +18,231 @@ const buttonSizes = {
   icon: 'size-11 min-h-11 p-0',
 } as const
 
-export function Button({ className, type = 'button', variant = 'outline', size = 'default', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof buttonVariants; size?: keyof typeof buttonSizes }) {
-  return <button type={type} className={cn('inline-flex select-none items-center justify-center gap-2 rounded-md text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:pointer-events-none disabled:opacity-50', buttonVariants[variant], buttonSizes[size], className)} {...props} />
+export function Button({
+  className,
+  type = 'button',
+  variant = 'outline',
+  size = 'default',
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: keyof typeof buttonVariants
+  size?: keyof typeof buttonSizes
+}) {
+  return (
+    <button
+      type={type}
+      className={cn(
+        'inline-flex select-none items-center justify-center gap-2 rounded-md text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold disabled:pointer-events-none disabled:opacity-50',
+        buttonVariants[variant],
+        buttonSizes[size],
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={cn('h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-stone-500 disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-600 focus:border-gold focus:ring-2 focus:ring-gold/20', className)} {...props} />
+  return (
+    <input
+      className={cn(
+        'h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-stone-500 disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-600 focus:border-gold focus:ring-2 focus:ring-gold/20',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={cn('h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none focus:border-gold focus:ring-2 focus:ring-gold/20', className)} {...props} />
+  return (
+    <select
+      className={cn(
+        'h-10 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-ink outline-none focus:border-gold focus:ring-2 focus:ring-gold/20',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
-export function Checkbox({ label, className, ...props }: { label?: React.ReactNode; className?: string } & Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
-  return <label className={cn('inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm', className)}>
-    <span className="relative inline-flex size-5 shrink-0">
-      <input type="checkbox" className="peer absolute inset-0 z-10 size-full cursor-pointer opacity-0" {...props} />
-      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition-[background-color,border-color] duration-150 peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2" />
-      <Check aria-hidden size={13} strokeWidth={3} className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition-opacity duration-150 peer-checked:opacity-100" />
-    </span>
-    {label}
-  </label>
+export function Checkbox({
+  label,
+  className,
+  ...props
+}: { label?: React.ReactNode; className?: string } & Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>) {
+  return (
+    <label className={cn('inline-flex min-h-11 cursor-pointer items-center gap-2.5 text-sm', className)}>
+      <span className="relative inline-flex size-5 shrink-0">
+        <input type="checkbox" className="peer absolute inset-0 z-10 size-full cursor-pointer opacity-0" {...props} />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-md border-2 border-stone-300 bg-white transition-[background-color,border-color] duration-150 peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-gold peer-focus-visible:ring-offset-2"
+        />
+        <Check
+          aria-hidden
+          size={13}
+          strokeWidth={3}
+          className="pointer-events-none absolute inset-0 m-auto text-white opacity-0 transition-opacity duration-150 peer-checked:opacity-100"
+        />
+      </span>
+      {label}
+    </label>
+  )
 }
 
-export function Field({ label, error, children, className }: { label: string; error?: string; children: React.ReactNode; className?: string }) {
+export function Field({
+  label,
+  error,
+  children,
+  className,
+}: {
+  label: string
+  error?: string
+  children: React.ReactNode
+  className?: string
+}) {
   // Finalize failures (e.g. MB's required Patient ID) need to be impossible to miss: a red ring
   // around the whole field, not just small text easily scrolled past.
-  return <label className={cn('grid gap-1.5 rounded-md text-sm font-medium text-stone-700', error && 'ring-2 ring-red-500 ring-offset-2', className)}><span>{label}</span>{children}{error && <span role="alert" className="text-xs font-medium text-red-700">{error}</span>}</label>
+  return (
+    <label
+      className={cn(
+        'grid gap-1.5 rounded-md text-sm font-medium text-stone-700',
+        error && 'ring-2 ring-red-500 ring-offset-2',
+        className,
+      )}
+    >
+      <span>{label}</span>
+      {children}
+      {error && (
+        <span role="alert" className="text-xs font-medium text-red-700">
+          {error}
+        </span>
+      )}
+    </label>
+  )
 }
 
 export function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="border-b border-stone-200 px-5 py-6 sm:px-7"><h2 className="relative mb-5 pb-2 text-base font-bold tracking-tight text-ink after:absolute after:bottom-0 after:start-0 after:h-0.5 after:w-8 after:rounded-full after:bg-gold">{title}</h2>{children}</section>
+  return (
+    <section className="border-b border-stone-200 px-5 py-6 sm:px-7">
+      <h2 className="relative mb-5 pb-2 text-base font-bold tracking-tight text-ink after:absolute after:bottom-0 after:start-0 after:h-0.5 after:w-8 after:rounded-full after:bg-gold">
+        {title}
+      </h2>
+      {children}
+    </section>
+  )
 }
 
 export const Tabs = TabsPrimitive.Root
-export const TabsList = ({ className, ...props }: TabsPrimitive.TabsListProps) => <TabsPrimitive.List className={cn('grid grid-cols-2 rounded-lg bg-stone-200 p-1', className)} {...props} />
-export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => <TabsPrimitive.Trigger className={cn('min-h-10 rounded-md px-3 py-2 text-sm font-semibold text-stone-600 transition-[color,background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold [@media(hover:hover)]:hover:text-ink data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm', className)} {...props} />
+export const TabsList = ({ className, ...props }: TabsPrimitive.TabsListProps) => (
+  <TabsPrimitive.List className={cn('grid grid-cols-2 rounded-lg bg-stone-200 p-1', className)} {...props} />
+)
+export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => (
+  <TabsPrimitive.Trigger
+    className={cn(
+      'min-h-10 rounded-md px-3 py-2 text-sm font-semibold text-stone-600 transition-[color,background-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold [@media(hover:hover)]:hover:text-ink data-[state=active]:bg-white data-[state=active]:text-ink data-[state=active]:shadow-sm',
+      className,
+    )}
+    {...props}
+  />
+)
 
 export function Accordion({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-white', className)}>{children}</div>
+  return (
+    <div
+      className={cn('divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-white', className)}
+    >
+      {children}
+    </div>
+  )
 }
 
-export function AccordionItem({ summary, children, className, defaultOpen }: { summary: React.ReactNode; children: React.ReactNode; className?: string; defaultOpen?: boolean }) {
-  return <details className={cn('group', className)} open={defaultOpen}>
-    <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-ink marker:content-none [&::-webkit-details-marker]:hidden">
-      <span className="min-w-0 flex-1">{summary}</span>
-      <ChevronDown aria-hidden size={16} className="shrink-0 text-stone-400 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" />
-    </summary>
-    <div className="grid gap-3 border-t border-stone-100 px-4 py-4">{children}</div>
-  </details>
+export function AccordionItem({
+  summary,
+  children,
+  className,
+  defaultOpen,
+}: {
+  summary: React.ReactNode
+  children: React.ReactNode
+  className?: string
+  defaultOpen?: boolean
+}) {
+  return (
+    <details className={cn('group', className)} open={defaultOpen}>
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm text-ink marker:content-none [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0 flex-1">{summary}</span>
+        <ChevronDown
+          aria-hidden
+          size={16}
+          className="shrink-0 text-stone-400 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+        />
+      </summary>
+      <div className="grid gap-3 border-t border-stone-100 px-4 py-4">{children}</div>
+    </details>
+  )
 }
 
-export function AccordionField({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
-  return <div className={cn('grid gap-1', className)}><span className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</span>{children}</div>
+export function AccordionField({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('grid gap-1', className)}>
+      <span className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</span>
+      {children}
+    </div>
+  )
 }
 
-export function ConfirmDialog({ open, onOpenChange, title, body, confirmLabel, cancelLabel, onConfirm }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; body: string; confirmLabel: string; cancelLabel: string; onConfirm: () => void }) {
-  return <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-    <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/45" />
-      <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-stone-200 bg-white p-6 shadow-md focus:outline-none">
-        <DialogPrimitive.Title className="text-lg font-bold text-ink">{title}</DialogPrimitive.Title>
-        <DialogPrimitive.Description className="mt-2 text-sm leading-6 text-stone-600">{body}</DialogPrimitive.Description>
-        <div className="mt-6 flex justify-end gap-2">
-          <DialogPrimitive.Close asChild><Button variant="outline">{cancelLabel}</Button></DialogPrimitive.Close>
-          <Button variant="danger" onClick={() => { onConfirm(); onOpenChange(false) }}>{confirmLabel}</Button>
-        </div>
-      </DialogPrimitive.Content>
-    </DialogPrimitive.Portal>
-  </DialogPrimitive.Root>
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  body,
+  confirmLabel,
+  cancelLabel,
+  onConfirm,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  title: string
+  body: string
+  confirmLabel: string
+  cancelLabel: string
+  onConfirm: () => void
+}) {
+  return (
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/45" />
+        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-stone-200 bg-white p-6 shadow-md focus:outline-none">
+          <DialogPrimitive.Title className="text-lg font-bold text-ink">{title}</DialogPrimitive.Title>
+          <DialogPrimitive.Description className="mt-2 text-sm leading-6 text-stone-600">
+            {body}
+          </DialogPrimitive.Description>
+          <div className="mt-6 flex justify-end gap-2">
+            <DialogPrimitive.Close asChild>
+              <Button variant="outline">{cancelLabel}</Button>
+            </DialogPrimitive.Close>
+            <Button
+              variant="danger"
+              onClick={() => {
+                onConfirm()
+                onOpenChange(false)
+              }}
+            >
+              {confirmLabel}
+            </Button>
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+  )
 }

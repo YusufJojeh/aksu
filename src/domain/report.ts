@@ -86,7 +86,9 @@ const aksuReportObjectSchema = z.object({
     locale: z.enum(locales),
     currency: z.enum(currencies),
   }),
-  assessment: z.object(Object.fromEntries(assessmentKeys.map((key) => [key, z.boolean()])) as Record<AssessmentKey, z.ZodBoolean>),
+  assessment: z.object(
+    Object.fromEntries(assessmentKeys.map((key) => [key, z.boolean()])) as Record<AssessmentKey, z.ZodBoolean>,
+  ),
   firstVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7), ...visitDiscountFields }),
   secondVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(7), ...visitDiscountFields }),
 })
@@ -109,8 +111,15 @@ const mbReportObjectSchema = z.object({
     currency: z.enum(currencies),
   }),
   oralHealth: z.object({
-    currentCondition: z.object(Object.fromEntries(mbConditionKeys.map((key) => [key, z.boolean()])) as Record<MbConditionKey, z.ZodBoolean>),
-    recommendedTreatments: z.object(Object.fromEntries(mbRecommendedTreatmentKeys.map((key) => [key, z.boolean()])) as Record<MbRecommendedTreatmentKey, z.ZodBoolean>),
+    currentCondition: z.object(
+      Object.fromEntries(mbConditionKeys.map((key) => [key, z.boolean()])) as Record<MbConditionKey, z.ZodBoolean>,
+    ),
+    recommendedTreatments: z.object(
+      Object.fromEntries(mbRecommendedTreatmentKeys.map((key) => [key, z.boolean()])) as Record<
+        MbRecommendedTreatmentKey,
+        z.ZodBoolean
+      >,
+    ),
   }),
   // MB's template has no discount concept (evidence: no discount row on the Treatment Plan page).
   firstVisit: z.object({ treatmentRows: z.array(treatmentRowSchema).max(6) }),
@@ -178,7 +187,15 @@ const row = (id: string, treatmentKey: string, overrides: Partial<TreatmentRow> 
 // MB ships with blank rows — no source evidence for a fixed MB treatment-menu catalog like Aksu's.
 // Staff use the same free-text `customTreatment` field Aksu's blank/ad-hoc rows already rely on.
 const blankRow = (id: string): TreatmentRow => ({
-  id, enabled: true, treatmentKey: undefined, customTreatment: '', quality: '', quantity: 0, unitPrice: 0, included: false, duration: '',
+  id,
+  enabled: true,
+  treatmentKey: undefined,
+  customTreatment: '',
+  quality: '',
+  quantity: 0,
+  unitPrice: 0,
+  included: false,
+  duration: '',
 })
 
 export function createDefaultAksuReport(): AksuReportData {
@@ -205,8 +222,12 @@ export function createDefaultAksuReport(): AksuReportData {
     },
     secondVisit: {
       treatmentRows: [
-        row('sv-1', 'gumTreatment'), row('sv-2', 'zirconiumCrown'), row('sv-3', 'emaxVeneer'),
-        row('sv-4', 'emaxCrown'), row('sv-5', 'rootCanalTreatment'), row('sv-6', 'rootCanalRetreatment'),
+        row('sv-1', 'gumTreatment'),
+        row('sv-2', 'zirconiumCrown'),
+        row('sv-3', 'emaxVeneer'),
+        row('sv-4', 'emaxCrown'),
+        row('sv-5', 'rootCanalTreatment'),
+        row('sv-6', 'rootCanalRetreatment'),
         row('sv-7', 'hotelVipTransfer'),
       ],
       discountEnabled: false,
@@ -224,8 +245,14 @@ export function createDefaultMbReport(): MbReportData {
     patient: { reportDate: new Date().toISOString().slice(0, 10), name: '', age: 0, phone: '', patientId: '' },
     document: { locale: 'en', currency: 'EUR' },
     oralHealth: {
-      currentCondition: Object.fromEntries(mbConditionKeys.map((key) => [key, false])) as Record<MbConditionKey, boolean>,
-      recommendedTreatments: Object.fromEntries(mbRecommendedTreatmentKeys.map((key) => [key, false])) as Record<MbRecommendedTreatmentKey, boolean>,
+      currentCondition: Object.fromEntries(mbConditionKeys.map((key) => [key, false])) as Record<
+        MbConditionKey,
+        boolean
+      >,
+      recommendedTreatments: Object.fromEntries(mbRecommendedTreatmentKeys.map((key) => [key, false])) as Record<
+        MbRecommendedTreatmentKey,
+        boolean
+      >,
     },
     firstVisit: { treatmentRows: ['fv-1', 'fv-2', 'fv-3', 'fv-4', 'fv-5', 'fv-6'].map(blankRow) },
     secondVisit: { treatmentRows: ['sv-1', 'sv-2', 'sv-3', 'sv-4', 'sv-5', 'sv-6'].map(blankRow) },

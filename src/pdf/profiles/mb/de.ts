@@ -37,10 +37,18 @@ import type { MbPdfCoordinates } from './types'
 const MEDIA_BOX_Y = 7.83
 const pdfRowEdges = (edges: number[]) => edges.map((y) => y + MEDIA_BOX_Y)
 const firstVisitColumns = {
-  treatment: [28.1, 230.1], quality: [230.1, 327.9], quantity: [327.9, 401.4], unitPrice: [401.4, 476.4], total: [476.4, 565.4],
+  treatment: [28.1, 230.1],
+  quality: [230.1, 327.9],
+  quantity: [327.9, 401.4],
+  unitPrice: [401.4, 476.4],
+  total: [476.4, 565.4],
 } as const
 const secondVisitColumns = {
-  treatment: [22.1, 224.1], quality: [224.1, 321.9], quantity: [321.9, 402.0], unitPrice: [402.0, 470.5], total: [470.5, 559.5],
+  treatment: [22.1, 224.1],
+  quality: [224.1, 321.9],
+  quantity: [321.9, 402.0],
+  unitPrice: [402.0, 470.5],
+  total: [470.5, 559.5],
 } as const
 // de.pdf and en.pdf are the same base artwork (identical measured squares, only the printed
 // labels differ), so the German page reuses the English measurements verbatim.
@@ -61,7 +69,21 @@ export const deMbPdfCoordinates: MbPdfCoordinates = {
     // Same physical gold TOTAL pill as en.ts (identical base artwork): x=307.1-564.8,
     // y=432.2-478.6 (first visit) / x=301.0-559.1, y=111.8-158.3 (second visit), ~46-47pt tall —
     // over twice the 22pt this box previously used. See en.ts for the full measurement note.
-    firstVisit: { rows: mbTableRows(firstVisitColumns, pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]), mbLatinCellSizes), total: box(317, 437, 238, 36, 26, 'center', undefined, 18) },
-    secondVisit: { rows: mbTableRows(secondVisitColumns, pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]), mbLatinCellSizes), total: box(311, 117, 238, 36, 26, 'center', undefined, 18) },
+    firstVisit: {
+      rows: mbTableRows(
+        firstVisitColumns,
+        pdfRowEdges([655.5, 628.0, 601.0, 573.8, 546.8, 519.7, 484.5]),
+        mbLatinCellSizes,
+      ),
+      total: box(317, 437, 238, 36, 26, 'center', undefined, 18),
+    },
+    secondVisit: {
+      rows: mbTableRows(
+        secondVisitColumns,
+        pdfRowEdges([335.0, 307.5, 280.5, 253.3, 226.3, 199.2, 164.0]),
+        mbLatinCellSizes,
+      ),
+      total: box(311, 117, 238, 36, 26, 'center', undefined, 18),
+    },
   },
 }

@@ -6,7 +6,10 @@ import { box, type Direction, type TreatmentRowBoxes } from '../shared/fieldBox'
 // box.x + width / 2 and box.y + height / 2 with its own padding — nothing here positions a baseline.
 export type MbTableColumn = keyof TreatmentRowBoxes
 
-export interface MbCellSize { fontSize: number; minFontSize: number }
+export interface MbCellSize {
+  fontSize: number
+  minFontSize: number
+}
 
 const GRIDLINE_INSET = 0.75
 
@@ -59,9 +62,24 @@ export function mbTableRows(
     const cell = (column: MbTableColumn) => {
       const [left, right] = columns[column]
       const { fontSize, minFontSize } = sizes[column]
-      return box(left + GRIDLINE_INSET, bottom + GRIDLINE_INSET, right - left - 2 * GRIDLINE_INSET, top - bottom - 2 * GRIDLINE_INSET, fontSize, 'center', direction, minFontSize)
+      return box(
+        left + GRIDLINE_INSET,
+        bottom + GRIDLINE_INSET,
+        right - left - 2 * GRIDLINE_INSET,
+        top - bottom - 2 * GRIDLINE_INSET,
+        fontSize,
+        'center',
+        direction,
+        minFontSize,
+      )
     }
-    rows.push({ treatment: cell('treatment'), quality: cell('quality'), quantity: cell('quantity'), unitPrice: cell('unitPrice'), total: cell('total') })
+    rows.push({
+      treatment: cell('treatment'),
+      quality: cell('quality'),
+      quantity: cell('quantity'),
+      unitPrice: cell('unitPrice'),
+      total: cell('total'),
+    })
   }
   return rows
 }

@@ -20,17 +20,23 @@ export function isEditedCopy(report: ArchivedReport): boolean {
   return Boolean(report.parent_report_id)
 }
 
-export function filterReports(reports: ArchivedReport[], filter: { kind: ReportKindFilter; query: string }): ArchivedReport[] {
+export function filterReports(
+  reports: ArchivedReport[],
+  filter: { kind: ReportKindFilter; query: string },
+): ArchivedReport[] {
   const query = filter.query.trim().toLowerCase()
-  return reports.filter((report) =>
-    (filter.kind === 'all' || (filter.kind === 'edited') === isEditedCopy(report))
-    && (!query || `${report.patient_name} ${report.patient_phone}`.toLowerCase().includes(query)))
+  return reports.filter(
+    (report) =>
+      (filter.kind === 'all' || (filter.kind === 'edited') === isEditedCopy(report)) &&
+      (!query || `${report.patient_name} ${report.patient_phone}`.toLowerCase().includes(query)),
+  )
 }
 
 export function downloadCounts(events: ReportEvent[]): Map<string, number> {
   const counts = new Map<string, number>()
   for (const event of events) {
-    if (event.event_type === 'downloaded' || event.event_type === 'admin_downloaded') counts.set(event.report_id, (counts.get(event.report_id) ?? 0) + 1)
+    if (event.event_type === 'downloaded' || event.event_type === 'admin_downloaded')
+      counts.set(event.report_id, (counts.get(event.report_id) ?? 0) + 1)
   }
   return counts
 }
@@ -71,7 +77,8 @@ export function buildReportHistory(reports: ArchivedReport[], events: ReportEven
   const ids = new Set(versions.map((version) => version.id))
   for (const version of versions) {
     // Copies record both 'finalized' and 'duplicated'; show one "edited" line for them.
-    if (!isEditedCopy(version)) log.push({ id: `created-${version.id}`, report: version, type: 'created', at: version.finalized_at })
+    if (!isEditedCopy(version))
+      log.push({ id: `created-${version.id}`, report: version, type: 'created', at: version.finalized_at })
     else log.push({ id: `edited-${version.id}`, report: version, type: 'edited', at: version.finalized_at })
   }
   for (const event of events) {

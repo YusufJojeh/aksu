@@ -12,7 +12,10 @@ export interface LoginCandidate {
  * Among active sales profiles sharing the phone (name-typo duplicates), the one holding the most
  * reports is the person's real identity, then the oldest — the same rule the admin dashboard uses.
  */
-export function pickEmployeeProfile(candidates: LoginCandidate[], reportCounts: Map<string, number>): LoginCandidate | undefined {
+export function pickEmployeeProfile(
+  candidates: LoginCandidate[],
+  reportCounts: Map<string, number>,
+): LoginCandidate | undefined {
   if (candidates.some((profile) => profile.role === 'ADMIN')) return undefined
   const count = (profile: LoginCandidate) => reportCounts.get(profile.id) ?? 0
   return candidates

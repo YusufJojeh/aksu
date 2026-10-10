@@ -7,7 +7,17 @@ import { E164_HINT, bytesToBase64, optionalE164, requireE164, sha256Hex } from '
 vi.mock('../../src/lib/supabase', () => ({ requireSupabase: () => ({}) }))
 
 function fakeResponse() {
-  const res = { code: 0, body: undefined as unknown, status(code: number) { res.code = code; return res }, json(body: unknown) { res.body = body } }
+  const res = {
+    code: 0,
+    body: undefined as unknown,
+    status(code: number) {
+      res.code = code
+      return res
+    },
+    json(body: unknown) {
+      res.body = body
+    },
+  }
   return res
 }
 

@@ -12,7 +12,7 @@ describe('sanitized Arabic template', () => {
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
       const page = await pdf.getPage(pageNumber)
       const content = await page.getTextContent()
-      extracted += content.items.map((item) => 'str' in item ? item.str : '').join(' ')
+      extracted += content.items.map((item) => ('str' in item ? item.str : '')).join(' ')
     }
     for (const stale of ['سكينة', '02/09/2026', '+34 613 43 52 52', '30 سنة', '4315', '3970', '3240', '975', '480']) {
       expect(extracted).not.toContain(stale)

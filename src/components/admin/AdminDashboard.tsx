@@ -31,7 +31,13 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const { t, i18n } = useTranslation()
   const [view, setView] = useState<AdminView>('dashboard')
   const [locale, setLocale] = useState<Locale>(() => {
-    const saved = (() => { try { return localStorage.getItem(ADMIN_LANG_KEY) } catch { return null } })()
+    const saved = (() => {
+      try {
+        return localStorage.getItem(ADMIN_LANG_KEY)
+      } catch {
+        return null
+      }
+    })()
     return (locales as readonly string[]).includes(saved ?? '') ? (saved as Locale) : 'en'
   })
 
@@ -40,7 +46,11 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     if (i18n.language !== locale) void i18n.changeLanguage(locale)
     document.documentElement.lang = locale
     document.documentElement.dir = isRtl(locale) ? 'rtl' : 'ltr'
-    try { localStorage.setItem(ADMIN_LANG_KEY, locale) } catch { /* private browsing / storage disabled */ }
+    try {
+      localStorage.setItem(ADMIN_LANG_KEY, locale)
+    } catch {
+      /* private browsing / storage disabled */
+    }
   }, [i18n, locale])
   const applyLocale = (next: Locale) => setLocale(next)
 
@@ -56,7 +66,9 @@ export function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             user={user}
             onLogout={onLogout}
             onProfile={() => setView('profile')}
-            onSalesWorkspace={() => { window.location.href = '/' }}
+            onSalesWorkspace={() => {
+              window.location.href = '/'
+            }}
           />
           <SidebarInset>
             <SiteHeader title={t(VIEW_TITLE_KEYS[view])} locale={locale} onLocaleChange={applyLocale} />

@@ -1,6 +1,11 @@
 import type { ClinicId } from '../../clinics/types'
 import type { Locale } from '../../domain/report'
-import { coordinatesForAksuTemplate, resolveAksuTemplate, type AksuPdfCoordinates, type AksuTemplateDefinition } from './aksu'
+import {
+  coordinatesForAksuTemplate,
+  resolveAksuTemplate,
+  type AksuPdfCoordinates,
+  type AksuTemplateDefinition,
+} from './aksu'
 import { coordinatesForMbTemplate, resolveMbTemplate, type MbPdfCoordinates } from './mb'
 
 export type ResolvedTemplate =

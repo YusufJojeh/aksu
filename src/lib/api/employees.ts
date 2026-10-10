@@ -10,14 +10,22 @@ export async function listEmployees(): Promise<EmployeeProfile[]> {
 
 export async function inviteEmployee(input: { fullName: string; email: string; workPhone: string }): Promise<void> {
   const workPhoneE164 = requireE164(input.workPhone)
-  await authedPost('/api/admin/invite-employee', { fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164 }, 'invite_failed', 'Request failed')
+  await authedPost(
+    '/api/admin/invite-employee',
+    { fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164 },
+    'invite_failed',
+    'Request failed',
+  )
 }
 
 export async function deleteEmployee(id: string): Promise<void> {
   await authedPost('/api/admin/delete-employee', { employeeId: id }, 'delete_failed', 'Request failed')
 }
 
-export async function updateEmployee(id: string, patch: { full_name?: string; role?: UserRole; status?: EmployeeStatus }): Promise<void> {
+export async function updateEmployee(
+  id: string,
+  patch: { full_name?: string; role?: UserRole; status?: EmployeeStatus },
+): Promise<void> {
   const { error } = await requireSupabase().from('profiles').update(patch).eq('id', id)
   if (error) throw error
 }

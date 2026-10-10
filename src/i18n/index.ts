@@ -11,8 +11,20 @@ import pl from './locales/pl.json'
 import it from './locales/it.json'
 
 void i18n.use(initReactI18next).init({
-  resources: { en: { translation: en }, ar: { translation: ar }, fr: { translation: fr }, tr: { translation: tr }, de: { translation: de }, es: { translation: es }, ru: { translation: ru }, pl: { translation: pl }, it: { translation: it } },
-  lng: 'en', fallbackLng: 'en', interpolation: { escapeValue: false },
+  resources: {
+    en: { translation: en },
+    ar: { translation: ar },
+    fr: { translation: fr },
+    tr: { translation: tr },
+    de: { translation: de },
+    es: { translation: es },
+    ru: { translation: ru },
+    pl: { translation: pl },
+    it: { translation: it },
+  },
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false },
 })
 
 export default i18n

@@ -22,7 +22,9 @@ export function checkboxColumn<Key extends string>(
   centers: readonly (readonly [number, number, number])[],
 ): Record<Key, CheckboxBox> {
   if (keys.length !== centers.length) {
-    throw new Error(`MB checkbox column needs one measured square per key (${keys.length} keys, ${centers.length} squares)`)
+    throw new Error(
+      `MB checkbox column needs one measured square per key (${keys.length} keys, ${centers.length} squares)`,
+    )
   }
   const column = {} as Record<Key, CheckboxBox>
   keys.forEach((key, index) => {
@@ -36,8 +38,14 @@ export function checkboxColumn<Key extends string>(
  * Every MB template prints the same eight conditions in the same order, top to bottom.
  */
 export const mbConditionRowOrder: readonly MbConditionKey[] = [
-  'missingTeeth', 'looseTeeth', 'gumInfectionOrDisease', 'crowdedOrCrookedTeeth',
-  'toothDecayOrBrokenTeeth', 'teethGrindingOrClenching', 'biteOrJawProblems', 'aestheticToothDefects',
+  'missingTeeth',
+  'looseTeeth',
+  'gumInfectionOrDisease',
+  'crowdedOrCrookedTeeth',
+  'toothDecayOrBrokenTeeth',
+  'teethGrindingOrClenching',
+  'biteOrJawProblems',
+  'aestheticToothDefects',
 ]
 
 /**
@@ -49,11 +57,23 @@ export const mbConditionRowOrder: readonly MbConditionKey[] = [
  * marking nothing.
  */
 export const mbRecommendedRowOrderLatin: readonly MbRecommendedTreatmentKey[] = [
-  'dentalImplants', 'dentalFillings', 'zirconiaCrowns', 'emaxVeneers',
-  'boneGrafting', 'sinusLift', 'deepCleaning', 'rootCanalTreatment',
+  'dentalImplants',
+  'dentalFillings',
+  'zirconiaCrowns',
+  'emaxVeneers',
+  'boneGrafting',
+  'sinusLift',
+  'deepCleaning',
+  'rootCanalTreatment',
 ]
 
 export const mbRecommendedRowOrderFrench: readonly MbRecommendedTreatmentKey[] = [
-  'dentalExtractions', 'dentalImplants', 'zirconiaCrowns', 'emaxVeneers',
-  'boneGrafting', 'sinusLift', 'deepCleaning', 'rootCanalTreatment',
+  'dentalExtractions',
+  'dentalImplants',
+  'zirconiaCrowns',
+  'emaxVeneers',
+  'boneGrafting',
+  'sinusLift',
+  'deepCleaning',
+  'rootCanalTreatment',
 ]
