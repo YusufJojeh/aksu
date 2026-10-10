@@ -1,12 +1,16 @@
+import { AppError, errorFromBody, type AppErrorCode } from '../appError'
 import { normalizePhone } from '../phone'
+import type { ArchivedDocumentKind } from '../pdfIntegrity'
 import { requireSupabase } from '../supabase'
+
+export { fromRow, toJson } from '../rows'
 
 export const E164_HINT = 'Use E.164 format, for example +905551112233.'
 
 /** Normalizes a phone number to E.164 or throws the shared validation message. */
 export function requireE164(phone: string): string {
   const normalized = normalizePhone(phone)
-  if (!normalized) throw new Error(E164_HINT)
+  if (!normalized) throw new AppError('invalid_phone', E164_HINT)
   return normalized
 }
 
@@ -29,16 +33,26 @@ export async function sha256Hex(bytes: Uint8Array): Promise<string> {
 }
 
 /** POSTs JSON to one of our serverless endpoints with the current session's bearer token. */
-export async function authedPost<T = unknown>(path: string, body: Record<string, unknown>, fallbackError: string): Promise<T> {
+export async function authedPost<T = unknown>(path: string, body: Record<string, unknown>, fallbackCode: AppErrorCode, fallbackError: string): Promise<T> {
   const { data: sessionData } = await requireSupabase().auth.getSession()
   const token = sessionData.session?.access_token
-  if (!token) throw new Error('Not authenticated')
+  if (!token) throw new AppError('session_expired', 'Not authenticated')
   const response = await fetch(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
   })
   const payload = (await response.json().catch(() => ({}))) as T & { error?: string }
-  if (!response.ok) throw new Error(payload.error ?? fallbackError)
+  if (!response.ok) throw errorFromBody(payload, fallbackCode, fallbackError)
   return payload
+}
+
+/**
+ * Has the server re-hash an object the caller just uploaded and record that hash; finalize_report()
+ * and the employee_documents insert policy only accept recorded hashes. Pass `documentKind` for a
+ * warranty/invitation, omit it for a treatment report.
+ */
+export async function verifyUploadedPdf(storageKey: string, documentKind?: ArchivedDocumentKind): Promise<string> {
+  const payload = await authedPost<{ sha256: string }>('/api/reports/verify-pdf', { storageKey, documentKind }, 'verify_failed', 'Failed to verify archived PDF')
+  return payload.sha256
 }

@@ -8,6 +8,7 @@ import { saveBlob } from '../../lib/download'
 import { locales, type Currency, type Locale } from '../../domain/report'
 import { formatMoneyMinor, localeTags } from '../../lib/locale'
 import { Accordion, AccordionField, AccordionItem, Button, Field, Input, Select } from '../ui'
+import { errorText } from '../../i18n/errorText'
 
 export function ReportsAdmin() {
   const { t, i18n } = useTranslation()
@@ -34,7 +35,7 @@ export function ReportsAdmin() {
     try {
       saveBlob(await downloadArchivedReport(report), archivedReportFilename(report))
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t('admin.reports.downloadFailed'))
+      setError(errorText(caught, t, 'admin.reports.downloadFailed'))
     } finally { setDownloading(undefined) }
   }
   return <main className="mx-auto w-full min-w-0 max-w-[1500px] p-4 sm:p-7">

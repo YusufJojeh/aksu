@@ -1,5 +1,5 @@
 import { requireSupabase } from '../supabase'
-import { requireE164 } from './shared'
+import { fromRow, requireE164 } from './shared'
 
 type ChannelType = 'whatsapp' | 'phone'
 
@@ -14,15 +14,15 @@ export interface CommunicationChannel {
 }
 
 interface ChannelAssignmentRow { employee_id: string; assigned_at: string; unassigned_at?: string; profiles?: { full_name: string } }
-type ChannelRow = CommunicationChannel & { channel_assignments?: ChannelAssignmentRow[] }
+type ChannelRow = Omit<CommunicationChannel, 'current_assignment'> & { channel_assignments: ChannelAssignmentRow[] }
 
 const CHANNEL_SELECT = '*, channel_assignments(employee_id, assigned_at, unassigned_at, profiles!channel_assignments_employee_id_fkey(full_name))'
 
 export async function listChannels(): Promise<CommunicationChannel[]> {
   const { data, error } = await requireSupabase().from('communication_channels').select(CHANNEL_SELECT).order('created_at', { ascending: false })
   if (error) throw error
-  return (data as ChannelRow[]).map((channel) => {
-    const open = channel.channel_assignments?.find((assignment) => !assignment.unassigned_at)
+  return data.map(fromRow<ChannelRow>).map(({ channel_assignments, ...channel }) => {
+    const open = channel_assignments.find((assignment) => !assignment.unassigned_at)
     return {
       ...channel,
       current_assignment: open ? { employee_id: open.employee_id, assigned_at: open.assigned_at, profile: open.profiles } : undefined,

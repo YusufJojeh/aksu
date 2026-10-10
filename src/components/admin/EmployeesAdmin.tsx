@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { EmployeeProfile, EmployeeStatus, UserRole } from '../../auth/types'
 import { deleteEmployee, inviteEmployee, listEmployees, offboardEmployee, updateEmployee } from '../../lib/operations'
 import { Accordion, AccordionField, AccordionItem, Button, ConfirmDialog, Input, Select } from '../ui'
+import { errorText } from '../../i18n/errorText'
 
 const statuses = ['pending', 'active', 'suspended', 'former'] as const
 const roles: UserRole[] = ['SALES', 'ADMIN']
@@ -23,7 +24,7 @@ export function EmployeesAdmin() {
   useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const mutate = (action: Promise<void>) => void action.then(load).catch(() => setError(t('admin.employees.updateFailed')))
   const removeEmployee = (employee: EmployeeProfile) => void deleteEmployee(employee.id).then(load).catch((caught: unknown) => {
-    setError(caught instanceof Error && caught.message === 'employee_has_history' ? t('admin.employees.deleteBlocked') : t('admin.employees.deleteFailed'))
+    setError(errorText(caught, t, 'admin.employees.deleteFailed'))
   })
   const invite = async () => {
     if (submitting) return
@@ -34,7 +35,7 @@ export function EmployeesAdmin() {
       setNotice(t('admin.employees.invited', { name: inviteName.trim() }))
       setInviteName(''); setInviteEmail(''); setInvitePhone('')
       await load()
-    } catch { setError(t('admin.employees.inviteFailed')) }
+    } catch (caught) { setError(errorText(caught, t, 'admin.employees.inviteFailed')) }
     finally { setSubmitting(false) }
   }
   const changeStatus = (employee: EmployeeProfile, value: EmployeeStatus) => {

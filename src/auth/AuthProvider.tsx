@@ -2,6 +2,8 @@
 import type { Session } from '@supabase/supabase-js'
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { normalizePhone } from '../lib/phone'
+import { fromRow } from '../lib/api/shared'
+import { AppError, errorFromBody, type AppErrorCode } from '../lib/appError'
 import { isSupabaseConfigured, requireSupabase, supabase } from '../lib/supabase'
 import type { EmployeeProfile } from './types'
 
@@ -35,14 +37,14 @@ function e2eProfile(): EmployeeProfile | undefined {
 }
 
 /** Calls one of our phone sign-in endpoints and installs the session tokens it returns. */
-async function exchangeForSession(path: string, body: Record<string, unknown>, fallbackError: string): Promise<Session | null> {
+async function exchangeForSession(path: string, body: Record<string, unknown>, fallbackCode: AppErrorCode, fallbackError: string): Promise<Session | null> {
   const response = await fetch(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-  const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string }
-  if (!response.ok || !payload.access_token || !payload.refresh_token) throw new Error(payload.error ?? fallbackError)
+  const payload = await response.json().catch(() => ({})) as { access_token?: string; refresh_token?: string; error?: string; code?: string }
+  if (!response.ok || !payload.access_token || !payload.refresh_token) throw errorFromBody(payload, fallbackCode, fallbackError)
   const { data, error } = await requireSupabase().auth.setSession({ access_token: payload.access_token, refresh_token: payload.refresh_token })
   if (error) throw error
   return data.session
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!nextSession) { setProfile(undefined); setLoading(false); return }
     const { data, error } = await requireSupabase().from('profiles').select('*').eq('id', nextSession.user.id).single()
     if (error) throw error
-    setProfile(data as EmployeeProfile)
+    setProfile(fromRow<EmployeeProfile>(data))
     setLoading(false)
   }
 
@@ -84,17 +86,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
       const phone = normalizePhone(trimmed)
-      if (!phone) throw new Error('Enter your email or an international phone number, for example +905551112233.')
-      await loadProfile(await exchangeForSession('/api/auth/login-phone', { phone, password }, 'Invalid phone number or password.'))
+      if (!phone) throw new AppError('invalid_login_identifier', 'Enter your email or an international phone number, for example +905551112233.')
+      await loadProfile(await exchangeForSession('/api/auth/login-phone', { phone, password }, 'invalid_credentials', 'Invalid phone number or password.'))
     },
     async loginWithPhone(rawPhone) {
       const phone = normalizePhone(rawPhone)
-      if (!phone) throw new Error('Enter an international phone number, for example +905551112233.')
-      await loadProfile(await exchangeForSession('/api/auth/employee-login', { phone }, 'Sign-in failed. Please try again.'))
+      if (!phone) throw new AppError('invalid_phone', 'Enter an international phone number, for example +905551112233.')
+      await loadProfile(await exchangeForSession('/api/auth/employee-login', { phone }, 'sign_in_failed', 'Sign-in failed. Please try again.'))
     },
     async register({ fullName, email, password, workPhone }) {
       const phone = normalizePhone(workPhone)
-      if (!phone) throw new Error('Enter an international phone number in E.164 format, for example +905551112233.')
+      if (!phone) throw new AppError('invalid_phone', 'Enter an international phone number in E.164 format, for example +905551112233.')
       const { error } = await requireSupabase().auth.signUp({
         email: email.trim().toLowerCase(), password,
         options: { data: { full_name: fullName.trim(), work_phone_e164: phone } },
@@ -104,13 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async logout() { if (bypass) return; await requireSupabase().auth.signOut(); setProfile(undefined) },
     async refreshProfile() { if (bypass) return; await loadProfile(session ?? null) },
     async updateProfile({ fullName, email, workPhone }) {
-      if (!profile) throw new Error('Not authenticated')
+      if (!profile) throw new AppError('session_expired', 'Not authenticated')
       const trimmedName = fullName.trim()
-      if (trimmedName.length < 2) throw new Error('Enter your full name.')
+      if (trimmedName.length < 2) throw new AppError('name_required', 'Enter your full name.')
       const normalizedEmail = email.trim().toLowerCase()
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) throw new Error('Enter a valid email address.')
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) throw new AppError('invalid_email', 'Enter a valid email address.')
       const phone = normalizePhone(workPhone)
-      if (!phone) throw new Error('Enter an international phone number in E.164 format.')
+      if (!phone) throw new AppError('invalid_phone', 'Enter an international phone number in E.164 format.')
       const emailChanged = normalizedEmail !== profile.email.toLowerCase()
       if (emailChanged) {
         const { error: emailError } = await requireSupabase().auth.updateUser({ email: normalizedEmail })

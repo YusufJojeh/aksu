@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '../../src/lib/database.types.js'
 
 export interface ServerlessRequest {
   method?: string
@@ -29,7 +30,7 @@ const SERVER_AUTH = { persistSession: false, autoRefreshToken: false } as const
 
 /** A stateless client for server use: no session persistence or token refresh between requests. */
 export function serverClient(url: string, key: string, token?: string) {
-  return createClient(url, key, {
+  return createClient<Database>(url, key, {
     auth: SERVER_AUTH,
     ...(token ? { global: { headers: { Authorization: `Bearer ${token}` } } } : {}),
   })

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthProvider'
 import { Button, Field, Input } from './ui'
+import { errorText } from '../i18n/errorText'
 
 export function ProfileSettings() {
   const auth = useAuth()
@@ -27,7 +28,7 @@ export function ProfileSettings() {
       const result = await auth.updateProfile({ fullName: name, email, workPhone: phone })
       setMessage(result.emailChangeRequested ? t('profile.savedEmailPending') : t('profile.saved'))
     } catch (caught) {
-      setMessage(caught instanceof Error ? caught.message : t('profile.failed'))
+      setMessage(errorText(caught, t, 'profile.failed'))
     } finally {
       setSaving(false)
     }

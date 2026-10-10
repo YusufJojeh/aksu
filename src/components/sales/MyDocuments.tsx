@@ -7,6 +7,7 @@ import { localeTags } from '../../lib/locale'
 import { sanitizeFilenamePart } from '../../lib/filename'
 import { downloadArchivedDocument, listDocuments, type ArchivedDocument } from '../../lib/operations'
 import { Button, Input, Select } from '../ui'
+import { errorText } from '../../i18n/errorText'
 
 export function MyDocuments({ onCreate }: { onCreate?: () => void }) {
   const { t, i18n } = useTranslation()
@@ -35,7 +36,7 @@ export function MyDocuments({ onCreate }: { onCreate?: () => void }) {
     try {
       const name = sanitizeFilenamePart(document.patient_name) || 'Patient'
       saveBlob(await downloadArchivedDocument(document), `MB_${document.kind}_${name}_${document.created_at.slice(0, 10)}.pdf`)
-    } catch (caught) { setError(caught instanceof Error ? caught.message : t('sales.errors.downloadFailed')) }
+    } catch (caught) { setError(errorText(caught, t, 'sales.errors.downloadFailed')) }
     finally { setDownloading(undefined) }
   }
 

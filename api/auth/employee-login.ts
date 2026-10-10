@@ -1,6 +1,7 @@
 import { bodyObject, requirePost, serverClient, supabaseEnv, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
 import { pickEmployeeProfile, type LoginCandidate } from '../../src/lib/employeeLogin.js'
 import { normalizePhone } from '../../src/lib/phone.js'
+import { fromRow } from '../../src/lib/rows.js'
 
 const NOT_FOUND = 'No active employee account uses this phone number.'
 
@@ -10,7 +11,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
   if (!requirePost(req, res)) return
   const body = bodyObject(req)
   const phone = typeof body.phone === 'string' ? normalizePhone(body.phone) : undefined
-  if (!phone) { res.status(400).json({ error: 'Enter an international phone number, for example +905551112233.' }); return }
+  if (!phone) { res.status(400).json({ error: 'Enter an international phone number, for example +905551112233.', code: 'invalid_phone' }); return }
 
   const env = supabaseEnv()
   if (!env) { res.status(500).json({ error: 'auth_not_configured' }); return }
@@ -23,7 +24,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       .eq('requested_phone_e164', phone)
     if (lookupError) throw lookupError
 
-    const candidates = (profiles ?? []) as LoginCandidate[]
+    const candidates = profiles.map(fromRow<LoginCandidate>)
     // Candidates share one phone (name-typo duplicates), so this is a handful of cheap head-counts; run them together.
     const countResults = await Promise.all(candidates.map(async (profile) => {
       const { count, error } = await service.from('reports').select('id', { count: 'exact', head: true }).eq('created_by_employee_id', profile.id)
@@ -32,7 +33,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     }))
     const counts = new Map<string, number>(countResults)
     const profile = pickEmployeeProfile(candidates, counts)
-    if (!profile) { res.status(401).json({ error: NOT_FOUND }); return }
+    if (!profile) { res.status(401).json({ error: NOT_FOUND, code: 'employee_not_found' }); return }
 
     // generateLink only mints a one-time token (no email is sent); exchanging it yields a normal session.
     const { data: link, error: linkError } = await service.auth.admin.generateLink({ type: 'magiclink', email: profile.email })
@@ -44,6 +45,6 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     res.status(200).json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token })
   } catch (error) {
     console.error('employee-login failed', error)
-    res.status(500).json({ error: 'Sign-in failed. Please try again.' })
+    res.status(500).json({ error: 'Sign-in failed. Please try again.', code: 'sign_in_failed' })
   }
 }

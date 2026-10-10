@@ -10,6 +10,7 @@ import { ClinicWorkspace } from '../ClinicWorkspace'
 import { Button, Input } from '../ui'
 import { MyReports } from './MyReports'
 import { SalesProfile } from './SalesProfile'
+import { errorText } from '../../i18n/errorText'
 
 type View = 'create' | 'reports' | 'profile'
 
@@ -39,7 +40,7 @@ export function SalesApp() {
   const signIn = async () => {
     setSigningIn(true); setSignInError(undefined)
     try { await auth.loginWithPhone(salesPhone); if (!clinicId) setView('reports') }
-    catch (caught) { setSignInError(caught instanceof Error ? caught.message : t('sales.errors.signInFailed')) }
+    catch (caught) { setSignInError(errorText(caught, t, 'sales.errors.signInFailed')) }
     finally { setSigningIn(false) }
   }
   const inWorkspace = view === 'create' && Boolean(clinicId)

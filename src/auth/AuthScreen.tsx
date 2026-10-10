@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FileText } from 'lucide-react'
 import { Button, Field, Input, Tabs, TabsList, TabsTrigger } from '../components/ui'
 import { useAuth } from './AuthProvider'
+import { errorText } from '../i18n/errorText'
 
 export function AuthScreen() {
   const auth = useAuth()
+  const { t } = useTranslation()
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [fullName, setFullName] = useState('')
   const [identifier, setIdentifier] = useState('')
@@ -22,7 +25,7 @@ export function AuthScreen() {
         await auth.register({ fullName, email: identifier, password, workPhone: phone })
         setNotice('Registration received. Confirm your email if requested, then wait for admin approval.')
       }
-    } catch (caught) { setError(caught instanceof Error ? caught.message : 'Authentication failed.') }
+    } catch (caught) { setError(errorText(caught, t, 'errors.sign_in_failed')) }
     finally { setBusy(false) }
   }
 

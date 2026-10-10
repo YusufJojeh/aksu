@@ -1,5 +1,5 @@
 import { requireSupabase } from '../supabase'
-import { optionalE164 } from './shared'
+import { fromRow, optionalE164 } from './shared'
 
 type CustomerStatus = 'active' | 'archived'
 
@@ -19,7 +19,7 @@ export interface Customer {
 export async function listCustomers(): Promise<Customer[]> {
   const { data, error } = await requireSupabase().from('customers').select('*').order('created_at', { ascending: false })
   if (error) throw error
-  return data as Customer[]
+  return data.map(fromRow<Customer>)
 }
 
 export async function createCustomer(input: { clinicId: string; fullName: string; phone?: string; patientIdentifier?: string; notes?: string }): Promise<void> {

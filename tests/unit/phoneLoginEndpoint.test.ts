@@ -41,7 +41,7 @@ describe('phone login endpoint', () => {
     await handler(req('+905551112233'), res)
     expect(mocks.signInWithPassword).not.toHaveBeenCalled()
     expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid phone number or password.' })
+    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid phone number or password.', code: 'invalid_credentials' })
   })
 
   it('keeps password failures generic', async () => {
@@ -49,6 +49,6 @@ describe('phone login endpoint', () => {
     const res = response()
     await handler(req('+905551112233'), res)
     expect(res.status).toHaveBeenCalledWith(401)
-    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid phone number or password.' })
+    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid phone number or password.', code: 'invalid_credentials' })
   })
 })

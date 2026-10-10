@@ -1,20 +1,20 @@
 import type { EmployeeProfile, EmployeeStatus, UserRole } from '../../auth/types'
 import { requireSupabase } from '../supabase'
-import { authedPost, requireE164 } from './shared'
+import { authedPost, fromRow, requireE164 } from './shared'
 
 export async function listEmployees(): Promise<EmployeeProfile[]> {
   const { data, error } = await requireSupabase().from('profiles').select('*').order('created_at', { ascending: false })
   if (error) throw error
-  return data as EmployeeProfile[]
+  return data.map(fromRow<EmployeeProfile>)
 }
 
 export async function inviteEmployee(input: { fullName: string; email: string; workPhone: string }): Promise<void> {
   const workPhoneE164 = requireE164(input.workPhone)
-  await authedPost('/api/admin/invite-employee', { fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164 }, 'Request failed')
+  await authedPost('/api/admin/invite-employee', { fullName: input.fullName.trim(), email: input.email.trim().toLowerCase(), workPhoneE164 }, 'invite_failed', 'Request failed')
 }
 
 export async function deleteEmployee(id: string): Promise<void> {
-  await authedPost('/api/admin/delete-employee', { employeeId: id }, 'Request failed')
+  await authedPost('/api/admin/delete-employee', { employeeId: id }, 'delete_failed', 'Request failed')
 }
 
 export async function updateEmployee(id: string, patch: { full_name?: string; role?: UserRole; status?: EmployeeStatus }): Promise<void> {

@@ -1,7 +1,9 @@
 import { bodyObject, requireActiveUser, requireEnv, requirePost, serverClient, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
 import { createHash } from 'node:crypto'
-import { assertArchivedPdf } from '../../src/lib/pdfIntegrity.js'
+import { assertArchivedDocumentPdf, assertArchivedPdf, isArchivedDocumentKind } from '../../src/lib/pdfIntegrity.js'
 
+// Re-hashes an object the caller just uploaded to their own archive prefix and records the hash.
+// finalize_report() and the employee_documents insert policy only accept hashes recorded here.
 export default async function handler(req: ServerlessRequest, res: ServerlessResponse): Promise<void> {
   if (!requirePost(req, res)) return
   const user = await requireActiveUser(req, res)
@@ -9,7 +11,11 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
 
   const body = bodyObject(req)
   const storageKey = typeof body.storageKey === 'string' ? body.storageKey : ''
-  const ownKeyRe = new RegExp(`^${user.userId}/[0-9a-f-]{36}\\.pdf$`)
+  const documentKind = body.documentKind
+  if (documentKind !== undefined && !isArchivedDocumentKind(documentKind)) { res.status(400).json({ error: 'invalid_document_kind' }); return }
+  const ownKeyRe = documentKind
+    ? new RegExp(`^${user.userId}/documents/[0-9a-f-]{36}\\.pdf$`)
+    : new RegExp(`^${user.userId}/[0-9a-f-]{36}\\.pdf$`)
   if (!ownKeyRe.test(storageKey)) { res.status(400).json({ error: 'invalid_storage_key' }); return }
 
   const service = serverClient(user.url, requireEnv('SUPABASE_SERVICE_ROLE_KEY'))
@@ -18,9 +24,14 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
 
   const bytes = new Uint8Array(await download.data.arrayBuffer())
   try {
-    await assertArchivedPdf(bytes)
+    await (documentKind ? assertArchivedDocumentPdf(bytes, documentKind) : assertArchivedPdf(bytes))
   } catch {
-    res.status(422).json({ error: 'Upload a complete five-page treatment PDF. Blank or malformed files cannot be finalized.' })
+    res.status(422).json({
+      error: documentKind
+        ? 'Upload a complete document PDF. Blank or malformed files cannot be archived.'
+        : 'Upload a complete five-page treatment PDF. Blank or malformed files cannot be finalized.',
+      code: 'pdf_incomplete',
+    })
     return
   }
   const sha256 = createHash('sha256').update(bytes).digest('hex')

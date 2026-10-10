@@ -6,6 +6,7 @@ import type { Locale } from '../../domain/report'
 import { localeTags } from '../../lib/locale'
 import { createCustomer, listCustomers, updateCustomer, type Customer } from '../../lib/operations'
 import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
+import { errorText } from '../../i18n/errorText'
 
 const CLINIC_IDS = Object.keys(clinicRegistry) as ClinicId[]
 
@@ -18,7 +19,7 @@ export function CustomersAdmin() {
   const [clinicId, setClinicId] = useState<ClinicId>(CLINIC_IDS[0] ?? 'aksu'); const [fullName, setFullName] = useState(''); const [phone, setPhone] = useState(''); const [identifier, setIdentifier] = useState(''); const [notes, setNotes] = useState('')
   const load = () => listCustomers().then(setCustomers).catch(() => setError(t('admin.customers.loadError'))).finally(() => setLoaded(true))
   useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const mutate = (action: Promise<void>, failKey: 'updateFailed' | 'createFailed' = 'updateFailed') => void action.then(load).catch((caught: unknown) => setError(caught instanceof Error ? caught.message : t(`admin.customers.${failKey}`)))
+  const mutate = (action: Promise<void>, failKey: 'updateFailed' | 'createFailed' = 'updateFailed') => void action.then(load).catch((caught: unknown) => setError(errorText(caught, t, `admin.customers.${failKey}`)))
   const visible = customers.filter((customer) =>
     (!query || `${customer.full_name} ${customer.phone_e164 ?? ''} ${customer.patient_identifier ?? ''}`.toLowerCase().includes(query.toLowerCase())) &&
     (!clinicFilter || customer.clinic_id === clinicFilter) &&
@@ -31,7 +32,7 @@ export function CustomersAdmin() {
       await createCustomer({ clinicId, fullName, phone: phone || undefined, patientIdentifier: identifier || undefined, notes: notes || undefined })
       setFullName(''); setPhone(''); setIdentifier(''); setNotes('')
       await load()
-    } catch (caught) { setError(caught instanceof Error ? caught.message : t('admin.customers.createFailed')) }
+    } catch (caught) { setError(errorText(caught, t, 'admin.customers.createFailed')) }
     finally { setSubmitting(false) }
   }
   const label = (column: string, customer: Customer) => `${t(`admin.customers.${column}`)} ${customer.full_name}`

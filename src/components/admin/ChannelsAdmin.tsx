@@ -5,6 +5,7 @@ import type { Locale } from '../../domain/report'
 import { localeTags } from '../../lib/locale'
 import { assignChannel, createChannel, listChannels, listEmployees, setChannelStatus, unassignChannel, updateChannel, type CommunicationChannel } from '../../lib/operations'
 import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
+import { errorText } from '../../i18n/errorText'
 
 export function ChannelsAdmin() {
   const { t, i18n } = useTranslation()
@@ -12,7 +13,7 @@ export function ChannelsAdmin() {
   const [submitting, setSubmitting] = useState(false); const [loaded, setLoaded] = useState(false)
   const load = () => Promise.all([listChannels(), listEmployees()]).then(([c, e]) => { setChannels(c); setEmployees(e) }).catch(() => setError(t('admin.channels.loadError'))).finally(() => setLoaded(true))
   useEffect(() => { void load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const mutate = (action: Promise<void>) => void action.then(load).catch((caught: unknown) => setError(caught instanceof Error ? caught.message : t('admin.channels.updateFailed')))
+  const mutate = (action: Promise<void>) => void action.then(load).catch((caught: unknown) => setError(errorText(caught, t, 'admin.channels.updateFailed')))
   const create = async () => {
     if (submitting) return
     setSubmitting(true); setError(undefined)

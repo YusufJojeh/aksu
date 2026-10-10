@@ -8,6 +8,7 @@ import { isE2EAuthBypass } from '../../auth/AuthProvider'
 import { saveBlob } from '../../lib/download'
 import { archiveDocument } from '../../lib/operations'
 import { Button, Field, Input, Tabs, TabsList, TabsTrigger } from '../ui'
+import { errorText } from '../../i18n/errorText'
 
 const CONTACT_KEY = 'mb_document_contact'
 type Contact = Pick<InvitationData, 'phone' | 'email' | 'website'>
@@ -128,7 +129,7 @@ export function MbDocumentPanel({ kind, patientName, profile }: { kind: MbDocume
         archivedSnapshot.current = snapshot
       } catch (caught) {
         // Never hand out an unarchived copy to a signed-in employee: the archive is the record.
-        setDownloadError(caught instanceof Error ? caught.message : t('documents.archiveFailed'))
+        setDownloadError(errorText(caught, t, 'documents.archiveFailed'))
         return
       } finally { setArchiving(false) }
     }

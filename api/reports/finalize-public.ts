@@ -3,6 +3,7 @@ import { reportSchema, type ReportData } from '../../src/domain/report.js'
 import { visitTotalMinor } from '../../src/domain/calculations.js'
 import { assertArchivedPdf } from '../../src/lib/pdfIntegrity.js'
 import { normalizePhone } from '../../src/lib/phone.js'
+import { fromRow } from '../../src/lib/rows.js'
 import { bodyObject, requireEnv, requirePost, serverClient, type ServerlessRequest, type ServerlessResponse } from '../_lib/http.js'
 
 interface ProfileRow {
@@ -21,7 +22,7 @@ const MAX_PDF_BASE64_CHARS = Math.ceil(MAX_PDF_BYTES / 3) * 4 + 64
 
 /** Errors whose message is safe to show to the (unauthenticated) caller. Everything else is logged and hidden. */
 class PublicError extends Error {
-  constructor(message: string, readonly status: number) { super(message) }
+  constructor(message: string, readonly status: number, readonly code: string) { super(message) }
 }
 
 function createServiceClient() {
@@ -58,11 +59,11 @@ async function ensureSalesProfile(service: ServiceClient, fullName: string, phon
   // The phone is the identity: a differently spelled name with a known phone is the same person,
   // so it must reuse that profile rather than create a duplicate. Prefer an exact-name active match,
   // then the oldest active profile on that phone.
-  const profiles = (data as ProfileRow[] | null) ?? []
+  const profiles = data.map(fromRow<ProfileRow>)
   const active = profiles.filter((profile) => profile.status === 'active')
   const match = active.find((profile) => canonicalName(profile.full_name) === canonicalName(fullName)) ?? active[0]
   if (match) return match
-  if (profiles.length > 0) throw new PublicError('This sales profile is not active.', 403)
+  if (profiles.length > 0) throw new PublicError('This sales profile is not active.', 403, 'sales_profile_inactive')
 
   const id = randomUUID()
   const email = `public-sales-${id}@pdfbuilder.local`
@@ -81,7 +82,7 @@ async function ensureSalesProfile(service: ServiceClient, fullName: string, phon
     .select('id,full_name,email,role,status,requested_phone_e164')
     .single()
   if (profileError) throw profileError
-  return profile as ProfileRow
+  return fromRow<ProfileRow>(profile)
 }
 
 async function findOrAssignChannel(service: ServiceClient, profileId: string): Promise<{ channelId: string | null; phone: string | null }> {
@@ -133,16 +134,16 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     const pdfBase64 = typeof body.pdfBase64 === 'string' ? body.pdfBase64 : ''
     const parentReportId = typeof body.parentReportId === 'string' && body.parentReportId ? body.parentReportId : null
     if (!parsed.success || salesName.length < 2 || salesName.length > 120 || !salesPhone || !pdfBase64) {
-      res.status(400).json({ error: 'Enter a valid sales name, sales phone, and report.' })
+      res.status(400).json({ error: 'Enter a valid sales name, sales phone, and report.', code: 'invalid_sales_identity' })
       return
     }
-    if (pdfBase64.length > MAX_PDF_BASE64_CHARS) { res.status(413).json({ error: 'The PDF is too large.' }); return }
-    if (parentReportId && !UUID_RE.test(parentReportId)) { res.status(400).json({ error: 'Invalid parent report.' }); return }
+    if (pdfBase64.length > MAX_PDF_BASE64_CHARS) { res.status(413).json({ error: 'The PDF is too large.', code: 'pdf_too_large' }); return }
+    if (parentReportId && !UUID_RE.test(parentReportId)) { res.status(400).json({ error: 'Invalid parent report.', code: 'invalid_parent_report' }); return }
 
     const report: ReportData = parsed.data
     const bytes = decodePdfBase64(pdfBase64)
-    if (bytes.length > MAX_PDF_BYTES) { res.status(413).json({ error: 'The PDF is too large.' }); return }
-    try { await assertArchivedPdf(bytes) } catch { throw new PublicError('The report PDF is incomplete or damaged.', 422) }
+    if (bytes.length > MAX_PDF_BYTES) { res.status(413).json({ error: 'The PDF is too large.', code: 'pdf_too_large' }); return }
+    try { await assertArchivedPdf(bytes) } catch { throw new PublicError('The report PDF is incomplete or damaged.', 422, 'pdf_incomplete') }
 
     const service = createServiceClient()
     const profile = await ensureSalesProfile(service, salesName, salesPhone)
@@ -163,7 +164,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       const parent = parentReportId
         ? await service.from('reports').select('id').eq('id', parentReportId).eq('created_by_employee_id', profile.id).maybeSingle()
         : { data: null }
-      if (parentReportId && !parent.data) throw new PublicError('The report being edited could not be found.', 400)
+      if (parentReportId && !parent.data) throw new PublicError('The report being edited could not be found.', 400, 'parent_report_not_found')
       const channel = await findOrAssignChannel(service, profile.id)
       const patientIdentifier = report.clinicId === 'mb-dental' ? report.patient.patientId : ''
       const patientPhone = normalizePhone(report.patient.phone) ?? report.patient.phone.trim()
@@ -204,8 +205,8 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       throw error
     }
   } catch (error) {
-    if (error instanceof PublicError) { res.status(error.status).json({ error: error.message }); return }
+    if (error instanceof PublicError) { res.status(error.status).json({ error: error.message, code: error.code }); return }
     console.error('finalize-public failed', error)
-    res.status(500).json({ error: 'Could not finalize report. Please try again.' })
+    res.status(500).json({ error: 'Could not finalize report. Please try again.', code: 'finalize_failed' })
   }
 }

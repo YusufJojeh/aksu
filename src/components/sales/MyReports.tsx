@@ -11,6 +11,7 @@ import { saveBlob } from '../../lib/download'
 import { buildReportHistory, downloadCounts, filterReports, isEditedCopy, type ReportKindFilter } from '../../lib/reportHistory'
 import { Button, Input, Select, Tabs, TabsList, TabsTrigger } from '../ui'
 import { MyDocuments } from './MyDocuments'
+import { errorText } from '../../i18n/errorText'
 
 // Finalized reports are immutable: editing opens the form pre-filled and saves a new copy linked
 // to the original (parent_report_id), so both versions and the edit date stay on record.
@@ -50,7 +51,7 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
       saveBlob(await downloadArchivedReport(report), archivedReportFilename(report))
       const refreshed = await listReportEvents().catch(() => undefined)
       if (refreshed) setEvents(refreshed)
-    } catch (caught) { setError(caught instanceof Error ? caught.message : t('sales.errors.downloadFailed')) }
+    } catch (caught) { setError(errorText(caught, t, 'sales.errors.downloadFailed')) }
     finally { setDownloading(undefined) }
   }
 

@@ -20,6 +20,7 @@ import { MbDocumentPanel } from './documents/MbDocumentPanel'
 import { MbReportForm } from './MbReportForm'
 import { PdfPreview } from './PdfPreview'
 import { Button, ConfirmDialog, Select, Tabs, TabsList, TabsTrigger } from './ui'
+import { errorText } from '../i18n/errorText'
 
 export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialReport, parentReportId, interfaceLocale, onInterfaceLocaleChange, onSwitchClinic }: {
   clinicId: ClinicId
@@ -114,7 +115,7 @@ export function ClinicWorkspace({ clinicId, profile, salesIdentity, initialRepor
     if (isDownloading) return
     setIsDownloading(true); setFinalizeError(undefined)
     try { await download() }
-    catch (caught) { setFinalizeError(caught instanceof Error ? caught.message : t('sales.errors.finalizeFailed')) }
+    catch (caught) { setFinalizeError(errorText(caught, t, 'sales.errors.finalizeFailed')) }
     finally { setIsDownloading(false) }
   }
 
