@@ -10,3 +10,8 @@ tmp/
 .vercel
 .env*
 supabase/.temp/
+
+# Impeccable live-mode runtime state (config.json is tracked)
+.impeccable/live/*
+!.impeccable/live/config.json
+.impeccable/config.local.json
