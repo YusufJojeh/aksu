@@ -72,3 +72,32 @@ describe('production authorization migration', () => {
     expect(migrations).toContain('grant select, insert on public.employee_documents')
   })
 })
+
+describe('report review migration', () => {
+  const review = readFileSync('supabase/migrations/202610110001_report_reviews.sql', 'utf8')
+
+  it('keeps one append-only decision per report, readable only by admins and the report owner', () => {
+    expect(review).toContain('alter table public.report_reviews enable row level security')
+    expect(review).toContain('revoke all on public.report_reviews from anon, authenticated')
+    expect(review).toContain('grant select on public.report_reviews to authenticated')
+    expect(review).not.toMatch(/grant[^;]*(insert|update|delete)[^;]*report_reviews/)
+    expect(review).toContain('constraint report_reviews_one_decision unique (report_id)')
+    expect(review).toContain('before update or delete on public.report_reviews')
+    expect(review).toContain('r.created_by_employee_id = auth.uid()')
+  })
+
+  it('validates decisions server-side and takes the reviewer from the session', () => {
+    expect(review).toContain("if not public.is_admin() then raise exception 'admin_required'")
+    expect(review).toContain("raise exception 'review_note_required'")
+    expect(review).toContain("raise exception 'cannot_review_own_report'")
+    expect(review).toContain("raise exception 'report_already_reviewed'")
+    expect(review).toContain('values (target.id, target.pdf_sha256, auth.uid(), p_decision, clean_note)')
+    expect(review).toContain("check (decision <> 'rejected' or char_length(btrim(note)) >= 10)")
+    expect(review).toContain('revoke execute on function public.review_report(uuid, text, text) from public, anon')
+  })
+
+  it('never edits the immutable report or assumes old reports were approved', () => {
+    expect(review).not.toMatch(/update\s+public\.reports/i)
+    expect(review).not.toMatch(/insert into public\.report_reviews[\s\S]*select[\s\S]*from public\.reports/i)
+  })
+})

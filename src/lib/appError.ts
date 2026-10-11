@@ -36,6 +36,10 @@ export const APP_ERROR_CODES = [
   'email_already_registered',
   'phone_already_registered',
   'create_failed',
+  'review_note_required',
+  'report_already_reviewed',
+  'cannot_review_own_report',
+  'review_failed',
 ] as const
 
 export type AppErrorCode = (typeof APP_ERROR_CODES)[number]
@@ -49,6 +53,8 @@ const CODE_ALIASES: Record<string, AppErrorCode> = {
   invalid_document_kind: 'verify_failed',
   object_not_found: 'verify_failed',
   checksum_write_failed: 'verify_failed',
+  invalid_review_decision: 'review_failed',
+  review_note_too_long: 'review_failed',
 }
 
 export function toAppErrorCode(value: unknown): AppErrorCode | undefined {

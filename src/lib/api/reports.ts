@@ -4,7 +4,7 @@ import { visitTotalMinor } from '../../domain/calculations'
 import { normalizePhone } from '../phone'
 import { requireSupabase } from '../supabase'
 import { assertArchivedPdf } from '../pdfIntegrity'
-import { AppError, errorFromBody } from '../appError'
+import { AppError, errorFromBody, toAppErrorCode } from '../appError'
 import { bytesToBase64, fromRow, sha256Hex, toJson, verifyUploadedPdf } from './shared'
 
 export interface ArchivedReport {
@@ -36,6 +36,25 @@ export interface ReportEvent {
   event_type: 'finalized' | 'downloaded' | 'admin_downloaded' | 'duplicated'
   created_at: string
 }
+
+export type ReviewDecision = 'approved' | 'rejected'
+export type ReviewState = 'pending_review' | ReviewDecision
+
+/** One manager decision on one finalized report (append-only, at most one per report). */
+export interface ReportReview {
+  id: string
+  report_id: string
+  report_pdf_sha256: string
+  reviewer_id: string
+  previous_state: 'pending_review'
+  decision: ReviewDecision
+  note: string | null
+  created_at: string
+}
+
+/** Rejections must explain what to fix; the database enforces the same bounds. */
+export const REVIEW_NOTE_MIN = 10
+export const REVIEW_NOTE_MAX = 2000
 
 export interface SalesIdentity {
   fullName: string
@@ -89,7 +108,11 @@ export async function finalizeReport(
   return fromRow<ArchivedReport>(result.data)
 }
 
-export async function downloadArchivedReport(report: ArchivedReport): Promise<Blob> {
+/**
+ * Fetches the exact archived PDF for viewing: RLS is rechecked, and the bytes must be a complete report
+ * whose SHA-256 matches the one recorded at finalization. Nothing is regenerated and no download is logged.
+ */
+export async function loadArchivedReportPdf(report: ArchivedReport): Promise<Blob> {
   const client = requireSupabase()
   // Recheck RLS before using saved data, including after an account is suspended.
   const fresh = await client.from('reports').select('*').eq('id', report.id).single()
@@ -125,7 +148,12 @@ export async function downloadArchivedReport(report: ArchivedReport): Promise<Bl
       'The archived PDF does not match the saved original checksum. Download stopped to protect report integrity.',
     )
   }
-  const event = await client.rpc('log_report_download', { p_report_id: archived.id })
+  return blob
+}
+
+export async function downloadArchivedReport(report: ArchivedReport): Promise<Blob> {
+  const blob = await loadArchivedReportPdf(report)
+  const event = await requireSupabase().rpc('log_report_download', { p_report_id: report.id })
   if (event.error) throw new Error(event.error.message)
   return blob
 }
@@ -174,4 +202,27 @@ export async function listReportEvents(): Promise<ReportEvent[]> {
     .order('created_at', { ascending: false })
   if (error) throw error
   return data.map(fromRow<ReportEvent>)
+}
+
+export async function listReportReviews(): Promise<ReportReview[]> {
+  const { data, error } = await requireSupabase()
+    .from('report_reviews')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data.map(fromRow<ReportReview>)
+}
+
+/** Records the one decision on a report. The server takes the reviewer from the session, never from here. */
+export async function reviewReport(reportId: string, decision: ReviewDecision, note?: string): Promise<ReportReview> {
+  const trimmed = note?.trim() ?? ''
+  if (decision === 'rejected' && trimmed.length < REVIEW_NOTE_MIN)
+    throw new AppError('review_note_required', 'Explain what must be corrected (at least 10 characters).')
+  const { data, error } = await requireSupabase().rpc('review_report', {
+    p_report_id: reportId,
+    p_decision: decision,
+    p_note: trimmed || undefined,
+  })
+  if (error) throw new AppError(toAppErrorCode(error.message) ?? 'review_failed', error.message)
+  return fromRow<ReportReview>(data)
 }

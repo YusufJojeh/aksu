@@ -18,6 +18,17 @@ All later accounts start as `SALES/pending` and are activated by an administrato
 
 Employee creation (`POST /api/admin/create-employee`; it replaced the email invitation endpoint `invite-employee`) runs as a Vercel serverless function, not a Supabase Edge Function — it uses `SUPABASE_SERVICE_ROLE_KEY` server-side (never sent to the browser) and is authorized by checking the caller's bearer token against `profiles.role = 'ADMIN'` before calling `auth.admin.createUser`. This avoids a second deploy target/credential (Supabase CLI login) for a single admin-only endpoint.
 
+### Report review (`202610110001_report_reviews.sql`)
+
+The frontend that ships with this migration reads `report_reviews` on the Reports and My Reports screens, so **apply the migration before deploying that frontend**, or those screens fail to load. The migration is additive (new table, trigger, policy, RPC; no backfill, no change to `reports`) and is wrapped in one transaction:
+
+```bash
+psql "$POSTGRES_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610110001_report_reviews.sql
+npm run db:types
+```
+
+`npm run db:types` replaces the hand-written `report_reviews`/`review_report` entries in `src/lib/database.types.ts`; `npm run db:types:check` must then pass. Rollback, only while no decisions need keeping, is in the migration header.
+
 ## Vercel
 
 Production variables (see `.env.example`):
@@ -31,7 +42,7 @@ VITE_SUPABASE_ANON_KEY=PUBLIC_ANON_KEY
 
 ## Release gate
 
-Run `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`, and `npm run test:visual`. After deploying, smoke-test sign-in, role denial, one finalization, exact archive download, admin analytics, number reassignment, create-employee, and suspended-user denial.
+Run `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`, and `npm run test:visual`. After deploying, smoke-test sign-in, role denial, one finalization, exact archive download, admin analytics, number reassignment, create-employee, report View/Done/Reject (and the employee seeing the note), and suspended-user denial.
 
 ## Verification log
 

@@ -267,6 +267,54 @@ export type Database = {
         }
         Relationships: []
       }
+      report_reviews: {
+        Row: {
+          created_at: string
+          decision: string
+          id: string
+          note: string | null
+          previous_state: string
+          report_id: string
+          report_pdf_sha256: string
+          reviewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          id?: string
+          note?: string | null
+          previous_state?: string
+          report_id: string
+          report_pdf_sha256: string
+          reviewer_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          id?: string
+          note?: string | null
+          previous_state?: string
+          report_id?: string
+          report_pdf_sha256?: string
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_reviews_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: true
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           clinic_id: string
@@ -426,6 +474,25 @@ export type Database = {
       pdf_checksum_verified: {
         Args: { p_sha256: string; p_storage_key: string }
         Returns: boolean
+      }
+      review_report: {
+        Args: { p_decision: string; p_note?: string; p_report_id: string }
+        Returns: {
+          created_at: string
+          decision: string
+          id: string
+          note: string | null
+          previous_state: string
+          report_id: string
+          report_pdf_sha256: string
+          reviewer_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "report_reviews"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       storage_object_exists: {
         Args: { p_bucket: string; p_name: string }

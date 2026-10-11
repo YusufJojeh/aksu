@@ -17,7 +17,12 @@ vi.mock('../../src/lib/supabase', () => ({
     rpc: mocks.rpc,
   }),
 }))
-import { downloadArchivedReport, finalizeReport, type ArchivedReport } from '../../src/lib/operations'
+import {
+  downloadArchivedReport,
+  finalizeReport,
+  loadArchivedReportPdf,
+  type ArchivedReport,
+} from '../../src/lib/operations'
 
 async function populatedPdf() {
   const pdf = await PDFDocument.create()
@@ -46,6 +51,17 @@ describe('archived PDF downloads', () => {
       expect(new Uint8Array(await result.arrayBuffer())).toEqual(bytes)
     }
     expect(mocks.rpc).toHaveBeenCalledTimes(2)
+  })
+  it('views the exact archived bytes without recording a download', async () => {
+    const result = await loadArchivedReportPdf(report)
+    expect(new Uint8Array(await result.arrayBuffer())).toEqual(bytes)
+    expect(mocks.rpc).not.toHaveBeenCalled()
+  })
+  it('applies the same integrity checks when viewing', async () => {
+    await expect(loadArchivedReportPdf({ ...report, pdf_sha256: '0'.repeat(64) })).resolves.toBeInstanceOf(Blob)
+    report.pdf_sha256 = '0'.repeat(64)
+    mocks.single.mockResolvedValue({ data: report, error: null })
+    await expect(loadArchivedReportPdf(report)).rejects.toThrow('checksum')
   })
   it('uses a fresh authorized snapshot and reports a missing original', async () => {
     mocks.storageDownload.mockResolvedValue({ data: null, error: { statusCode: '404', message: 'Object not found' } })

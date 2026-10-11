@@ -1,14 +1,22 @@
-import { Copy, Download, LoaderCircle } from 'lucide-react'
+import { Copy, Download, Eye, LoaderCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   downloadArchivedReport,
   listChannels,
   listEmployees,
+  listReportReviews,
   listReports,
   type ArchivedReport,
   type CommunicationChannel,
+  type ReportReview,
+  type ReviewState,
 } from '../../lib/operations'
+import { useAuth } from '../../auth/AuthProvider'
+import { correctionsOf, reviewStateOf, reviewsByReport } from '../../lib/reportReview'
+import { ArchivedPdfViewer } from '../ArchivedPdfViewer'
+import { ReviewBadge } from '../ReviewBadge'
+import { ReportReviewPanel } from './ReportReviewPanel'
 import type { EmployeeProfile } from '../../auth/types'
 import { archivedReportFilename } from '../../lib/filename'
 import { saveBlob } from '../../lib/download'
@@ -19,6 +27,7 @@ import { errorText } from '../../i18n/errorText'
 
 export function ReportsAdmin() {
   const { t, i18n } = useTranslation()
+  const auth = useAuth()
   const uiLocale = (i18n.language in localeTags ? i18n.language : 'en') as Locale
   const when = (value: string) =>
     new Date(value).toLocaleString(localeTags[uiLocale], { dateStyle: 'medium', timeStyle: 'short' })
@@ -38,10 +47,29 @@ export function ReportsAdmin() {
   const [from, setFrom] = useState('')
   const [to, setTo] = useState('')
   const [type, setType] = useState<'' | 'original' | 'edited'>('')
+  const [reviewFilter, setReviewFilter] = useState<'' | ReviewState>('')
+  const [reviews, setReviews] = useState<ReportReview[]>([])
+  const [viewing, setViewing] = useState<ArchivedReport>()
   const [error, setError] = useState<string>()
   const byId = useMemo(() => new Map(reports.map((r) => [r.id, r])), [reports])
   const employeesById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees])
   const channelsById = useMemo(() => new Map(channels.map((c) => [c.id, c])), [channels])
+  const reviewById = useMemo(() => reviewsByReport(reviews), [reviews])
+  // Keep the list in sync with the server's answer, so the decision shows without a reload.
+  const recordReview = (review: ReportReview) =>
+    setReviews((current) => [review, ...current.filter((r) => r.report_id !== review.report_id)])
+  const viewButton = (r: ArchivedReport, className?: string, label = false) => (
+    <Button
+      size={label ? 'default' : 'icon'}
+      className={className}
+      aria-label={label ? undefined : t('admin.reports.viewNamed', { name: r.patient_name })}
+      title={t('admin.reports.view')}
+      onClick={() => setViewing(r)}
+    >
+      <Eye size={15} />
+      {label && t('admin.reports.view')}
+    </Button>
+  )
   const duplicate = (r: ArchivedReport) => {
     sessionStorage.setItem('duplicateReport', JSON.stringify({ payload: r.report_payload, parentReportId: r.id }))
     window.location.href = '/'
@@ -57,11 +85,12 @@ export function ReportsAdmin() {
     )
   }
   useEffect(() => {
-    void Promise.all([listReports(), listEmployees(), listChannels()])
-      .then(([r, e, c]) => {
+    void Promise.all([listReports(), listEmployees(), listChannels(), listReportReviews()])
+      .then(([r, e, c, v]) => {
         setReports(r)
         setEmployees(e)
         setChannels(c)
+        setReviews(v)
       })
       .catch(() => setError(t('admin.reports.loadError')))
       .finally(() => setLoaded(true))
@@ -77,9 +106,10 @@ export function ReportsAdmin() {
           (!phone || r.employee_phone_snapshot.includes(phone)) &&
           (!from || r.finalized_at >= from) &&
           (!to || r.finalized_at <= `${to}T23:59:59`) &&
-          (!type || (type === 'edited') === Boolean(r.parent_report_id)),
+          (!type || (type === 'edited') === Boolean(r.parent_report_id)) &&
+          (!reviewFilter || reviewStateOf(reviewById.get(r.id)) === reviewFilter),
       ),
-    [reports, query, clinic, locale, employee, phone, from, to, type],
+    [reports, query, clinic, locale, employee, phone, from, to, type, reviewFilter, reviewById],
   )
   const save = async (report: ArchivedReport) => {
     setError(undefined)
@@ -156,6 +186,16 @@ export function ReportsAdmin() {
           <option value="original">{t('admin.reports.typeOriginal')}</option>
           <option value="edited">{t('admin.reports.typeEdited')}</option>
         </Select>
+        <Select
+          aria-label={t('admin.reports.reviewFilterLabel')}
+          value={reviewFilter}
+          onChange={(e) => setReviewFilter(e.target.value as typeof reviewFilter)}
+        >
+          <option value="">{t('admin.reports.reviewAll')}</option>
+          <option value="pending_review">{t('review.state.pending_review')}</option>
+          <option value="approved">{t('review.state.approved')}</option>
+          <option value="rejected">{t('review.state.rejected')}</option>
+        </Select>
       </div>
       {error && (
         <p role="alert" className="mt-3 text-red-700">
@@ -174,7 +214,7 @@ export function ReportsAdmin() {
       )}
       {visible.length > 0 && (
         <div className="mt-4 hidden overflow-x-auto rounded-xl border bg-white md:block">
-          <table className="w-full min-w-[1250px] text-start text-xs [&_td]:px-3 [&_td]:py-2 [&_th]:px-3 [&_th]:py-3">
+          <table className="w-full min-w-[1400px] text-start text-xs [&_td]:px-3 [&_td]:py-2 [&_th]:px-3 [&_th]:py-3">
             <thead>
               <tr className="border-b text-stone-600">
                 <th className="text-start">{t('admin.reports.colReport')}</th>
@@ -183,6 +223,7 @@ export function ReportsAdmin() {
                 <th className="text-start">{t('admin.reports.colOriginalEmployee')}</th>
                 <th className="text-start">{t('admin.reports.colHistoricalPhone')}</th>
                 <th className="text-start">{t('admin.reports.colCurrentOwner')}</th>
+                <th className="text-start">{t('admin.reports.colReview')}</th>
                 <th className="text-start">{t('admin.reports.colPdf')}</th>
               </tr>
             </thead>
@@ -225,7 +266,11 @@ export function ReportsAdmin() {
                     <td>{r.employee_phone_snapshot}</td>
                     <td>{channel?.current_assignment?.profile?.full_name ?? t('admin.common.unassigned')}</td>
                     <td>
+                      <ReviewBadge state={reviewStateOf(reviewById.get(r.id))} />
+                    </td>
+                    <td>
                       <div className="flex gap-1">
+                        {viewButton(r)}
                         <Button
                           size="icon"
                           aria-label={t('admin.reports.downloadNamed', { name: r.patient_name })}
@@ -274,6 +319,9 @@ export function ReportsAdmin() {
                         {t('admin.reports.editedBadge')}
                       </span>
                     )}
+                    <span className="ms-2">
+                      <ReviewBadge state={reviewStateOf(reviewById.get(r.id))} />
+                    </span>
                   </>
                 }
               >
@@ -314,7 +362,8 @@ export function ReportsAdmin() {
                   {channel?.current_assignment?.profile?.full_name ?? t('admin.common.unassigned')}
                 </AccordionField>
                 <AccordionField label={t('admin.reports.colPdf')}>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {viewButton(r, 'flex-1', true)}
                     <Button
                       className="flex-1"
                       disabled={Boolean(downloading)}
@@ -335,6 +384,24 @@ export function ReportsAdmin() {
           })}
         </Accordion>
       </div>
+      {viewing && (
+        <ArchivedPdfViewer report={viewing} onClose={() => setViewing(undefined)}>
+          <ReportReviewPanel
+            report={viewing}
+            review={reviewById.get(viewing.id)}
+            reviewerName={(() => {
+              const id = reviewById.get(viewing.id)?.reviewer_id
+              return id ? employeesById.get(id)?.full_name : undefined
+            })()}
+            corrections={correctionsOf(reports, viewing.id)}
+            isOwnReport={viewing.created_by_employee_id === auth.profile?.id}
+            when={when}
+            downloading={downloading === viewing.id}
+            onDownload={() => void save(viewing)}
+            onReviewed={recordReview}
+          />
+        </ArchivedPdfViewer>
+      )}
     </main>
   )
 }

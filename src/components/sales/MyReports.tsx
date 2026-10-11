@@ -8,10 +8,14 @@ import { formatMoneyMinor, localeTags } from '../../lib/locale'
 import {
   downloadArchivedReport,
   listReportEvents,
+  listReportReviews,
   listReports,
   type ArchivedReport,
   type ReportEvent,
+  type ReportReview,
 } from '../../lib/operations'
+import { correctionsOf, reviewStateOf, reviewsByReport } from '../../lib/reportReview'
+import { ReviewBadge } from '../ReviewBadge'
 import { archivedReportFilename } from '../../lib/filename'
 import { saveBlob } from '../../lib/download'
 import {
@@ -42,6 +46,7 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
   const { t, i18n } = useTranslation()
   const [reports, setReports] = useState<ArchivedReport[]>([])
   const [events, setEvents] = useState<ReportEvent[]>([])
+  const [reviews, setReviews] = useState<ReportReview[]>([])
   const [error, setError] = useState<string>()
   const [downloading, setDownloading] = useState<string>()
   const [kind, setKind] = useState<ReportKindFilter>('all')
@@ -54,9 +59,14 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
     setLoadFailed(false)
     setError(undefined)
     try {
-      const [loadedReports, loadedEvents] = await Promise.all([listReports(), listReportEvents()])
+      const [loadedReports, loadedEvents, loadedReviews] = await Promise.all([
+        listReports(),
+        listReportEvents(),
+        listReportReviews(),
+      ])
       setReports(loadedReports)
       setEvents(loadedEvents)
+      setReviews(loadedReviews)
     } catch {
       setLoadFailed(true)
     } finally {
@@ -88,6 +98,7 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
     [reports, events, openId],
   )
   const byId = useMemo(() => new Map(reports.map((report) => [report.id, report])), [reports])
+  const reviewById = useMemo(() => reviewsByReport(reviews), [reviews])
   const locale = uiLocale(i18n.language)
   const when = (value: string) =>
     new Date(value).toLocaleString(localeTags[locale], { dateStyle: 'medium', timeStyle: 'short' })
@@ -140,6 +151,8 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
         {visible.map((report) => {
           const open = openId === report.id
           const parent = report.parent_report_id ? byId.get(report.parent_report_id) : undefined
+          const review = reviewById.get(report.id)
+          const correction = correctionsOf(reports, report.id)[0]
           return (
             <li key={report.id} className="rounded-xl border border-stone-200 bg-white p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -151,6 +164,9 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
                         {t('sales.reports.editedCopy')}
                       </span>
                     )}
+                    <span className="ms-2 align-middle">
+                      <ReviewBadge state={reviewStateOf(review)} />
+                    </span>
                   </p>
                   <p className="mt-1 text-xs text-stone-600">
                     {when(report.finalized_at)} · {clinicName(report.clinic_id)} ·{' '}
@@ -161,6 +177,11 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
                   {parent && (
                     <p className="mt-1 text-xs text-stone-600">
                       {t('sales.reports.editedFrom', { date: when(parent.finalized_at) })}
+                    </p>
+                  )}
+                  {review?.decision === 'approved' && (
+                    <p className="mt-1 text-xs text-stone-600">
+                      {t('sales.reports.approvedOn', { date: when(review.created_at) })}
                     </p>
                   )}
                 </div>
@@ -192,6 +213,32 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
                   </Button>
                 </div>
               </div>
+              {review?.decision === 'rejected' && (
+                <section
+                  aria-label={t('sales.reports.rejectionTitle')}
+                  className="mt-3 grid gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 className="font-bold text-red-900">{t('sales.reports.rejectionTitle')}</h2>
+                    <span className="text-xs text-red-900">
+                      {t('sales.reports.reviewedOn', { date: when(review.created_at) })}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-ink [overflow-wrap:anywhere]">{review.note}</p>
+                  {correction ? (
+                    <p className="text-xs font-semibold text-stone-700">
+                      {t('sales.reports.correctionSubmitted', { date: when(correction.finalized_at) })}
+                    </p>
+                  ) : (
+                    <div>
+                      <Button onClick={() => edit(report)}>
+                        <PencilLine size={16} />
+                        {t('sales.reports.correct')}
+                      </Button>
+                    </div>
+                  )}
+                </section>
+              )}
               {open && history && (
                 <div className="mt-4 grid gap-4 border-t border-stone-200 pt-4 md:grid-cols-2">
                   <section aria-label={t('sales.reports.versions')}>
