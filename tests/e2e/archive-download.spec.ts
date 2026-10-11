@@ -468,6 +468,9 @@ test('an employee sees the manager decision and the rejection note on their repo
     !testInfo.config.configFile?.endsWith('playwright.archive.config.ts'),
     'Requires isolated mocked authentication server',
   )
+  const pdf = await PDFDocument.create()
+  for (let i = 0; i < 5; i++) pdf.addPage().drawText(`Employee preview page ${i + 1}`)
+  const original = Buffer.from(await pdf.save())
   const user = {
     id: '00000000-0000-4000-8000-000000000002',
     email: 'seller@example.test',
@@ -497,7 +500,7 @@ test('an employee sees the manager decision and the rejection note on their repo
     second_visit_total_minor: 0,
     parent_report_id: null,
     pdf_storage_key: `${user.id}/${index}.pdf`,
-    pdf_sha256: '0'.repeat(64),
+    pdf_sha256: createHash('sha256').update(original).digest('hex'),
     report_payload: { clinicId: 'aksu', patient: { name: `${name} patient` }, firstVisit: { treatmentRows: [] } },
   }))
   const reviews = [
@@ -512,6 +515,7 @@ test('an employee sees the manager decision and the rejection note on their repo
     created_at: '2026-10-11T12:00:00Z',
   }))
   let reviewAttempts = 0
+  let logged = 0
   await page.route('https://archive-tests.supabase.co/**', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
@@ -527,7 +531,15 @@ test('an employee sees the manager decision and the rejection note on their repo
       return route.fulfill({ status: 400, json: { message: 'admin_required' } })
     }
     if (url.pathname.endsWith('/report_reviews')) return route.fulfill({ json: reviews })
-    if (url.pathname.endsWith('/reports')) return route.fulfill({ json: reports })
+    if (url.pathname.includes('/rpc/log_report_download')) {
+      logged++
+      return route.fulfill({ json: null })
+    }
+    if (url.pathname.endsWith('/reports')) {
+      const id = url.searchParams.get('id')?.replace('eq.', '')
+      return route.fulfill({ json: id ? reports.find((report) => report.id === id) : reports })
+    }
+    if (url.pathname.includes('/storage/')) return route.fulfill({ contentType: 'application/pdf', body: original })
     return route.fulfill({ json: [] })
   })
   await page.route('**/api/auth/employee-login', (route) =>
@@ -548,4 +560,12 @@ test('an employee sees the manager decision and the rejection note on their repo
   await expect(rejection.getByRole('button', { name: 'Correct and resubmit', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Done', exact: true })).toHaveCount(0)
   expect(reviewAttempts).toBe(0)
+
+  // The employee can check the archived PDF before downloading it; viewing is not a download.
+  await page.getByRole('button', { name: 'View PDF for Cem patient', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Report for Cem patient' })
+  await expect(dialog.locator('canvas')).toHaveCount(5)
+  await dialog.getByRole('button', { name: 'Close', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  expect(logged).toBe(0)
 })

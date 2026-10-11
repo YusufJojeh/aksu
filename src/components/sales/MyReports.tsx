@@ -1,4 +1,4 @@
-import { Download, FilePlus2, History, LoaderCircle, PencilLine, RotateCcw } from 'lucide-react'
+import { Download, Eye, FilePlus2, History, LoaderCircle, PencilLine, RotateCcw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { clinicRegistry } from '../../clinics/registry'
@@ -15,6 +15,7 @@ import {
   type ReportReview,
 } from '../../lib/operations'
 import { correctionsOf, reviewStateOf, reviewsByReport } from '../../lib/reportReview'
+import { ArchivedPdfViewer } from '../ArchivedPdfViewer'
 import { ReviewBadge } from '../ReviewBadge'
 import { archivedReportFilename } from '../../lib/filename'
 import { saveBlob } from '../../lib/download'
@@ -52,6 +53,7 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
   const [kind, setKind] = useState<ReportKindFilter>('all')
   const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState<string>()
+  const [viewing, setViewing] = useState<ArchivedReport>()
   const [loaded, setLoaded] = useState(false)
   const [loadFailed, setLoadFailed] = useState(false)
 
@@ -188,6 +190,14 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
                 <div className="flex gap-1">
                   <Button
                     size="icon"
+                    aria-label={t('admin.reports.viewNamed', { name: report.patient_name })}
+                    title={t('admin.reports.view')}
+                    onClick={() => setViewing(report)}
+                  >
+                    <Eye size={16} />
+                  </Button>
+                  <Button
+                    size="icon"
                     aria-label={t('sales.reports.editNamed', { name: report.patient_name })}
                     title={t('sales.reports.editTitle')}
                     onClick={() => edit(report)}
@@ -253,14 +263,23 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
                             {version.id === report.id && <b>{t('sales.reports.current')} · </b>}
                             {when(version.finalized_at)} · <span className="tabular-nums">{total(version)}</span>
                           </span>
-                          <Button
-                            size="icon"
-                            aria-label={`${t('sales.reports.download')} ${when(version.finalized_at)}`}
-                            disabled={Boolean(downloading)}
-                            onClick={() => void download(version)}
-                          >
-                            <Download size={14} />
-                          </Button>
+                          <span className="flex gap-1">
+                            <Button
+                              size="icon"
+                              aria-label={`${t('admin.reports.view')} ${when(version.finalized_at)}`}
+                              onClick={() => setViewing(version)}
+                            >
+                              <Eye size={14} />
+                            </Button>
+                            <Button
+                              size="icon"
+                              aria-label={`${t('sales.reports.download')} ${when(version.finalized_at)}`}
+                              disabled={Boolean(downloading)}
+                              onClick={() => void download(version)}
+                            >
+                              <Download size={14} />
+                            </Button>
+                          </span>
                         </li>
                       ))}
                     </ol>
@@ -308,6 +327,7 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
             {t('sales.reports.noMatches')}
           </p>
         ))}
+      {viewing && <ArchivedPdfViewer report={viewing} onClose={() => setViewing(undefined)} />}
     </>
   )
 }
