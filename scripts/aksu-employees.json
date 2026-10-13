@@ -1,0 +1,69 @@
+[
+  {
+    "name": "Wissam",
+    "phone": "+905070757910"
+  },
+  {
+    "name": "Akram",
+    "phone": "+905072277442"
+  },
+  {
+    "name": "Jawaad",
+    "phone": "+905010017973"
+  },
+  {
+    "name": "Hiba",
+    "phone": "+905016212408"
+  },
+  {
+    "name": "Chan",
+    "phone": "+905465270826"
+  },
+  {
+    "name": "Nancy/Oumaima",
+    "phone": "+905016132408"
+  },
+  {
+    "name": "Kenza",
+    "phone": "+905013625919"
+  },
+  {
+    "name": "Kawthar",
+    "phone": "+905421805589"
+  },
+  {
+    "name": "Hadjar",
+    "phone": "+905421845589"
+  },
+  {
+    "name": "Sara",
+    "phone": "+905465270842"
+  },
+  {
+    "name": "Rayane",
+    "phone": "+905465270835"
+  },
+  {
+    "name": "Younes",
+    "phone": "+905469013156"
+  },
+  {
+    "name": "Ahmed",
+    "phone": "+905465270832"
+  },
+  {
+    "name": "Florans",
+    "phone": "+905465270838",
+    "extraPhones": [
+      "+905396114484"
+    ]
+  },
+  {
+    "name": "Hanane",
+    "phone": "+905016092408"
+  },
+  {
+    "name": "Imad",
+    "phone": "+905495454415"
+  }
+]

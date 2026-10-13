@@ -39,6 +39,22 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       .eq('requested_phone_e164', phone)
     if (lookupError) throw lookupError
 
+    // An employee may own extra sign-in numbers (profile_login_phones); they open the same account.
+    const { data: extra, error: extraError } = await service
+      .from('profile_login_phones')
+      .select('profile_id')
+      .eq('phone_e164', phone)
+    if (extraError) throw extraError
+    const extraIds = extra.map((row) => row.profile_id).filter((id) => !profiles.some((p) => p.id === id))
+    if (extraIds.length > 0) {
+      const { data: viaExtra, error: viaError } = await service
+        .from('profiles')
+        .select('id,email,role,status,created_at')
+        .in('id', extraIds)
+      if (viaError) throw viaError
+      profiles.push(...viaExtra)
+    }
+
     const candidates = profiles.map(fromRow<LoginCandidate>)
     // Candidates share one phone (name-typo duplicates), so this is a handful of cheap head-counts; run them together.
     const countResults = await Promise.all(

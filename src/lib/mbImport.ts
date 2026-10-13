@@ -1,6 +1,8 @@
 export interface MbEmployeeEntry {
   name: string
   phone: string
+  /** Further numbers that also sign in to the same account (profile_login_phones). */
+  extraPhones?: string[]
 }
 
 export interface ExistingProfile {
@@ -37,7 +39,11 @@ export function nameKey(name: string): string {
  * admins are never touched. A live profile whose first name matches on a different phone is a possible duplicate
  * and is reported instead of created.
  */
-export function planMbImport(entries: MbEmployeeEntry[], profiles: ExistingProfile[]): MbImportAction[] {
+export function planMbImport(
+  entries: MbEmployeeEntry[],
+  profiles: ExistingProfile[],
+  clinicId = 'mb-dental',
+): MbImportAction[] {
   const live = profiles.filter((profile) => LIVE_STATUSES.has(profile.status))
   const seenPhones = new Set<string>()
   const seenNames = new Set<string>()
@@ -58,7 +64,10 @@ export function planMbImport(entries: MbEmployeeEntry[], profiles: ExistingProfi
       continue
     }
     const sameName = live.find(
-      (profile) => profile.role !== 'ADMIN' && nameKey(profile.full_name).split(' ')[0] === key.split(' ')[0],
+      (profile) =>
+        profile.role !== 'ADMIN' &&
+        (!profile.clinic_id || profile.clinic_id === clinicId) && // a person locked to another clinic is someone else
+        nameKey(profile.full_name).split(' ')[0] === key.split(' ')[0],
     )
     actions.push(sameName ? { kind: 'review', entry, profile: sameName } : { kind: 'create', entry })
   }

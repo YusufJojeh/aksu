@@ -177,6 +177,32 @@ export type Database = {
           },
         ]
       }
+      profile_login_phones: {
+        Row: {
+          created_at: string
+          phone_e164: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          phone_e164: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          phone_e164?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_login_phones_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           clinic_id: string | null
