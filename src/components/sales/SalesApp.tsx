@@ -14,6 +14,8 @@ import { errorText } from '../../i18n/errorText'
 
 type View = 'create' | 'reports' | 'profile'
 
+const requireSignIn = import.meta.env.VITE_REQUIRE_SIGN_IN === 'true'
+
 export function SalesApp() {
   const auth = useAuth()
   const { t, i18n } = useTranslation()
@@ -174,7 +176,23 @@ export function SalesApp() {
           )}
         </div>
       </nav>
-      {view === 'create' && !clinicId && <ClinicSelect onSelect={setClinicId} />}
+      {view === 'create' &&
+        !clinicId &&
+        (requireSignIn && !signedIn ? (
+          auth.loading ? null : (
+            <div className="grid flex-1 place-items-center bg-parchment p-6 text-center text-ink">
+              <div className="max-w-md">
+                <span className="mx-auto mb-3 grid size-12 place-items-center rounded-full border border-gold/70 text-gold">
+                  <LogIn size={22} />
+                </span>
+                <h1 className="text-2xl font-bold tracking-tight">{t('clinicSelect.signInTitle')}</h1>
+                <p className="mt-1 text-sm text-stone-600">{t('clinicSelect.signInSubtitle')}</p>
+              </div>
+            </div>
+          )
+        ) : (
+          <ClinicSelect onSelect={setClinicId} />
+        ))}
       {/* Stays mounted while viewing reports or profile so unsaved edits survive the round trip. */}
       {clinicId && (
         <div className={view === 'create' ? 'flex flex-1 flex-col lg:min-h-0' : 'hidden'}>
