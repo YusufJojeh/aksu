@@ -13,6 +13,7 @@ import {
 import { reviewStateOf } from '../../lib/reportReview'
 import { Button } from '../ui'
 import { ReviewBadge } from '../ReviewBadge'
+import { VoicePlayer, VoiceRecorder } from '../VoiceNote'
 
 /** Done / Reject for one report. The decision is final once the server confirms it. */
 export function ReportReviewPanel({
@@ -41,6 +42,7 @@ export function ReportReviewPanel({
   const hintId = useId()
   const [rejecting, setRejecting] = useState(false)
   const [note, setNote] = useState('')
+  const [voice, setVoice] = useState<Blob>()
   const [submitting, setSubmitting] = useState<ReviewDecision>()
   const [error, setError] = useState<string>()
   const state = reviewStateOf(review)
@@ -51,9 +53,17 @@ export function ReportReviewPanel({
     setSubmitting(decision)
     setError(undefined)
     try {
-      onReviewed(await reviewReport(report.id, decision, decision === 'rejected' ? note : undefined))
+      onReviewed(
+        await reviewReport(
+          report.id,
+          decision,
+          decision === 'rejected' ? note : undefined,
+          decision === 'rejected' ? voice : undefined,
+        ),
+      )
       setRejecting(false)
       setNote('')
+      setVoice(undefined)
     } catch (caught) {
       setError(errorText(caught, t, 'admin.reports.reviewFailed'))
     } finally {
@@ -85,6 +95,7 @@ export function ReportReviewPanel({
             })}
           </p>
           {review.note && <p className="whitespace-pre-wrap text-ink [overflow-wrap:anywhere]">{review.note}</p>}
+          {review.voice_note_key && <VoicePlayer voiceKey={review.voice_note_key} />}
           {corrections.length > 0 && (
             <p className="text-xs font-semibold text-stone-700">
               {t('admin.reports.correctionSubmitted', { date: when(corrections[0]!.finalized_at) })}
@@ -122,6 +133,7 @@ export function ReportReviewPanel({
           <p id={hintId} className="text-xs text-stone-600">
             {t('admin.reports.rejectNoteHint', { min: REVIEW_NOTE_MIN })} · {note.length}/{REVIEW_NOTE_MAX}
           </p>
+          <VoiceRecorder onChange={setVoice} disabled={Boolean(submitting)} />
           <div className="flex flex-wrap gap-2">
             <Button
               type="submit"

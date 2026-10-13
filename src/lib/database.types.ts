@@ -309,6 +309,7 @@ export type Database = {
           report_id: string
           report_pdf_sha256: string
           reviewer_id: string
+          voice_note_key: string | null
         }
         Insert: {
           created_at?: string
@@ -319,6 +320,7 @@ export type Database = {
           report_id: string
           report_pdf_sha256: string
           reviewer_id: string
+          voice_note_key?: string | null
         }
         Update: {
           created_at?: string
@@ -329,6 +331,7 @@ export type Database = {
           report_id?: string
           report_pdf_sha256?: string
           reviewer_id?: string
+          voice_note_key?: string | null
         }
         Relationships: [
           {
@@ -508,7 +511,7 @@ export type Database = {
         Returns: boolean
       }
       review_report: {
-        Args: { p_decision: string; p_note?: string; p_report_id: string }
+        Args: { p_decision: string; p_note?: string; p_report_id: string; p_voice_note_key?: string }
         Returns: {
           created_at: string
           decision: string
@@ -518,6 +521,7 @@ export type Database = {
           report_id: string
           report_pdf_sha256: string
           reviewer_id: string
+          voice_note_key: string | null
         }
         SetofOptions: {
           from: "*"

@@ -55,6 +55,7 @@ const CODE_ALIASES: Record<string, AppErrorCode> = {
   checksum_write_failed: 'verify_failed',
   invalid_review_decision: 'review_failed',
   review_note_too_long: 'review_failed',
+  invalid_voice_note: 'review_failed',
 }
 
 export function toAppErrorCode(value: unknown): AppErrorCode | undefined {

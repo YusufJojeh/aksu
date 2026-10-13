@@ -26,6 +26,7 @@ import {
   isEditedCopy,
   type ReportKindFilter,
 } from '../../lib/reportHistory'
+import { VoicePlayer } from '../VoiceNote'
 import { Button, Input, Select, Tabs, TabsList, TabsTrigger } from '../ui'
 import { MyDocuments } from './MyDocuments'
 import { errorText } from '../../i18n/errorText'
@@ -235,6 +236,7 @@ function ReportsList({ onCreate }: { onCreate?: () => void }) {
                     </span>
                   </div>
                   <p className="whitespace-pre-wrap text-ink [overflow-wrap:anywhere]">{review.note}</p>
+                  {review.voice_note_key && <VoicePlayer voiceKey={review.voice_note_key} />}
                   {correction ? (
                     <p className="text-xs font-semibold text-stone-700">
                       {t('sales.reports.correctionSubmitted', { date: when(correction.finalized_at) })}

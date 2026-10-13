@@ -49,6 +49,8 @@ export interface ReportReview {
   previous_state: 'pending_review'
   decision: ReviewDecision
   note: string | null
+  /** Path of an optional manager voice note in the private review-voice-notes bucket. */
+  voice_note_key: string | null
   created_at: string
 }
 
@@ -213,16 +215,52 @@ export async function listReportReviews(): Promise<ReportReview[]> {
   return data.map(fromRow<ReportReview>)
 }
 
+const VOICE_BUCKET = 'review-voice-notes'
+
+/** File extension for a recorded audio MIME type; the database accepts exactly these. */
+function voiceExtension(mime: string): string {
+  if (mime.includes('webm')) return 'webm'
+  if (mime.includes('ogg')) return 'ogg'
+  if (mime.includes('mp4')) return 'mp4'
+  if (mime.includes('mpeg')) return 'mp3'
+  return 'wav'
+}
+
+/** A short-lived URL for playing a review's voice note (admins and the report owner only, via storage RLS). */
+export async function voiceNoteUrl(key: string): Promise<string> {
+  const { data, error } = await requireSupabase().storage.from(VOICE_BUCKET).createSignedUrl(key, 600)
+  if (error || !data) throw new AppError('request_failed', error?.message ?? 'Voice note unavailable.')
+  return data.signedUrl
+}
+
 /** Records the one decision on a report. The server takes the reviewer from the session, never from here. */
-export async function reviewReport(reportId: string, decision: ReviewDecision, note?: string): Promise<ReportReview> {
+export async function reviewReport(
+  reportId: string,
+  decision: ReviewDecision,
+  note?: string,
+  voiceNote?: Blob,
+): Promise<ReportReview> {
   const trimmed = note?.trim() ?? ''
   if (decision === 'rejected' && trimmed.length < REVIEW_NOTE_MIN)
     throw new AppError('review_note_required', 'Explain what must be corrected (at least 10 characters).')
-  const { data, error } = await requireSupabase().rpc('review_report', {
+  const client = requireSupabase()
+  let voiceKey: string | undefined
+  if (voiceNote) {
+    voiceKey = `${reportId}/${crypto.randomUUID()}.${voiceExtension(voiceNote.type)}`
+    const upload = await client.storage
+      .from(VOICE_BUCKET)
+      .upload(voiceKey, voiceNote, { contentType: voiceNote.type.split(';')[0], upsert: false })
+    if (upload.error) throw new AppError('review_failed', upload.error.message)
+  }
+  const { data, error } = await client.rpc('review_report', {
     p_report_id: reportId,
     p_decision: decision,
     p_note: trimmed || undefined,
+    p_voice_note_key: voiceKey,
   })
-  if (error) throw new AppError(toAppErrorCode(error.message) ?? 'review_failed', error.message)
+  if (error) {
+    if (voiceKey) await client.storage.from(VOICE_BUCKET).remove([voiceKey])
+    throw new AppError(toAppErrorCode(error.message) ?? 'review_failed', error.message)
+  }
   return fromRow<ReportReview>(data)
 }
