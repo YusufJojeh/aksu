@@ -179,16 +179,19 @@ export type Database = {
       }
       profile_login_phones: {
         Row: {
+          admin_login: boolean
           created_at: string
           phone_e164: string
           profile_id: string
         }
         Insert: {
+          admin_login?: boolean
           created_at?: string
           phone_e164: string
           profile_id: string
         }
         Update: {
+          admin_login?: boolean
           created_at?: string
           phone_e164?: string
           profile_id?: string

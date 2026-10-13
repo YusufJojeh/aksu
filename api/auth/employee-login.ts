@@ -42,7 +42,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
     // An employee may own extra sign-in numbers (profile_login_phones); they open the same account.
     const { data: extra, error: extraError } = await service
       .from('profile_login_phones')
-      .select('profile_id')
+      .select('profile_id,admin_login')
       .eq('phone_e164', phone)
     if (extraError) throw extraError
     const extraIds = extra.map((row) => row.profile_id).filter((id) => !profiles.some((p) => p.id === id))
@@ -54,6 +54,11 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       if (viaError) throw viaError
       profiles.push(...viaExtra)
     }
+
+    // An admin is reachable by phone only when that exact number was explicitly enabled for admin sign-in
+    // (profile_login_phones.admin_login, service-role written); every other admin stays password-only.
+    const adminLoginIds = new Set(extra.filter((row) => row.admin_login).map((row) => row.profile_id))
+    const enabledAdmin = profiles.find((p) => adminLoginIds.has(p.id) && p.role === 'ADMIN' && p.status === 'active')
 
     const candidates = profiles.map(fromRow<LoginCandidate>)
     // Candidates share one phone (name-typo duplicates), so this is a handful of cheap head-counts; run them together.
@@ -68,7 +73,7 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       }),
     )
     const counts = new Map<string, number>(countResults)
-    const profile = pickEmployeeProfile(candidates, counts)
+    const profile = enabledAdmin ? fromRow<LoginCandidate>(enabledAdmin) : pickEmployeeProfile(candidates, counts)
     if (!profile) {
       res.status(401).json({ error: NOT_FOUND, code: 'employee_not_found' })
       return
