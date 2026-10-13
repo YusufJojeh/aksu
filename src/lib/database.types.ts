@@ -179,6 +179,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          clinic_id: string | null
           created_at: string
           email: string
           full_name: string
@@ -189,6 +190,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          clinic_id?: string | null
           created_at?: string
           email: string
           full_name: string
@@ -199,6 +201,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          clinic_id?: string | null
           created_at?: string
           email?: string
           full_name?: string

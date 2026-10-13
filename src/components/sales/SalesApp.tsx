@@ -32,7 +32,10 @@ export function SalesApp() {
     }
   })
   const [view, setView] = useState<View>('create')
-  const [clinicId, setClinicId] = useState<ClinicId | undefined>(duplicate?.payload.clinicId)
+  const [pickedClinicId, setClinicId] = useState<ClinicId | undefined>(duplicate?.payload.clinicId)
+  // An employee locked to one clinic always works in it: no picker, and no way to switch away.
+  const lockedClinicId = auth.profile?.clinic_id ?? undefined
+  const clinicId = lockedClinicId ?? pickedClinicId
   const [interfaceLocale, setInterfaceLocale] = useState<Locale>('en')
   useEffect(() => {
     if (!auth.profile) return
@@ -189,7 +192,7 @@ export function SalesApp() {
               document.documentElement.lang = locale
               document.documentElement.dir = isRtl(locale) ? 'rtl' : 'ltr'
             }}
-            onSwitchClinic={() => setClinicId(undefined)}
+            onSwitchClinic={lockedClinicId ? undefined : () => setClinicId(undefined)}
           />
         </div>
       )}

@@ -40,6 +40,7 @@ function e2eProfile(): EmployeeProfile | undefined {
     role: 'SALES',
     status: 'active',
     requested_phone_e164: '+905551112233',
+    clinic_id: null,
     created_at: new Date(0).toISOString(),
     updated_at: new Date(0).toISOString(),
   }

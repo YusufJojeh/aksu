@@ -14,6 +14,7 @@ const employee = (id: string, overrides: Partial<EmployeeProfile> = {}): Employe
   role: 'SALES',
   status: 'active',
   requested_phone_e164: `+90555-${id}`,
+  clinic_id: null,
   created_at: daysAgo(200),
   updated_at: daysAgo(200),
   ...overrides,

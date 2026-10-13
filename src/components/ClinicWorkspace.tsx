@@ -54,7 +54,8 @@ export function ClinicWorkspace({
   parentReportId?: string
   interfaceLocale: Locale
   onInterfaceLocaleChange: (locale: Locale) => void
-  onSwitchClinic: () => void
+  /** Omitted for an employee locked to this clinic, which hides the switch control. */
+  onSwitchClinic?: () => void
 }) {
   const { t } = useTranslation()
   const [mobilePanel, setMobilePanel] = useState('edit')
@@ -184,7 +185,7 @@ export function ClinicWorkspace({
 
   const requestSwitchClinic = () => {
     if (isDirty) setDialog('switchClinic')
-    else onSwitchClinic()
+    else onSwitchClinic?.()
   }
 
   return (
@@ -201,14 +202,16 @@ export function ClinicWorkspace({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="outline"
-              className="!border-stone-600 !bg-stone-800 !text-white hover:!bg-stone-700"
-              onClick={requestSwitchClinic}
-            >
-              <ArrowLeftRight size={16} />
-              {t('actions.switchClinic')}
-            </Button>
+            {onSwitchClinic && (
+              <Button
+                variant="outline"
+                className="!border-stone-600 !bg-stone-800 !text-white hover:!bg-stone-700"
+                onClick={requestSwitchClinic}
+              >
+                <ArrowLeftRight size={16} />
+                {t('actions.switchClinic')}
+              </Button>
+            )}
             <label className="flex items-center gap-2 text-xs font-semibold text-stone-200">
               <Languages size={16} />
               <span className="sr-only sm:not-sr-only">{t('fields.interfaceLanguage')}</span>
@@ -388,7 +391,7 @@ export function ClinicWorkspace({
         body={t('dialog.switchClinicBody')}
         confirmLabel={t('actions.switchClinic')}
         cancelLabel={t('actions.cancel')}
-        onConfirm={onSwitchClinic}
+        onConfirm={() => onSwitchClinic?.()}
       />
     </div>
   )
