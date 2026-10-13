@@ -74,15 +74,14 @@ test('admin re-downloads exact originals and rejects missing or blank archives',
     return route.fulfill({ json: [] })
   })
   let adminLogins = 0
-  await page.route('**/api/auth/admin-login', async (route) => {
-    expect(route.request().postDataJSON()).toEqual({ email: user.email, password: 'test-password-only' })
+  await page.route('**/api/auth/employee-login', async (route) => {
+    expect(route.request().postDataJSON()).toEqual({ phone: '+905102200351' })
     adminLogins++
     return route.fulfill({ json: { access_token: token, refresh_token: 'test-refresh' } })
   })
   await page.goto('/admin')
   await expect(page.getByRole('tab')).toHaveCount(0)
-  await page.getByLabel('Email', { exact: true }).fill(user.email)
-  await page.getByLabel('Password', { exact: true }).fill('test-password-only')
+  await page.getByLabel('Phone number', { exact: true }).fill('+90 510 220 03 51')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Toggle Sidebar' })).toBeVisible()
   expect(adminLogins).toBe(1)
@@ -276,7 +275,7 @@ test('admin creates a sales employee directly, with no invitation email', async 
       return route.fulfill({ json: route.request().headers().accept?.includes('object') ? profile : [profile] })
     return route.fulfill({ json: [] })
   })
-  await page.route('**/api/auth/admin-login', (route) =>
+  await page.route('**/api/auth/employee-login', (route) =>
     route.fulfill({ json: { access_token: token, refresh_token: 'test-refresh' } }),
   )
   const created: unknown[] = []
@@ -288,8 +287,7 @@ test('admin creates a sales employee directly, with no invitation email', async 
     throw new Error('invitation endpoint must not be called')
   })
   await page.goto('/admin')
-  await page.getByLabel('Email', { exact: true }).fill(user.email)
-  await page.getByLabel('Password', { exact: true }).fill('test-password-only')
+  await page.getByLabel('Phone number', { exact: true }).fill('+90 510 220 03 51')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   if (testInfo.project.name === 'mobile') await page.getByRole('button', { name: 'Toggle Sidebar' }).click()
   await page.getByRole('button', { name: 'Employees', exact: true }).click()
@@ -391,7 +389,7 @@ test('admin views the archived PDF in-app, approves one report and rejects anoth
     if (url.pathname.includes('/storage/')) return route.fulfill({ contentType: 'application/pdf', body: original })
     return route.fulfill({ json: [] })
   })
-  await page.route('**/api/auth/admin-login', (route) =>
+  await page.route('**/api/auth/employee-login', (route) =>
     route.fulfill({ json: { access_token: token, refresh_token: 'test-refresh' } }),
   )
   const openReports = async () => {
@@ -413,8 +411,7 @@ test('admin views the archived PDF in-app, approves one report and rejects anoth
   }
 
   await page.goto('/admin')
-  await page.getByLabel('Email', { exact: true }).fill(user.email)
-  await page.getByLabel('Password', { exact: true }).fill('test-password-only')
+  await page.getByLabel('Phone number', { exact: true }).fill('+90 510 220 03 51')
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Toggle Sidebar' })).toBeVisible()
   await openReports()

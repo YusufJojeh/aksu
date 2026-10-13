@@ -15,13 +15,12 @@ const endonym = (locale: Locale): string => {
   }
 }
 
-// Administrator sign-in, by email and password only. There is no self-registration: admins create employee accounts, and
-// sales staff sign in with their phone number alone on the workspace (/).
+// Administrator sign-in, by phone number alone (product decision). The server only honours it for admin numbers that
+// were explicitly enabled (profile_login_phones.admin_login). No self-registration: admins create employee accounts.
 export function AuthScreen({ locale, onLocaleChange }: { locale: Locale; onLocaleChange: (locale: Locale) => void }) {
   const auth = useAuth()
   const { t } = useTranslation()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
   const [error, setError] = useState<string>()
   const [busy, setBusy] = useState(false)
 
@@ -29,7 +28,7 @@ export function AuthScreen({ locale, onLocaleChange }: { locale: Locale; onLocal
     setBusy(true)
     setError(undefined)
     try {
-      await auth.loginAdmin(email, password)
+      await auth.loginWithPhone(phone)
     } catch (caught) {
       setError(errorText(caught, t, 'errors.sign_in_failed'))
     } finally {
@@ -68,23 +67,16 @@ export function AuthScreen({ locale, onLocaleChange }: { locale: Locale; onLocal
           <h1 className="text-2xl font-bold">{t('adminAuth.title')}</h1>
         </div>
         <div className="grid gap-4">
-          <Field label={t('adminAuth.email')}>
+          <Field label={t('adminAuth.phone')}>
             <Input
               required
-              type="email"
+              type="tel"
               dir="ltr"
-              autoComplete="username"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </Field>
-          <Field label={t('adminAuth.password')}>
-            <Input
-              required
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="+90 555 111 22 33"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
             />
           </Field>
         </div>
