@@ -4,7 +4,15 @@ import { clinicRegistry } from '../../clinics/registry'
 import type { ClinicId } from '../../clinics/types'
 import type { Locale } from '../../domain/report'
 import { localeTags } from '../../lib/locale'
-import { createCustomer, listCustomers, updateCustomer, type Customer } from '../../lib/operations'
+import {
+  createCustomer,
+  listCustomers,
+  listReports,
+  updateCustomer,
+  type ArchivedReport,
+  type Customer,
+} from '../../lib/operations'
+import { derivePatients } from '../../lib/patientDirectory'
 import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
 import { errorText } from '../../i18n/errorText'
 
@@ -17,6 +25,7 @@ export function CustomersAdmin() {
   const tag = localeTags[(i18n.language in localeTags ? i18n.language : 'en') as Locale]
   const day = (value: string) => new Date(value).toLocaleDateString(tag, { dateStyle: 'medium' })
   const [customers, setCustomers] = useState<Customer[]>([])
+  const [reports, setReports] = useState<ArchivedReport[]>([])
   const [query, setQuery] = useState('')
   const [clinicFilter, setClinicFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -27,8 +36,11 @@ export function CustomersAdmin() {
   const [identifier, setIdentifier] = useState('')
   const [notes, setNotes] = useState('')
   const load = () =>
-    listCustomers()
-      .then(setCustomers)
+    Promise.all([listCustomers(), listReports()])
+      .then(([loadedCustomers, loadedReports]) => {
+        setCustomers(loadedCustomers)
+        setReports(loadedReports)
+      })
       .catch(() => setError(t('admin.customers.loadError')))
       .finally(() => setLoaded(true))
   useEffect(() => {
@@ -44,6 +56,13 @@ export function CustomersAdmin() {
           .includes(query.toLowerCase())) &&
       (!clinicFilter || customer.clinic_id === clinicFilter) &&
       (!statusFilter || customer.status === statusFilter),
+  )
+  const fromReports = derivePatients(reports, customers).filter(
+    (patient) =>
+      (!query ||
+        `${patient.name} ${patient.phone} ${patient.identifier}`.toLowerCase().includes(query.toLowerCase())) &&
+      (!clinicFilter || patient.clinics.includes(clinicFilter)) &&
+      !statusFilter, // report patients are never archived, so an "archived" filter hides them
   )
   const create = async () => {
     if (submitting) return
@@ -158,7 +177,42 @@ export function CustomersAdmin() {
           {t('admin.common.loading')}
         </p>
       )}
-      {loaded && visible.length === 0 && (
+      {loaded && fromReports.length > 0 && (
+        <section className="mt-4 rounded-xl border bg-white" aria-label={t('admin.customers.fromReportsTitle')}>
+          <h2 className="border-b px-4 py-3 font-bold">
+            {t('admin.customers.fromReportsTitle')} <span className="text-stone-500">({fromReports.length})</span>
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-start text-sm [&_td]:px-4 [&_td]:py-2 [&_th]:px-4 [&_th]:py-2">
+              <thead>
+                <tr className="border-b text-stone-600">
+                  <th className="text-start">{t('admin.customers.colName')}</th>
+                  <th className="text-start">{t('admin.customers.colPhone')}</th>
+                  <th className="text-start">{t('admin.customers.colId')}</th>
+                  <th className="text-start">{t('admin.customers.colClinic')}</th>
+                  <th className="text-start">{t('admin.customers.colReports')}</th>
+                  <th className="text-start">{t('admin.customers.colLastReport')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fromReports.map((patient) => (
+                  <tr key={patient.key} className="border-b last:border-b-0">
+                    <td className="font-medium [overflow-wrap:anywhere]">{patient.name}</td>
+                    <td dir="ltr" className="text-start">
+                      {patient.phone}
+                    </td>
+                    <td>{patient.identifier}</td>
+                    <td>{patient.clinics.map((id) => t(`admin.clinic.${id}`)).join(' · ')}</td>
+                    <td>{patient.reportCount}</td>
+                    <td>{day(patient.lastReportAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+      {loaded && visible.length === 0 && fromReports.length === 0 && (
         <p className="mt-4 rounded-xl border bg-white p-5 text-sm text-stone-600">
           {customers.length === 0 ? t('admin.customers.empty') : t('admin.common.noMatches')}
         </p>
