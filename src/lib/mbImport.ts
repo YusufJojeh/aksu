@@ -57,7 +57,7 @@ export function planMbImport(
     const samePhone = live.find((profile) => profile.requested_phone_e164 === entry.phone)
     if (samePhone) {
       actions.push(
-        samePhone.role === 'ADMIN'
+        samePhone.role !== 'SALES'
           ? { kind: 'review', entry, profile: samePhone }
           : { kind: 'lock-existing', entry, profile: samePhone },
       )
@@ -65,7 +65,7 @@ export function planMbImport(
     }
     const sameName = live.find(
       (profile) =>
-        profile.role !== 'ADMIN' &&
+        profile.role === 'SALES' &&
         (!profile.clinic_id || profile.clinic_id === clinicId) && // a person locked to another clinic is someone else
         nameKey(profile.full_name).split(' ')[0] === key.split(' ')[0],
     )

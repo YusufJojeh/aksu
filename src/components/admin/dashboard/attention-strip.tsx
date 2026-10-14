@@ -131,7 +131,9 @@ export function AttentionPanel({
   onChanged,
   onViewEmployee,
   onAssignChannels,
+  readOnly = false,
 }: {
+  readOnly?: boolean
   attention: TeamAnalytics['attention']
   onChanged: () => void
   onViewEmployee: (id: string) => void
@@ -199,6 +201,7 @@ export function AttentionPanel({
         <Button variant="ghost" size="sm" className="max-md:h-10 max-md:px-3" onClick={() => snooze(employee.id)}>
           {t('admin.dashboard.attention.snooze')}
         </Button>
+        {!readOnly && (
         <Button
           variant="outline"
           size="sm"
@@ -208,6 +211,7 @@ export function AttentionPanel({
         >
           {t('admin.dashboard.attention.deactivate')}
         </Button>
+        )}
       </>
     ),
   }))
@@ -259,6 +263,7 @@ export function AttentionPanel({
         >
           {t('admin.dashboard.attention.view')}
         </Button>
+        {!readOnly && (
         <Button
           variant="outline"
           size="sm"
@@ -268,9 +273,14 @@ export function AttentionPanel({
         >
           {t('admin.dashboard.attention.deactivate')}
         </Button>
+        )}
       </>
     ),
   }))
+
+  if (readOnly) {
+    for (const item of [...pendingItems, ...channelItems]) item.actions = null
+  }
 
   const confirmText =
     confirm &&
@@ -333,6 +343,7 @@ export function AttentionPanel({
             title={t('admin.dashboard.attention.groupDuplicates')}
             items={duplicateItems}
             headerAction={
+              !readOnly &&
               duplicateItems.length > 1 && (
                 <Button
                   variant="outline"

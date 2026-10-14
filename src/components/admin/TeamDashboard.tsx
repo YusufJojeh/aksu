@@ -64,7 +64,7 @@ function readSavedTab(): DashboardTab {
   }
 }
 
-export function TeamDashboard({ onAssignChannels }: { onAssignChannels: () => void }) {
+export function TeamDashboard({ onAssignChannels, readOnly = false }: { onAssignChannels: () => void; readOnly?: boolean }) {
   const { t, i18n } = useTranslation()
   const [range, setRange] = useState<RangeDays>(readSavedRange)
   const [tab, setTab] = useState<DashboardTab>(readSavedTab)
@@ -200,6 +200,7 @@ export function TeamDashboard({ onAssignChannels }: { onAssignChannels: () => vo
           <Tabs.Content value="overview" className="flex min-w-0 flex-col gap-4 focus-visible:outline-none">
             <TeamKpiCards summary={analytics.summary} />
             <AttentionPanel
+              readOnly={readOnly}
               attention={analytics.attention}
               onChanged={load}
               onViewEmployee={setSelectedId}

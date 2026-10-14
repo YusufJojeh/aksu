@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/AuthProvider'
 import { AuthScreen } from '../../auth/AuthScreen'
+import { isManagerRole } from '../../auth/types'
 import { Button } from '../ui'
 import { AdminDashboard } from './AdminDashboard'
 import { useAdminLocale } from './useAdminLocale'
@@ -32,7 +33,7 @@ export function AdminGate() {
         </div>
       </main>
     )
-  return auth.profile.role === 'ADMIN' ? (
+  return isManagerRole(auth.profile.role) ? (
     <AdminDashboard onLogout={() => void auth.logout()} locale={locale} onLocaleChange={setLocale} />
   ) : (
     <main className="grid min-h-screen place-items-center bg-parchment p-6">

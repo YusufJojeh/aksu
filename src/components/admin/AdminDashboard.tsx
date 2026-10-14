@@ -36,6 +36,7 @@ export function AdminDashboard({
   const { t } = useTranslation()
   const [view, setView] = useState<AdminView>('dashboard')
 
+  const readOnly = auth.profile?.role !== 'ADMIN'
   const user = { name: auth.profile?.full_name ?? 'Admin', email: auth.profile?.email ?? '' }
 
   return (
@@ -56,11 +57,11 @@ export function AdminDashboard({
             <SiteHeader title={t(VIEW_TITLE_KEYS[view])} locale={locale} onLocaleChange={onLocaleChange} />
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="@container/main flex min-w-0 flex-1 flex-col gap-2">
-                {view === 'dashboard' && <TeamDashboard onAssignChannels={() => setView('channels')} />}
-                {view === 'employees' && <EmployeesAdmin />}
-                {view === 'channels' && <ChannelsAdmin />}
+                {view === 'dashboard' && <TeamDashboard readOnly={readOnly} onAssignChannels={() => setView('channels')} />}
+                {view === 'employees' && <EmployeesAdmin readOnly={readOnly} />}
+                {view === 'channels' && <ChannelsAdmin readOnly={readOnly} />}
                 {view === 'reports' && <ReportsAdmin />}
-                {view === 'customers' && <CustomersAdmin />}
+                {view === 'customers' && <CustomersAdmin readOnly={readOnly} />}
                 {view === 'profile' && <ProfileSettings />}
               </div>
             </div>

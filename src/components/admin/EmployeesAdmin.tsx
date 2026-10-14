@@ -3,18 +3,18 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { EmployeeProfile, EmployeeStatus, UserRole } from '../../auth/types'
 import { createEmployee, deleteEmployee, listEmployees, offboardEmployee, updateEmployee } from '../../lib/operations'
-import { Accordion, AccordionField, AccordionItem, Button, ConfirmDialog, Input, Select } from '../ui'
+import { Accordion, AccordionField, AccordionItem, Button, ConfirmDialog, Input, ReadOnlyScope, Select } from '../ui'
 import { errorText } from '../../i18n/errorText'
 
 const statuses = ['pending', 'active', 'suspended', 'former'] as const
-const roles: UserRole[] = ['SALES', 'ADMIN']
+const roles: UserRole[] = ['SALES', 'TEAM_LEAD', 'ADMIN']
 
 // Offboarding and role changes take effect immediately on someone else's access, so both ask first.
 type PendingChange =
   | { employee: EmployeeProfile; kind: 'status'; value: EmployeeStatus }
   | { employee: EmployeeProfile; kind: 'role'; value: UserRole }
 
-export function EmployeesAdmin() {
+export function EmployeesAdmin({ readOnly = false }: { readOnly?: boolean }) {
   const { t } = useTranslation()
   const [employees, setEmployees] = useState<EmployeeProfile[]>([])
   const [query, setQuery] = useState('')
@@ -143,7 +143,8 @@ export function EmployeesAdmin() {
   return (
     <main className="mx-auto w-full min-w-0 max-w-[1400px] p-4 sm:p-7">
       <h1 className="text-2xl font-bold">{t('admin.employees.title')}</h1>
-      <form
+      {!readOnly && (
+<form
         className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-4"
         onSubmit={(event) => {
           event.preventDefault()
@@ -180,6 +181,7 @@ export function EmployeesAdmin() {
           {submitting ? t('admin.common.loading') : t('admin.employees.createSubmit')}
         </Button>
       </form>
+)}
       <p role="status" className="mt-3 text-sm text-stone-700 empty:sr-only">
         {notice}
       </p>
@@ -220,6 +222,7 @@ export function EmployeesAdmin() {
           {employees.length === 0 ? t('admin.employees.empty') : t('admin.common.noMatches')}
         </p>
       )}
+<ReadOnlyScope readOnly={readOnly}>
       {visible.length > 0 && (
         <div className="mt-4 hidden overflow-x-auto rounded-xl border bg-white md:block">
           <table className="w-full min-w-[1000px] text-start text-sm [&_td]:px-3 [&_td]:py-2 [&_th]:px-3 [&_th]:py-3">
@@ -278,6 +281,7 @@ export function EmployeesAdmin() {
           ))}
         </Accordion>
       </div>
+</ReadOnlyScope>
       {pendingDelete && (
         <ConfirmDialog
           open

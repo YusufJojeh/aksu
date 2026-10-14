@@ -17,7 +17,7 @@ interface ProfileRow {
   id: string
   full_name: string
   email: string
-  role: 'ADMIN' | 'SALES'
+  role: 'ADMIN' | 'TEAM_LEAD' | 'SALES'
   status: 'pending' | 'active' | 'suspended' | 'former'
   requested_phone_e164: string
 }

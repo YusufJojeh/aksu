@@ -2,6 +2,7 @@ import { FilePlus2, Files, LogIn, LogOut, Shield, UserRound } from 'lucide-react
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/AuthProvider'
+import { isManagerRole } from '../../auth/types'
 import type { ClinicId } from '../../clinics/types'
 import type { Locale } from '../../domain/report'
 import { isRtl } from '../../lib/locale'
@@ -139,7 +140,7 @@ export function SalesApp() {
             )}
           </div>
           <div className="ms-auto flex items-center gap-2 sm:ms-0">
-            {auth.profile?.role === 'ADMIN' && (
+            {isManagerRole(auth.profile?.role) && (
               <Button
                 onClick={() => {
                   window.location.href = '/admin'

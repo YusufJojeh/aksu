@@ -148,6 +148,15 @@ export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerPr
   />
 )
 
+/** Disables every form control inside while `readOnly` (team leads see the lists but cannot change them). */
+export function ReadOnlyScope({ readOnly, children }: { readOnly?: boolean; children: React.ReactNode }) {
+  return (
+    <fieldset disabled={readOnly} className="m-0 min-w-0 border-0 p-0">
+      {children}
+    </fieldset>
+  )
+}
+
 export function Accordion({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div

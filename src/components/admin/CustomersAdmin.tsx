@@ -13,12 +13,12 @@ import {
   type Customer,
 } from '../../lib/operations'
 import { derivePatients } from '../../lib/patientDirectory'
-import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
+import { Accordion, AccordionField, AccordionItem, Button, Input, ReadOnlyScope, Select } from '../ui'
 import { errorText } from '../../i18n/errorText'
 
 const CLINIC_IDS = Object.keys(clinicRegistry) as ClinicId[]
 
-export function CustomersAdmin() {
+export function CustomersAdmin({ readOnly = false }: { readOnly?: boolean }) {
   const { t, i18n } = useTranslation()
   const [submitting, setSubmitting] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -92,7 +92,8 @@ export function CustomersAdmin() {
   return (
     <main className="mx-auto max-w-[1400px] p-4 sm:p-7">
       <h1 className="text-2xl font-bold">{t('admin.customers.title')}</h1>
-      <form
+      {!readOnly && (
+<form
         className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-4"
         onSubmit={(event) => {
           event.preventDefault()
@@ -135,6 +136,7 @@ export function CustomersAdmin() {
           {submitting ? t('admin.common.loading') : t('admin.customers.createSubmit')}
         </Button>
       </form>
+)}
       <div className="mt-4 flex flex-wrap gap-3">
         <Input
           className="max-w-xs"
@@ -217,6 +219,7 @@ export function CustomersAdmin() {
           {customers.length === 0 ? t('admin.customers.empty') : t('admin.common.noMatches')}
         </p>
       )}
+<ReadOnlyScope readOnly={readOnly}>
       {visible.length > 0 && (
         <div className="mt-4 hidden overflow-x-auto rounded-xl border bg-white md:block">
           <table className="w-full min-w-[1000px] text-start text-sm [&_td]:px-3 [&_td]:py-2 [&_th]:px-3 [&_th]:py-3">
@@ -371,6 +374,7 @@ export function CustomersAdmin() {
           ))}
         </Accordion>
       </div>
+</ReadOnlyScope>
     </main>
   )
 }

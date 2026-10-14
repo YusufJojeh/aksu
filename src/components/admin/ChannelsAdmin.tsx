@@ -13,10 +13,10 @@ import {
   updateChannel,
   type CommunicationChannel,
 } from '../../lib/operations'
-import { Accordion, AccordionField, AccordionItem, Button, Input, Select } from '../ui'
+import { Accordion, AccordionField, AccordionItem, Button, Input, ReadOnlyScope, Select } from '../ui'
 import { errorText } from '../../i18n/errorText'
 
-export function ChannelsAdmin() {
+export function ChannelsAdmin({ readOnly = false }: { readOnly?: boolean }) {
   const { t, i18n } = useTranslation()
   const [channels, setChannels] = useState<CommunicationChannel[]>([])
   const [employees, setEmployees] = useState<EmployeeProfile[]>([])
@@ -74,7 +74,8 @@ export function ChannelsAdmin() {
   return (
     <main className="mx-auto w-full min-w-0 max-w-[1300px] p-4 sm:p-7">
       <h1 className="text-2xl font-bold">{t('admin.channels.title')}</h1>
-      <form
+      {!readOnly && (
+<form
         className="mt-4 flex flex-wrap items-end gap-3 rounded-xl border bg-white p-4"
         onSubmit={(e) => {
           e.preventDefault()
@@ -107,6 +108,7 @@ export function ChannelsAdmin() {
           {submitting ? t('admin.common.loading') : t('admin.channels.createSubmit')}
         </Button>
       </form>
+)}
       {error && (
         <p role="alert" className="mt-3 text-red-700">
           {error}
@@ -120,6 +122,7 @@ export function ChannelsAdmin() {
       {loaded && channels.length === 0 && (
         <p className="mt-4 rounded-xl border bg-white p-5 text-sm text-stone-600">{t('admin.channels.empty')}</p>
       )}
+<ReadOnlyScope readOnly={readOnly}>
       {channels.length > 0 && (
         <div className="mt-4 hidden overflow-x-auto rounded-xl border bg-white md:block">
           <table className="w-full min-w-[850px] text-start text-sm [&_td]:px-3 [&_td]:py-2 [&_th]:px-3 [&_th]:py-3">
@@ -266,6 +269,7 @@ export function ChannelsAdmin() {
           ))}
         </Accordion>
       </div>
+</ReadOnlyScope>
     </main>
   )
 }

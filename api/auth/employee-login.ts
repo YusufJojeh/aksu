@@ -55,10 +55,10 @@ export default async function handler(req: ServerlessRequest, res: ServerlessRes
       profiles.push(...viaExtra)
     }
 
-    // An admin is reachable by phone only when that exact number was explicitly enabled for admin sign-in
+    // An admin or team lead is reachable by phone only when that exact number was explicitly enabled for admin sign-in
     // (profile_login_phones.admin_login, service-role written); every other admin stays password-only.
     const adminLoginIds = new Set(extra.filter((row) => row.admin_login).map((row) => row.profile_id))
-    const enabledAdmin = profiles.find((p) => adminLoginIds.has(p.id) && p.role === 'ADMIN' && p.status === 'active')
+    const enabledAdmin = profiles.find((p) => adminLoginIds.has(p.id) && p.role !== 'SALES' && p.status === 'active')
 
     const candidates = profiles.map(fromRow<LoginCandidate>)
     // Candidates share one phone (name-typo duplicates), so this is a handful of cheap head-counts; run them together.
