@@ -40,3 +40,19 @@ describe('reports export', () => {
     expect(text).toBe('PK')
   })
 })
+
+describe('team performance export', () => {
+  it('builds a workbook from team analytics', async () => {
+    const { buildTeamAnalytics } = await import('../../src/lib/teamAnalytics')
+    const analytics = buildTeamAnalytics({
+      reports: [report({ created_by_employee_id: 'e1', finalized_at: new Date().toISOString() })],
+      employees: [{ id: 'e1', full_name: 'Sara', role: 'SALES', status: 'active', requested_phone_e164: '+905001112233', created_at: '2026-01-01T00:00:00Z' }] as never,
+      events: [],
+      channels: [],
+      rangeDays: 30,
+    })
+    const { teamPerformanceToXlsx } = await import('../../src/lib/reportsExport')
+    const blob = await teamPerformanceToXlsx(analytics)
+    expect(blob.size).toBeGreaterThan(1000)
+  })
+})

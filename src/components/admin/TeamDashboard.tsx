@@ -16,7 +16,7 @@ import {
   type ReportEvent,
 } from '../../lib/operations'
 import { buildTeamAnalytics, rangeOptions, type RangeDays } from '../../lib/teamAnalytics'
-import { ExportReportsButton } from './ExportReportsButton'
+import { ExportReportsButton, ExportTeamPerformanceButton } from './ExportReportsButton'
 import { ActivityHeatmap } from './dashboard/activity-heatmap'
 import { AttentionPanel } from './dashboard/attention-strip'
 import { EmployeeDetailSheet } from './dashboard/employee-detail-sheet'
@@ -134,6 +134,7 @@ export function TeamDashboard({ onAssignChannels, readOnly = false }: { onAssign
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <ExportTeamPerformanceButton analytics={analytics} />
           <ExportReportsButton
             reports={(data?.reports ?? []).filter(
               (report) => Date.parse(report.finalized_at) >= (data?.loadedAt.getTime() ?? 0) - range * 86_400_000,
