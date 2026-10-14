@@ -16,6 +16,7 @@ import {
   type ReportEvent,
 } from '../../lib/operations'
 import { buildTeamAnalytics, rangeOptions, type RangeDays } from '../../lib/teamAnalytics'
+import { ExportReportsButton } from './ExportReportsButton'
 import { ActivityHeatmap } from './dashboard/activity-heatmap'
 import { AttentionPanel } from './dashboard/attention-strip'
 import { EmployeeDetailSheet } from './dashboard/employee-detail-sheet'
@@ -132,7 +133,12 @@ export function TeamDashboard({ onAssignChannels, readOnly = false }: { onAssign
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <ExportReportsButton
+            reports={(data?.reports ?? []).filter(
+              (report) => Date.parse(report.finalized_at) >= (data?.loadedAt.getTime() ?? 0) - range * 86_400_000,
+            )}
+          />
           <ToggleGroup
             type="single"
             value={String(range)}

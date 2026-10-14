@@ -16,6 +16,7 @@ import { useAuth } from '../../auth/AuthProvider'
 import { correctionsOf, reviewStateOf, reviewsByReport } from '../../lib/reportReview'
 import { ArchivedPdfViewer } from '../ArchivedPdfViewer'
 import { ReviewBadge } from '../ReviewBadge'
+import { ExportReportsButton } from './ExportReportsButton'
 import { ReportReviewPanel } from './ReportReviewPanel'
 import type { EmployeeProfile } from '../../auth/types'
 import { archivedReportFilename } from '../../lib/filename'
@@ -124,7 +125,10 @@ export function ReportsAdmin() {
   }
   return (
     <main className="mx-auto w-full min-w-0 max-w-[1500px] p-4 sm:p-7">
-      <h1 className="text-2xl font-bold">{t('admin.reports.title')}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">{t('admin.reports.title')}</h1>
+        <ExportReportsButton reports={visible} />
+      </div>
       <div className="mt-4 grid items-end gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2 lg:grid-cols-4">
         <Input
           aria-label={t('admin.reports.searchLabel')}

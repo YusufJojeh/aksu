@@ -46,18 +46,44 @@ export function VoiceRecorder({ onChange, disabled }: { onChange: (clip?: Blob) 
       return
     }
     const mimeType = MIME_CANDIDATES.find((type) => MediaRecorder.isTypeSupported(type))
-    const media = new MediaRecorder(stream.current, mimeType ? { mimeType } : undefined)
+    let media: MediaRecorder
+    try {
+      media = new MediaRecorder(stream.current, mimeType ? { mimeType } : undefined)
+    } catch (caught) {
+      console.error('voice note: MediaRecorder failed', caught)
+      release()
+      setError(t('admin.reports.voiceFailed'))
+      return
+    }
     const chunks: Blob[] = []
     media.ondataavailable = (event) => event.data.size > 0 && chunks.push(event.data)
+    media.onerror = (event) => {
+      console.error('voice note: recorder error', event)
+      release()
+      setRecording(false)
+      setError(t('admin.reports.voiceFailed'))
+    }
     media.onstop = () => {
       const clip = new Blob(chunks, { type: media.mimeType || mimeType || 'audio/webm' })
       release()
       setRecording(false)
+      if (clip.size === 0) {
+        console.error('voice note: empty recording')
+        setError(t('admin.reports.voiceFailed'))
+        return
+      }
       setClipUrl(URL.createObjectURL(clip))
       onChange(clip)
     }
     recorder.current = media
-    media.start()
+    try {
+      media.start()
+    } catch (caught) {
+      console.error('voice note: start failed', caught)
+      release()
+      setError(t('admin.reports.voiceFailed'))
+      return
+    }
     setSeconds(0)
     setRecording(true)
     timer.current = window.setInterval(() => {
