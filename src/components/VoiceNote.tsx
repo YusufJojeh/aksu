@@ -41,8 +41,10 @@ export function VoiceRecorder({ onChange, disabled }: { onChange: (clip?: Blob) 
     setError(undefined)
     try {
       stream.current = await navigator.mediaDevices.getUserMedia({ audio: true })
-    } catch {
-      setError(t('admin.reports.voiceDenied'))
+    } catch (caught) {
+      console.error('voice note: getUserMedia failed', caught)
+      const denied = caught instanceof DOMException && (caught.name === 'NotAllowedError' || caught.name === 'SecurityError')
+      setError(t(denied ? 'admin.reports.voiceDenied' : 'admin.reports.voiceFailed'))
       return
     }
     const mimeType = MIME_CANDIDATES.find((type) => MediaRecorder.isTypeSupported(type))
