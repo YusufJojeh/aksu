@@ -1,0 +1,182 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Dr. Emir Aksu — "Cobalt Arch" design system. Electric cobalt + aqua on bright white, ink type, lemon spark used sparingly. */
+
+@theme inline {
+  --font-sans: "DM Sans", "Tajawal", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-cobalt: var(--cobalt);
+  --color-cobalt-deep: var(--cobalt-deep);
+  --color-aqua: var(--aqua);
+  --color-aqua-soft: var(--aqua-soft);
+  --color-ink: var(--ink);
+  --color-lemon: var(--lemon);
+  --color-paper: var(--paper);
+  --color-whatsapp: var(--whatsapp);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 1rem;
+  --cobalt: oklch(0.5 0.22 264); /* #1649D8 */
+  --cobalt-deep: oklch(0.42 0.2 264);
+  --aqua: oklch(0.82 0.11 210); /* #64D6E8 */
+  --aqua-soft: oklch(0.95 0.035 210);
+  --ink: oklch(0.23 0.06 266); /* #101C3A */
+  --lemon: oklch(0.96 0.19 120); /* #E7FF70 */
+  --paper: oklch(0.985 0.006 250);
+  --whatsapp: oklch(0.62 0.16 150);
+
+  --background: oklch(1 0 0);
+  --foreground: var(--ink);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
+  --primary: var(--cobalt);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: var(--aqua-soft);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper);
+  --muted-foreground: oklch(0.45 0.04 264);
+  --accent: var(--aqua);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.91 0.02 260);
+  --input: oklch(0.88 0.025 260);
+  --ring: var(--cobalt);
+  --chart-1: var(--cobalt);
+  --chart-2: var(--aqua);
+  --chart-3: var(--ink);
+  --chart-4: var(--lemon);
+  --chart-5: oklch(0.7 0.1 264);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--cobalt);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: var(--aqua-soft);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--cobalt);
+
+  --shadow-card: 0 1px 0 color-mix(in oklab, var(--ink) 6%, transparent), 0 18px 40px -24px color-mix(in oklab, var(--cobalt) 35%, transparent);
+  --shadow-pop: 0 24px 60px -20px color-mix(in oklab, var(--cobalt) 45%, transparent);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  [dir="rtl"] body { font-family: "Tajawal", "DM Sans", sans-serif; }
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4 { font-family: "Cairo", "Manrope", sans-serif; letter-spacing: 0; }
+  :focus-visible { outline: 3px solid var(--color-cobalt); outline-offset: 3px; border-radius: 6px; }
+  ::selection { background: var(--lemon); color: var(--ink); }
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (min-width: 768px) { padding-inline: 2rem; }
+}
+
+@utility eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cobalt);
+}
+
+@utility display-xl {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-size: clamp(2.6rem, 7vw, 5.6rem);
+}
+
+@utility display-lg {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+}
+
+@utility shadow-card { box-shadow: var(--shadow-card); }
+@utility shadow-pop { box-shadow: var(--shadow-pop); }
+
+@utility city-texture {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--cobalt) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--cobalt) 7%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility arch-top { border-radius: 999px 999px 1.5rem 1.5rem; }
+
+@utility reveal {
+  animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
