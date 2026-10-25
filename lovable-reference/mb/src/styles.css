@@ -1,0 +1,163 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * MB Dental Turkey design system — "Smile Beyond Borders"
+ * Coral #E66C59 · Apricot #FFCDB7 · Blush #FFF8F2 · Deep Pine #264C47
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-coral: var(--coral);
+  --color-coral-deep: var(--coral-deep);
+  --color-apricot: var(--apricot);
+  --color-blush: var(--blush);
+  --color-pine: var(--pine);
+  --color-pine-soft: var(--pine-soft);
+  --color-whatsapp: var(--whatsapp);
+  --font-sans: "DM Sans", "Tajawal", system-ui, sans-serif;
+  --font-display: "DM Serif Display", "Cairo", Georgia, serif;
+}
+
+:root {
+  --radius: 1rem;
+  --coral: oklch(0.68 0.145 33);
+  --coral-deep: oklch(0.56 0.15 33);
+  --apricot: oklch(0.89 0.06 48);
+  --blush: oklch(0.985 0.012 65);
+  --pine: oklch(0.38 0.05 182);
+  --pine-soft: oklch(0.93 0.02 175);
+  --whatsapp: oklch(0.5 0.12 155);
+
+  --background: oklch(1 0 0);
+  --foreground: var(--pine);
+  --card: var(--blush);
+  --card-foreground: var(--pine);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--pine);
+  --primary: var(--coral-deep);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: var(--pine);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: var(--blush);
+  --muted-foreground: oklch(0.44 0.035 182);
+  --accent: var(--apricot);
+  --accent-foreground: var(--pine);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.92 0.025 55);
+  --input: oklch(0.88 0.03 55);
+  --ring: var(--coral);
+
+  --shadow-soft: 0 24px 60px -30px color-mix(in oklab, var(--pine) 35%, transparent);
+  --shadow-coral: 0 14px 30px -14px color-mix(in oklab, var(--coral) 70%, transparent);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  [dir="rtl"] body,
+  body:has([dir="rtl"]) {
+    font-family: "Tajawal", "DM Sans", system-ui, sans-serif;
+  }
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] .font-display {
+    font-family: "Cairo", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+@utility container-site {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral-deep);
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+@utility shadow-coral {
+  box-shadow: var(--shadow-coral);
+}
+
+@utility reveal {
+  animation: reveal-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
