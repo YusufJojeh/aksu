@@ -1,3 +1,3 @@
 User-agent: *
-Disallow: /
-# Indexing disabled until the clinic approves launch.
+Allow: /
+# Landing is crawlable for ad review. noindex meta keeps it out of organic search until approval.
